@@ -22,13 +22,11 @@ import javax.xml.bind.annotation.XmlValue;
  * An object for comparing version numbers with respect to the 
  * major, minor and bugfix version number.
  *
- * TODO immutable Version interface
- *
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  *
  */
 @XmlRootElement(name="Version", namespace=II_Constants.II_COMMON_UTILS_NS)
-public class Version implements Comparable<Version> {
+public class Version implements ImmutableVersion, Comparable<ImmutableVersion> {
 
 	private int major;
 	private int minor;
@@ -47,17 +45,19 @@ public class Version implements Comparable<Version> {
 	/**
 	 * Parse a version String and construct a new Version
 	 * object
-	 * @param version
+	 *
+	 * @param version string to parse
 	 * @throws IllegalArgumentException
 	 */
-	public Version(String version) throws IllegalArgumentException {
+	public Version(final String version) throws IllegalArgumentException {
 		set(version);
 	}
 	
 	/**
 	 * Parse a version String and return a new Version object
-	 * @param version
-	 * @return
+	 *
+	 * @param version string to parse
+	 * @return a new Version object
 	 * @throws IllegalArgumentException
 	 */
 	public static Version parse(String version) throws IllegalArgumentException {
@@ -66,7 +66,8 @@ public class Version implements Comparable<Version> {
 	
 	/**
 	 * Parse and set Version form string
-	 * @param version
+	 *
+	 * @return a new Version object
 	 * @throws IllegalArgumentException 
 	 */
 	public void set(String version) throws IllegalArgumentException {
@@ -100,18 +101,18 @@ public class Version implements Comparable<Version> {
 	 * object is less than, equal to, or greater than the specified version.
 	 */
 	@Override
-	public int compareTo(Version version) {
-	    if(version==null) {
-	    	return 1;
-	    }
-		if(this.major<version.major || 
-				this.minor<version.minor || 
-				this.bugfix<version.bugfix)
+	public int compareTo(ImmutableVersion version) {
+		if(version==null) {
+	    	throw new IllegalArgumentException("Version is null!");
+		}
+		if(this.major<version.getMajorVersion() ||
+				this.minor<version.getMinorVersion() ||
+				this.bugfix<version.getBugfixVersion())
 		{
 			return -1;
-		}else if(this.major>version.major || 
-					this.minor>version.minor || 
-						this.bugfix>version.bugfix)
+		}else if(this.major>version.getMajorVersion() ||
+					this.minor>version.getMinorVersion() ||
+						this.bugfix>version.getBugfixVersion())
 		{
 			return 1;
 		}
@@ -120,8 +121,11 @@ public class Version implements Comparable<Version> {
 	
 	/**
 	 * Returns true if the version is equal to the compared version
+	 *
 	 * @param version the version to be compared
-	 * @return
+	 * @return  {@code true} if this object is the same as the version argument AND
+	 * 					the major, minor and bugfix versions are the same;
+	 *          {@code false} otherwise.
 	 */
 	@Override
 	public boolean equals(Object version) {
@@ -134,10 +138,23 @@ public class Version implements Comparable<Version> {
 					this.bugfix==v.bugfix; 
 	}
 
-    @XmlValue
-    String getString() {
+	@XmlValue
+	@Override
+	public String getAsString() {
         return toString();
     }
+
+	@Override public int getMajorVersion() {
+		return this.major;
+	}
+
+	@Override public int getMinorVersion() {
+		return this.minor;
+	}
+
+	@Override public int getBugfixVersion() {
+		return this.bugfix;
+	}
 
 	void setString(String ver) throws IllegalArgumentException {
 		set(ver);
@@ -154,6 +171,8 @@ public class Version implements Comparable<Version> {
 
 	/**
 	 * Increments the bugfix version number
+	 *
+	 * @return this bugfix incremented object
 	 */
 	public Version incBugfix() {
 		this.bugfix++;
