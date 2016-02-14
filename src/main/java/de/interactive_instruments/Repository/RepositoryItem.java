@@ -17,35 +17,47 @@
 package de.interactive_instruments.Repository;
 
 import de.interactive_instruments.Versionable;
+import de.interactive_instruments.model.std.RetrievableItem;
 
-import java.util.UUID;
+import java.net.URI;
+import java.util.Date;
 
 /**
  * An interface for an item in a repository.
  *
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  */
-public interface RepositoryItem extends Versionable {
+public interface RepositoryItem extends RetrievableItem, Versionable {
 
   /**
-   * Unique ID of the item in the repository.
+   * The items last modified data.
    *
-   * NOTE: the ID may not change when the version of the item changes!
-   *
-   * @return unique ID of the item as UUID
+   * @return last modification as date
    */
-  UUID getId();
+  Date getLastModifiedDate();
+
 
   /**
-   * Label of the item in the repository.
+   * Hash of the item in the repository.
    *
-   * @return label of the item as string
+   * NOTE: if the hash is unknown, the implementor should generate the
+   * hash on demand (and cache it).
+   *
+   * @return item hash as byte array
    */
-  String getLabel();
+  byte[] getItemHash();
+
+
+  /**
+   * The URI of the item in the repository.
+   *
+   * @return item URI
+   */
+  URI getUri();
 
   /**
    * Compares this object with the specified RepositoryItem object for order by
-   * comparing the ID, the version and the label.
+   * comparing the Id, the version and the label.
    *
    * Returns a negative integer, zero, or a positive integer as this object is less
    * than, equal to, or greater than the specified object.

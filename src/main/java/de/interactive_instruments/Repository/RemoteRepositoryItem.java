@@ -17,9 +17,9 @@
 package de.interactive_instruments.Repository;
 
 import de.interactive_instruments.IFile;
+import de.interactive_instruments.Releasable;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 
 /**
@@ -27,27 +27,20 @@ import java.nio.file.Path;
  *
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  */
-public interface RemoteRepositoryItem extends RepositoryItem {
-
-  /**
-   * The URI of the item in the remote repository.
-   *
-   * @return
-   */
-  URI getRemoteUri();
+public interface RemoteRepositoryItem extends RepositoryItem, Releasable {
 
   /**
    * Gets the remote item and deploys it on the local system.
-   *
+   **
    * @return file on the local system.
    * @throws IOException if download fails
    */
   IFile makeAvailable(final Path path) throws IOException;
 
   /**
-   * Get file on local system.
+   * Get the fetched file on the local system.
    *
-   * @return file on local system; null if isAvailable() is false;
+   * @return file on local system; null if isAvailable() returns false;
    */
   IFile getLocal();
 
@@ -57,4 +50,11 @@ public interface RemoteRepositoryItem extends RepositoryItem {
    * @return true if item is available on local system; false otherwise
    */
   boolean isAvailable();
+
+  /**
+   * Removes the item from the local system.
+   *
+   * @throws IOException if removing fails
+   */
+  void remove() throws IOException;
 }
