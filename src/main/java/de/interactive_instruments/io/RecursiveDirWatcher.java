@@ -106,7 +106,7 @@ public class RecursiveDirWatcher implements Releasable {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                ExcUtils.supress(e);
+                ExcUtils.suppress(e);
             }
         }
 
@@ -153,7 +153,7 @@ public class RecursiveDirWatcher implements Releasable {
             });
         }
         catch (IOException e) {
-            ExcUtils.supress(e);
+            ExcUtils.suppress(e);
         }
     }
 
@@ -165,7 +165,7 @@ public class RecursiveDirWatcher implements Releasable {
                 pathWatchKeyMap.put(dir, watchKey);
             }
             catch (IOException e) {
-                ExcUtils.supress(e);
+                ExcUtils.suppress(e);
             }
         }
     }
@@ -192,7 +192,7 @@ public class RecursiveDirWatcher implements Releasable {
                 watchThread.interrupt();
             }
             catch (IOException e) {
-                ExcUtils.supress(e);
+                ExcUtils.suppress(e);
             }
         }
     }

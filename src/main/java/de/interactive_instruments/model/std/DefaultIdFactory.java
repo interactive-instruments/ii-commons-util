@@ -50,7 +50,7 @@ public class DefaultIdFactory implements IdFactory {
         return new DefaultId(UUID.fromString(s));
       }
     } catch (IllegalArgumentException e) {
-      ExcUtils.supress(e);
+      ExcUtils.suppress(e);
     }
     return new DefaultId(UUID.nameUUIDFromBytes(s.getBytes()));
   }

@@ -147,19 +147,19 @@ public class TaskPoolRegistry<R> {
 					// Try to cancel gently
 					tasks.get(id).cancel();
 				}catch(Exception e) {
-					ExcUtils.supress(e);
+					ExcUtils.suppress(e);
 				}
 				Thread.sleep(1000);
 				try{
 					release(id);
 				}catch(Exception e) {
-                    ExcUtils.supress(e);
+                    ExcUtils.suppress(e);
                 }
 				Thread.sleep(5000);
 				future.cancel(true);
 			}
 		} catch (Exception e) {
-            ExcUtils.supress(e);
+            ExcUtils.suppress(e);
         }
 		System.gc();
 	}

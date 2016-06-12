@@ -490,7 +490,7 @@ public final class IFile extends File {
 				closeable.close();
 			}
 		  }catch(final Exception e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 		  }
 	}
 	
@@ -678,7 +678,7 @@ public final class IFile extends File {
 			raf = new RandomAccessFile(this, "r");
 			magic = raf.read() & 0xff | ((raf.read() << 8) & 0xff00);
 		} catch (IOException e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 		}finally {
 			IFile.closeQuietly(raf);
 		}

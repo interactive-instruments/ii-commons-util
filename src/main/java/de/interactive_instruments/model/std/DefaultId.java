@@ -96,7 +96,7 @@ public class DefaultId implements Id {
         return UUID.fromString(id);
       }
     }catch(IllegalArgumentException e) {
-      ExcUtils.supress(e);
+      ExcUtils.suppress(e);
     }
     return UUID.nameUUIDFromBytes(id.getBytes());
   }

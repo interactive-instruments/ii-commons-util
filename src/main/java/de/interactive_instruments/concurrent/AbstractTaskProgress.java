@@ -249,7 +249,7 @@ public abstract class AbstractTaskProgress<R> implements TaskProgress<R> {
                             (currentState==STATE.INITIALIZED)  ||
                             (currentState==STATE.RUNNING));
 		} catch (InvalidStateTransitionException e) {
-            ExcUtils.supress(e);
+            ExcUtils.suppress(e);
 		}
         this.stopInstant=Instant.now();
     }
