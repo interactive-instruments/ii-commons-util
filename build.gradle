@@ -52,7 +52,7 @@ dependencies {
     etf_commonsCodecVersion = '1.10'
 
     // Mime type detection
-    compile group: 'org.apache.tika', name: 'tika-core', version: '1.9'
+    compile group: 'org.apache.tika', name: 'tika-core', version: '1.13'
 
     // MVN repository API
     compile group: 'org.eclipse.aether', name: 'aether-api', version: '1.1.0'
