@@ -1,11 +1,11 @@
 /**
- * Copyright 2016 interactive instruments GmbH
+ * Copyright 2010-2016 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,17 +23,16 @@ import java.io.FileFilter;
  */
 public class GmlAndXmlFilter extends FileAndPathFilter {
 
-    public GmlAndXmlFilter(FileFilter ff) {
-        super(ff);
-    }
+	public GmlAndXmlFilter(FileFilter ff) {
+		super(ff);
+	}
 
-    public GmlAndXmlFilter() {
-    }
+	public GmlAndXmlFilter() {}
 
-    @Override
-    public boolean doAccept(final File pathname) {
-        final String p = pathname.getName().toUpperCase();
-        return ('.'!=p.charAt(0)) &&
-                (p.endsWith(".XML") || p.endsWith(".GML"));
-    }
+	@Override
+	public boolean doAccept(final File pathname) {
+		final String p = pathname.getName().toUpperCase();
+		return ('.' != p.charAt(0)) &&
+				(p.endsWith(".XML") || p.endsWith(".GML"));
+	}
 }

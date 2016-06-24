@@ -9,3 +9,4 @@ build
 outputFileStates.bin
 
 .idea
+*.licensed

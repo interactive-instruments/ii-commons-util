@@ -1,11 +1,11 @@
 /**
- * Copyright 2016 interactive instruments GmbH
+ * Copyright 2010-2016 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,27 +40,26 @@ import org.xml.sax.SAXException;
  * @since 1.0
  */
 public final class XmlUtils {
-	
-	private XmlUtils() { }
-	
+
+	private XmlUtils() {}
+
 	/**
 	 * Append a text element as child to an element
 	 * @param element Element object where a child element will be appended
 	 * @param childElementName name of the child element
-	 * @param text string that will be added the child element 
+	 * @param text string that will be added the child element
 	 */
 	public static void appendChildTextElement(
-		final Element element, final String childElementName, final String text)
-	{
-		assert element!=null && !childElementName.isEmpty() && !text.isEmpty();
-		
+			final Element element, final String childElementName, final String text) {
+		assert element != null && !childElementName.isEmpty() && !text.isEmpty();
+
 		final Element child = element.getOwnerDocument().createElement(
 				childElementName);
 		element.appendChild(child);
 		final Text textNode = element.getOwnerDocument().createTextNode(text);
 		child.appendChild(textNode);
 	}
-	
+
 	/**
 	 * Overwrite or append a text element
 	 * @param element Element object where a child element will be appended
@@ -70,27 +69,25 @@ public final class XmlUtils {
 	 * @param text string that will be added or overwritten
 	 */
 	public static void setChildTextElement(
-		final Element element, final String childElementName, final String text)
-	{
-		assert element!=null && !childElementName.isEmpty() && !text.isEmpty();
-		
+			final Element element, final String childElementName, final String text) {
+		assert element != null && !childElementName.isEmpty() && !text.isEmpty();
+
 		// Search for the child element
 		Node childNode = element.getFirstChild();
-		while (childNode != null && 
-				childNode.getNodeType() != Node.TEXT_NODE && 
-				!childNode.getNodeName().equals(childElementName))
-		{
+		while (childNode != null &&
+				childNode.getNodeType() != Node.TEXT_NODE &&
+				!childNode.getNodeName().equals(childElementName)) {
 			childNode = childNode.getNextSibling();
 		}
-		if(childNode!=null) {
+		if (childNode != null) {
 			childNode.setTextContent(text);
 			return;
 		}
 
-        // Not found so just append a new element
-        appendChildTextElement(element, childElementName, text);
+		// Not found so just append a new element
+		appendChildTextElement(element, childElementName, text);
 	}
-	
+
 	/**
 	 * Parse a XML file and return the content as DOM Document.
 	 * @return Document
@@ -98,32 +95,28 @@ public final class XmlUtils {
 	 * @throws IOException
 	 * @throws ParserConfigurationException
 	 */
-	public Document readXmlContent(IFile file) 
-		throws SAXException, IOException, ParserConfigurationException
-	{
+	public Document readXmlContent(IFile file)
+			throws SAXException, IOException, ParserConfigurationException {
 		file.expectFileIsReadable();
-		Document doc=null;
+		Document doc = null;
 		try {
-			final DocumentBuilderFactory docBuilderFactory = 
-				DocumentBuilderFactory.newInstance();
-			final DocumentBuilder docBuilder = 
-				docBuilderFactory.newDocumentBuilder();
+			final DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+			final DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
 			doc = docBuilder.parse(file);
-		}catch(SAXException e) {
-			throw new SAXException("Reading XML-File "+
-					file.identifier+" \""+
-					file.getCanonicalOrSimplePath()+"\" failed: "+
-        			e.getMessage());
-		}catch(IOException e) {
-			throw new IOException("Reading XML-File "+
-					file.identifier+" \""+
-					file.getCanonicalOrSimplePath()+"\" failed: "+
-        			e.getMessage());
+		} catch (SAXException e) {
+			throw new SAXException("Reading XML-File " +
+					file.identifier + " \"" +
+					file.getCanonicalOrSimplePath() + "\" failed: " +
+					e.getMessage());
+		} catch (IOException e) {
+			throw new IOException("Reading XML-File " +
+					file.identifier + " \"" +
+					file.getCanonicalOrSimplePath() + "\" failed: " +
+					e.getMessage());
 		}
 		return doc;
 	}
-	
-	
+
 	/**
 	 * Write a DOM Document to the file
 	 * @param doc The DOM Document
@@ -131,22 +124,19 @@ public final class XmlUtils {
 	 * @throws TransformerException
 	 */
 	public void writeXmlContent(IFile file, final Document doc)
-		throws IOException, TransformerException
-	{
-		try{
+			throws IOException, TransformerException {
+		try {
 			file.expectFileIsWritable();
-			final TransformerFactory transformerFactory = 
-				TransformerFactory.newInstance();
-			final Transformer transformer = 
-					transformerFactory.newTransformer();
+			final TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			final Transformer transformer = transformerFactory.newTransformer();
 			final DOMSource source = new DOMSource(doc);
 			final StreamResult result = new StreamResult(file);
 			transformer.transform(source, result);
-		}catch(IOException e) {
-			throw new IOException("Writing XML-File "+
-					file.identifier+" \""+
-					file.getCanonicalOrSimplePath()+"\" failed: "+
-	    			e.getMessage());
+		} catch (IOException e) {
+			throw new IOException("Writing XML-File " +
+					file.identifier + " \"" +
+					file.getCanonicalOrSimplePath() + "\" failed: " +
+					e.getMessage());
 		}
 	}
 }

@@ -1,17 +1,31 @@
+/**
+ * Copyright 2010-2016 interactive instruments GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package de.interactive_instruments;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
 
 public class IFileTest {
 
 	@Before
-	public void setUp() throws Exception {
-	}
+	public void setUp() throws Exception {}
 
 	@Test
 	public void test() throws IOException {
@@ -21,12 +35,12 @@ public class IFileTest {
 		IFile malFile2 = reportDir.secureExpandPathDown("..//bli");
 		IFile malFile3 = reportDir.secureExpandPathDown("..\\\\bli");
 		IFile malFile4 = reportDir.secureExpandPathDown("..////bli");
-		
+
 		assertFalse(malFile1.toPath().toAbsolutePath().toString().contains(".."));
 		assertFalse(malFile2.toPath().toAbsolutePath().toString().contains(".."));
 		assertFalse(malFile3.toPath().toAbsolutePath().toString().contains(".."));
 		assertFalse(malFile4.toPath().toAbsolutePath().toString().contains(".."));
-		
+
 	}
 
 }

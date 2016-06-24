@@ -1,11 +1,11 @@
 /**
- * Copyright 2016 interactive instruments GmbH
+ * Copyright 2010-2016 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,12 +20,12 @@ package de.interactive_instruments.concurrent;
  */
 public interface TaskStateEventListener {
 
-    /**
-     * Sends the changed state to an observing object
-     * @param c task
-     * @param actualState actual task state
-     * @param oldState old task state
-     */
-    void taskStateChangedEvent(
-            TaskWithProgressIndication c, TaskState.STATE actualState, TaskState.STATE oldState);
+	/**
+	 * Sends the changed state to an observing object
+	 * @param c task
+	 * @param actualState actual task state
+	 * @param oldState old task state
+	 */
+	void taskStateChangedEvent(
+			TaskWithProgressIndication c, TaskState.STATE actualState, TaskState.STATE oldState);
 }
