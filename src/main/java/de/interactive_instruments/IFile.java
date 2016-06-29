@@ -675,12 +675,16 @@ public final class IFile extends File {
 
 	/**
 	 * Creates a symbolic link of this file
-	 * TODO Only supports Linux yet with bad performance.
+	 * Only supports Linux yet with bad performance
+	 *
+	 * @deprecated Use Files.createSymbolicLink();
+	 *
 	 * @param destPath path where the link to this file or directory is stored
 	 */
+	@Deprecated
 	public void createLink(final String destPath)
 			throws IOException {
-		if (SysEnv.OS_INFO.TYPE == OSType.LINUX) {
+		if (SystemUtils.IS_OS_LINUX) {
 			final Process process = Runtime.getRuntime().exec(
 					new String[]{"/bin/ln", "-sfn",
 							this.getAbsolutePath(),
