@@ -15,8 +15,8 @@
  */
 package de.interactive_instruments;
 
-import de.interactive_instruments.concurrent.InvalidStateTransitionException;
 import de.interactive_instruments.exceptions.InitializationException;
+import de.interactive_instruments.exceptions.InvalidStateTransitionException;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
 
 /**

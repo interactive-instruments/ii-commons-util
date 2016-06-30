@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package de.interactive_instruments.concurrent;
+package de.interactive_instruments.properties;
+
+import java.util.List;
+import java.util.Set;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * Get specific classes of properties
+ *
+ * @author herrmann@interactive-instruments.de.
  */
-public class InvalidStateTransitionException extends Exception {
-	public InvalidStateTransitionException(final String msg) {
-		super(msg);
-	}
+public interface ClassifyingPropertyHolder extends PropertyHolder {
+
+	ClassifyingPropertyHolder getPropertiesByClassification(final String classification);
+
+	Set<String> getFirstLevelClassifications();
 }

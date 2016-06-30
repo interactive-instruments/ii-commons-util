@@ -18,9 +18,6 @@ package de.interactive_instruments.container;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import de.interactive_instruments.jaxb.adapters.ContainerAdapter;
 
 /**
  * Every Container object implements the LazyLoadContainer Interface which allows
@@ -29,7 +26,6 @@ import de.interactive_instruments.jaxb.adapters.ContainerAdapter;
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  *
  */
-@XmlJavaTypeAdapter(ContainerAdapter.class)
 public interface LazyLoadContainer {
 
 	/**

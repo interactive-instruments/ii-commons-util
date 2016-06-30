@@ -32,7 +32,7 @@ public interface MutablePropertyHolder extends PropertyHolder {
 
 	default void setPropertiesFrom(final PropertyHolder properties, boolean overwrite) {
 		if (properties == null) {
-			throw new IllegalArgumentException("PropertHolder is null");
+			throw new IllegalArgumentException("PropertyHolder is null");
 		}
 		properties.namePropertyPairs().forEach(p -> {
 			if (overwrite || !hasProperty(p.getKey())) {

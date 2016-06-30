@@ -32,16 +32,7 @@ description = 'Reusable Java components'
 
 dependencies {
 
-    // Logging API
-    // TODO switch to SLF4J
-    /*
     compile group: 'org.slf4j', name: 'slf4j-api', version: etf_slf4jApiVersion
-    compile 'ch.qos.logback:logback-core:1.1.2'
-    compile('ch.qos.logback:logback-classic:1.1.2') {
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-    }
-    */
-    compile group: 'log4j', name: 'log4j', version: '1.2.17'
 
     // Data structures
     compile group: 'com.googlecode.concurrentlinkedhashmap', name: 'concurrentlinkedhashmap-lru', version:'1.4'
@@ -49,16 +40,9 @@ dependencies {
 
     // Extra helper libraries for String manipulation, etc.
     compile group: 'org.apache.commons', name: 'commons-lang3', version: etf_commonsLang3Version
-    etf_commonsCodecVersion = '1.10'
 
     // Mime type detection
     compile group: 'org.apache.tika', name: 'tika-core', version: '1.13'
-
-    // MVN repository API
-    compile group: 'org.eclipse.aether', name: 'aether-api', version: '1.1.0'
-
-    // GIT repository API
-    compile group: 'org.eclipse.jgit', name: 'org.eclipse.jgit', version: '4.2.0.201601211800-r'
 
     // Testing
     testCompile group: 'junit', name: 'junit', version: etf_junitTestVersion

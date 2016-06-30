@@ -17,22 +17,17 @@ package de.interactive_instruments.container;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
+import de.interactive_instruments.exceptions.*;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import de.interactive_instruments.Configurable;
 import de.interactive_instruments.IFile;
 import de.interactive_instruments.MimeTypeUtils;
 import de.interactive_instruments.SUtils;
-import de.interactive_instruments.concurrent.InvalidStateTransitionException;
-import de.interactive_instruments.exceptions.ContainerFactoryException;
-import de.interactive_instruments.exceptions.ExcUtils;
-import de.interactive_instruments.exceptions.InitializationException;
-import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
 import de.interactive_instruments.properties.ConfigProperties;
 import de.interactive_instruments.properties.ConfigPropertyHolder;

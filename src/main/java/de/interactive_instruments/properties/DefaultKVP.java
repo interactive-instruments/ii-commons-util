@@ -30,18 +30,15 @@ import de.interactive_instruments.SUtils;
  *
  * @param <ValueType>
  */
-@XmlRootElement
-public class KVPImpl<ValueType> implements KVP<ValueType>, Map.Entry<String, ValueType> {
+public class DefaultKVP<ValueType> implements KVP<ValueType>, Map.Entry<String, ValueType> {
 
-	@XmlAttribute
 	private String key;
 
-	@XmlElementWrapper
 	protected ValueType value;
 
-	KVPImpl() {}
+	DefaultKVP() {}
 
-	public KVPImpl(String key, ValueType value) {
+	public DefaultKVP(String key, ValueType value) {
 		this.key = key;
 		this.value = value;
 	}
@@ -60,10 +57,10 @@ public class KVPImpl<ValueType> implements KVP<ValueType>, Map.Entry<String, Val
 		return oldValue;
 	}
 
-	public static KVPImpl<String> createOrNull(String str, String regex) {
+	public static DefaultKVP<String> createOrNull(String str, String regex) {
 		final String[] splitted = SUtils.split2OrNull(str, regex);
 		if (splitted != null) {
-			return new KVPImpl<String>(splitted[0], splitted[1]);
+			return new DefaultKVP<String>(splitted[0], splitted[1]);
 		}
 		return null;
 	}

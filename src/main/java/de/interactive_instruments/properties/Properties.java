@@ -46,11 +46,6 @@ public class Properties implements MutablePropertyHolder, ClassifyingPropertyHol
 	}
 
 	public Properties(final PropertyHolder propertyHolder) {
-		/*
-		if(propertyHolder==null) {
-			throw new IllegalArgumentException("Map is null");
-		}
-		*/
 		properties = new LinkedHashMap<>();
 		if (propertyHolder != null && propertyHolder.namePropertyPairs() != null) {
 			for (Entry<String, String> entry : propertyHolder.namePropertyPairs()) {
