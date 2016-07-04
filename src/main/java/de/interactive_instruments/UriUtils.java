@@ -395,7 +395,7 @@ public final class UriUtils {
 				// opening a connection will also fail: check if the scheme is null
 				// here and return an exception in this case
 				if (uri.getScheme() == null) {
-					ExcUtils.supress(exception);
+					ExcUtils.suppress(exception);
 					throw new IllegalArgumentException("URI scheme is null");
 				}
 				return false;

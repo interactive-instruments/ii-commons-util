@@ -15,12 +15,9 @@
  */
 package de.interactive_instruments.container;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -108,7 +105,7 @@ public class UrlReferenceContainer implements LazyLoadContainer {
 		try {
 			return UriUtils.getContentLength(referenceURL.toURI(), null);
 		} catch (IOException | URISyntaxException e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 			return -2;
 		}
 	}
@@ -117,7 +114,7 @@ public class UrlReferenceContainer implements LazyLoadContainer {
 		try {
 			return UriUtils.loadAsString(referenceURL.toURI());
 		} catch (URISyntaxException e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 			return "InvalidUrlReferenceContainer";
 		}
 	}

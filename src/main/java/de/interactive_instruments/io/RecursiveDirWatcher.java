@@ -24,8 +24,6 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import java.util.concurrent.ConcurrentNavigableMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import de.interactive_instruments.Releasable;
@@ -106,7 +104,7 @@ public class RecursiveDirWatcher implements Releasable {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				ExcUtils.supress(e);
+				ExcUtils.suppress(e);
 			}
 		}
 
@@ -155,7 +153,7 @@ public class RecursiveDirWatcher implements Releasable {
 				}
 			});
 		} catch (IOException e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 		}
 	}
 
@@ -166,7 +164,7 @@ public class RecursiveDirWatcher implements Releasable {
 						OVERFLOW, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 				pathWatchKeyMap.put(dir, watchKey);
 			} catch (IOException e) {
-				ExcUtils.supress(e);
+				ExcUtils.suppress(e);
 			}
 		}
 	}
@@ -192,7 +190,7 @@ public class RecursiveDirWatcher implements Releasable {
 				running.set(false);
 				watchThread.interrupt();
 			} catch (IOException e) {
-				ExcUtils.supress(e);
+				ExcUtils.suppress(e);
 			}
 		}
 	}

@@ -151,7 +151,7 @@ public final class CLenFileFactory implements ContainerFactory, Configurable {
 
 			return new UrlReferenceContainer(name, size, new URI(baseUri + filename).toURL(), detMimeType, false);
 		} catch (URISyntaxException | IOException | MimeTypeUtilsException e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 			throw new ContainerFactoryException(e);
 		}
 	}
@@ -172,7 +172,7 @@ public final class CLenFileFactory implements ContainerFactory, Configurable {
 		try {
 			return new URI(outputDir.expandPath(this.filenamePrefix + UUID.randomUUID().toString()).getAbsolutePath());
 		} catch (URISyntaxException e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 			throw new ContainerFactoryException(e);
 		}
 	}

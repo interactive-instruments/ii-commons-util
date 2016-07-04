@@ -115,7 +115,7 @@ public interface PropertyHolder extends Iterable<Entry<String, String>> {
 			try {
 				return getPropertyAsFile(key);
 			} catch (MissingPropertyException e) {
-				ExcUtils.supress(e);
+				ExcUtils.suppress(e);
 			}
 		}
 		if (defaultValue instanceof IFile) {

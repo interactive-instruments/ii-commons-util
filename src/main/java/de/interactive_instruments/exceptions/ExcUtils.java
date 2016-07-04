@@ -19,7 +19,7 @@ public class ExcUtils {
 
 	public final static boolean PRINT_SUPPRESSED_EXCEPTIONS = System.getProperty("ii.exceptions.printsuppressed", "false").equals("true");
 
-	public static void supress(Exception e) {
+	public static void suppress(Exception e) {
 		if (PRINT_SUPPRESSED_EXCEPTIONS) {
 			System.err.println("------------- Stacktrace -------------");
 			e.printStackTrace(System.err);
