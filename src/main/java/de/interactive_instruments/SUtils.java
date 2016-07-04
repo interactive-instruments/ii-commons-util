@@ -87,9 +87,16 @@ final public class SUtils {
 	 * @return
 	 */
 	public static boolean isNullOrEmpty(final String str) {
-		return str == null || str.isEmpty() || str.trim().isEmpty();
+		return str == null || str.trim().isEmpty();
 	}
 
+	public static String requireNonNullOrEmpty(final String str, final String message) {
+		if (str==null)
+			throw new NullPointerException(message);
+		if (str.trim().isEmpty())
+			throw new IllegalArgumentException(message);
+		return str;
+	}
 	/**
 	 * Null safe comparison of two String objects.
 	 *
