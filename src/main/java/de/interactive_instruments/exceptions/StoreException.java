@@ -28,4 +28,8 @@ public class StoreException extends Exception {
 	public StoreException(final String mesg) {
 		super(mesg);
 	}
+
+	public StoreException(final Throwable e) {
+		super(e);
+	}
 }
