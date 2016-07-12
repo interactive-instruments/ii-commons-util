@@ -82,7 +82,7 @@ public final class TimeUtils {
 		}
 		if (seconds > 0) {
 			duration.append(" ");
-			duration.append(minutes);
+			duration.append(seconds);
 			duration.append("sec");
 		}
 		return duration.toString();

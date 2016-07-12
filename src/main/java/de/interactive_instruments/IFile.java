@@ -732,9 +732,11 @@ public final class IFile extends File {
 			} else {
 				fInput = new FileInputStream(this);
 			}
-			InputStreamReader fStrReader = new InputStreamReader(fInput);
+			final InputStreamReader fStrReader;
 			if (charset != null) {
 				fStrReader = new InputStreamReader(fInput, charset);
+			}else{
+				fStrReader = new InputStreamReader(fInput);
 			}
 			reader = new BufferedReader(fStrReader);
 			final char[] buf = new char[1024];
