@@ -42,6 +42,12 @@ public class Version implements ImmutableVersion, Comparable<ImmutableVersion> {
 		this.bugfix = bugfix;
 	}
 
+	public Version(final Version version) {
+		this.major = version.major;
+		this.minor = version.minor;
+		this.bugfix = version.bugfix;
+	}
+
 	/**
 	 * Parse a version String and construct a new Version
 	 * object

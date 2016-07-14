@@ -52,9 +52,11 @@ public final class TimeUtils {
 		if (hours > 0) {
 			duration.append(hours);
 			duration.append("hr");
+			if (minutes > 0) {
+				duration.append(" ");
+			}
 		}
 		if (minutes > 0) {
-			duration.append(" ");
 			duration.append(minutes);
 			duration.append("min");
 		}
@@ -79,9 +81,11 @@ public final class TimeUtils {
 		if (minutes > 0) {
 			duration.append(minutes);
 			duration.append("min");
+			if (seconds > 0) {
+				duration.append(" ");
+			}
 		}
 		if (seconds > 0) {
-			duration.append(" ");
 			duration.append(seconds);
 			duration.append("sec");
 		}
