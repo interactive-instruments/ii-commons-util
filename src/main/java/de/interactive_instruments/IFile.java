@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -32,6 +33,7 @@ import java.util.zip.ZipFile;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import de.interactive_instruments.container.Pair;
 import org.apache.commons.lang3.SystemUtils;
 
 import de.interactive_instruments.exceptions.ExcUtils;
@@ -847,6 +849,25 @@ public final class IFile extends File {
 		return new IFile(Files.createTempDirectory(prefix).toString(), "tmp");
 	}
 
+	private static Pair<Pattern,String>[] REPLACEMENTS = new Pair[]{
+			new Pair<>(Pattern.compile(new String("Ä"), Pattern.LITERAL), "Ae"),
+			new Pair<>(Pattern.compile(new String("Ü"), Pattern.LITERAL), "Ue"),
+			new Pair<>(Pattern.compile(new String("Ö"), Pattern.LITERAL), "Oe"),
+			new Pair<>(Pattern.compile(new String("ä"), Pattern.LITERAL), "ae"),
+			new Pair<>(Pattern.compile(new String("ü"), Pattern.LITERAL), "ue"),
+			new Pair<>(Pattern.compile(new String("ö"), Pattern.LITERAL), "oe"),
+			new Pair<>(Pattern.compile(new String("ß"), Pattern.LITERAL), "ss"),
+			new Pair<>(Pattern.compile(new String(","), Pattern.LITERAL), "_")
+	};
+
+	private static String replaceSpecialChars(String str) {
+		for (int i = 0; i < REPLACEMENTS.length; i++) {
+			str = REPLACEMENTS[i].getLeft().matcher(str).replaceAll(
+					Matcher.quoteReplacement(REPLACEMENTS[i].getRight()));
+		}
+		return str.trim();
+	}
+
 	/**
 	 * Returns a string usable as filename
 	 */
@@ -856,10 +877,11 @@ public final class IFile extends File {
 		}
 
 		if (SystemUtils.IS_OS_LINUX) {
-			return name.replaceAll("/+", "").trim();
+			return replaceSpecialChars(name.replaceAll("/+", ""));
 		}
 
-		return name.replaceAll("[\u0001-\u001f<>:\"/\\\\|?*\u007f]+", "").trim();
+		return replaceSpecialChars(
+				name.replaceAll("[\u0001-\u001f<>:\"/\\\\|?*\u007f]+", ""));
 	}
 
 	public InputStream getInputStream() throws IOException {
