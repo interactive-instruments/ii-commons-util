@@ -134,10 +134,4 @@ public interface PropertyHolder extends Iterable<Entry<String, String>> {
 		return namePropertyPairs().iterator();
 	}
 
-	default Map<String, String> getAsUnmodifiableMap() {
-		final Map<String, String> map = new LinkedHashMap<>();
-		forEach(e -> map.put(e.getKey(), e.getValue()));
-		return Collections.unmodifiableMap(map);
-	}
-
 }

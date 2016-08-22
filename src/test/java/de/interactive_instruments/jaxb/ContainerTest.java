@@ -1,6 +1,6 @@
 package de.interactive_instruments.jaxb;
 
-import de.interactive_instruments.concurrent.InvalidStateTransitionException;
+import de.interactive_instruments.etf.concurrent.InvalidStateTransitionException;
 import de.interactive_instruments.container.CLenFileFactory;
 import de.interactive_instruments.container.LazyLoadContainer;
 import de.interactive_instruments.container.StringDataContainer;

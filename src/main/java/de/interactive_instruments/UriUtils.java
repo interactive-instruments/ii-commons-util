@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.tika.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.MimeTypeUtilsException;
@@ -134,6 +134,7 @@ public final class UriUtils {
 	}
 
 	private static String loadFromConnection(final URLConnection connection, boolean encodeBase64) throws IOException {
+		// todo change to try-with-resources
 		final StringBuffer urlData = new StringBuffer(1024);
 		final InputStream urlStream = connection.getInputStream();
 		BufferedReader reader = null;
@@ -158,13 +159,42 @@ public final class UriUtils {
 		}
 	}
 
-	public static String loadAsString(final URI uri) throws IOException {
+	private static void streamFromConnection(final URLConnection connection, boolean encodeBase64, final OutputStream outputStream) throws IOException {
+		try (final InputStream urlStream = connection.getInputStream()) {
+			if (!encodeBase64) {
+				IOUtils.copy(urlStream, outputStream);
+			} else {
+				final OutputStream encOutputStream = Base64.getEncoder().wrap(outputStream);
+				IOUtils.copy(urlStream, encOutputStream);
+			}
+		}
+	}
+
+	public static String loadAsString(final URI uri, final Credentials credentials) throws IOException {
 		if (isUrl(uri)) {
-			return loadFromConnection(openConnection(uri, null), false);
+			return loadFromConnection(openConnection(uri, credentials), false);
 		} else if (isFile(uri)) {
 			return new IFile(uri).readContent().toString();
 		}
 		return null;
+	}
+
+	public static String loadAsString(final URI uri) throws IOException {
+		return loadAsString(uri, null);
+	}
+
+	public static void stream(final URI uri, final OutputStream outputStream) throws IOException {
+		stream(uri, outputStream, null);
+	}
+
+	public static void stream(final URI uri, final OutputStream outputStream, final Credentials credentials) throws IOException {
+		if (isUrl(uri)) {
+			streamFromConnection(openConnection(uri, credentials), false, outputStream);
+		} else if (isFile(uri)) {
+			try(final InputStream in = new FileInputStream(new File(uri))) {
+				IOUtils. copy(in, outputStream);
+			}
+		}
 	}
 
 	public final static class ContentAndType {

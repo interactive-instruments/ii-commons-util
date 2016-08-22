@@ -36,10 +36,13 @@ dependencies {
 
     // Data structures
     compile group: 'com.googlecode.concurrentlinkedhashmap', name: 'concurrentlinkedhashmap-lru', version:'1.4'
-    compile 'com.github.ben-manes.caffeine:caffeine:2.0.1'
 
     // Extra helper libraries for String manipulation, etc.
     compile group: 'org.apache.commons', name: 'commons-lang3', version: etf_commonsLang3Version
+
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: etf_commonsLang3Version
+
+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
 
     // Mime type detection
     compile group: 'org.apache.tika', name: 'tika-core', version: '1.13'

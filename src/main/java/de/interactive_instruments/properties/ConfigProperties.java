@@ -129,7 +129,11 @@ public final class ConfigProperties implements ConfigPropertyHolder {
 		if (!allRequiredPropertiesSet()) {
 			List<String> missingProperties = new ArrayList<String>(requiredProperties.size());
 			missingProperties.addAll(this.requiredProperties.stream().filter(requiredProperty -> !properties.containsKey(requiredProperty)).collect(Collectors.toList()));
-			throw new MissingPropertyException(missingProperties);
+			if(missingProperties.size()<=1) {
+				throw new MissingPropertyException(missingProperties.get(0));
+			}else{
+				throw new MissingPropertyException(missingProperties);
+			}
 		}
 	}
 

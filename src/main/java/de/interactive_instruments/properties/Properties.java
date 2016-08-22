@@ -15,57 +15,68 @@
  */
 package de.interactive_instruments.properties;
 
-import java.text.ParseException;
 import java.util.*;
 import java.util.Map.Entry;
 
-import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import de.interactive_instruments.II_Constants;
 import de.interactive_instruments.SUtils;
-import de.interactive_instruments.jaxb.adapters.MapToListAdapter;
 
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name = "Properties", namespace = II_Constants.II_COMMON_UTILS_NS)
+
 public class Properties implements MutablePropertyHolder, ClassifyingPropertyHolder {
 
-	@XmlElement(name = "Items")
-	@XmlJavaTypeAdapter(MapToListAdapter.class)
-	final Map<String, String> properties;
+	private Map<String, Property> properties;
+
+	public static class Property {
+		private String name;
+		private String value;
+
+		public Property() {
+		}
+		public Property(final String name, final String value) {
+			this.name = name;
+			this.value = value;
+		}
+		public String getName() {
+			return name;
+		}
+		public String getValue() {
+			return value;
+		}
+	}
 
 	public Properties() {
 		properties = new LinkedHashMap<>();
 	}
 
 	public Properties(final Map<String, String> map) {
+		set(map);
+	}
+
+
+	private void set(final Map<String, String> map) {
 		if (map == null) {
 			throw new IllegalArgumentException("Map is null");
 		}
-		properties = map;
+		map.entrySet().forEach( e -> properties.put(e.getKey(), new Property(e.getKey(), e.getValue())));
 	}
 
 	public Properties(final PropertyHolder propertyHolder) {
 		properties = new LinkedHashMap<>();
 		if (propertyHolder != null && propertyHolder.namePropertyPairs() != null) {
 			for (Entry<String, String> entry : propertyHolder.namePropertyPairs()) {
-				properties.put(entry.getKey(), entry.getValue());
+				properties.put(entry.getKey(), new Property(entry.getKey(), entry.getValue()));
 			}
 		}
 	}
 
-	public Map<String, String> getAsMap() {
-		return this.properties;
-	}
-
-	@Override
-	public Map<String, String> getAsUnmodifiableMap() {
-		return Collections.unmodifiableMap(this.properties);
+	private Map<String, String> getAsMap() {
+		final Map<String, String> vals = new HashMap<>();
+		properties.entrySet().forEach( e -> vals.put(e.getKey(), e.getValue().getValue()));
+		return Collections.unmodifiableMap(vals);
 	}
 
 	@Override
 	public String getProperty(String key) {
-		return properties.get(key);
+		return properties.get(key).getValue();
 	}
 
 	@Override
@@ -75,12 +86,12 @@ public class Properties implements MutablePropertyHolder, ClassifyingPropertyHol
 
 	@Override
 	public Set<Entry<String, String>> namePropertyPairs() {
-		return properties.entrySet();
+		return getAsMap().entrySet();
 	}
 
 	@Override
 	public Properties setProperty(String key, String value) {
-		properties.put(key, value);
+		properties.put(key, new Property(key, value));
 		return this;
 	}
 
@@ -106,7 +117,7 @@ public class Properties implements MutablePropertyHolder, ClassifyingPropertyHol
 
 	@Override
 	public Iterator<Entry<String, String>> iterator() {
-		return properties.entrySet().iterator();
+		return getAsMap().entrySet().iterator();
 	}
 
 	@Override
@@ -118,7 +129,7 @@ public class Properties implements MutablePropertyHolder, ClassifyingPropertyHol
 		final Map<String, String> classificationMap = new LinkedHashMap<>();
 		properties.forEach((k, v) -> {
 			if (k.startsWith(classification + clEnd)) {
-				classificationMap.put(k, v);
+				classificationMap.put(k, v.getValue());
 			}
 		});
 		return new Properties(classificationMap);

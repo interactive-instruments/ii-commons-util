@@ -31,13 +31,13 @@ public class MissingPropertyException extends ConfigurationException {
 	private static final long serialVersionUID = 218983095766850743L;
 
 	public MissingPropertyException(String property) {
-		super("Incomplete configuration: missing property \"" +
-				property + "\"!");
+		super("Incomplete configuration:the required property \"" +
+				property + "\" is not set!");
 	}
 
 	public MissingPropertyException(Collection properties) {
-		super("Incomplete configuration: missing properties \"" +
-				SUtils.toBlankSepStr(properties) + "\"!");
+		super("Incomplete configuration: the required properties \"" +
+				SUtils.toBlankSepStr(properties) + "\" are not set!");
 	}
 
 }

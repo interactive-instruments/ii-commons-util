@@ -766,7 +766,7 @@ public final class IFile extends File {
 	 */
 	public void writeContent(final StringBuffer content)
 			throws IOException {
-		writeContent(content, null);
+		writeContent(content, "UTF-8");
 	}
 
 	/**
@@ -782,21 +782,55 @@ public final class IFile extends File {
 		BufferedWriter writer = null;
 		try {
 			final FileOutputStream fOutput = new FileOutputStream(this);
-			OutputStreamWriter fStrWriter = new OutputStreamWriter(fOutput);
+			final OutputStreamWriter fStrWriter;
 			if (charset != null) {
 				fStrWriter = new OutputStreamWriter(fOutput, charset);
+			}else{
+				fStrWriter = new OutputStreamWriter(fOutput);
 			}
 			writer = new BufferedWriter(fStrWriter);
 			writer.write(content.toString());
 		} catch (IOException e) {
 			throw new IOException("Writing file content to " +
 					this.identifier + " \""
-					+ this.getCanonicalOrSimplePath() + "\" failed: " +
-					e.getMessage());
+					+ this.getCanonicalOrSimplePath() + "\" failed ",e);
 		} finally {
-			if (writer != null) {
-				writer.close();
+			closeQuietly(writer);
+		}
+	}
+
+	public void writeContent(final InputStream inputStream)
+			throws IOException {
+		writeContent(inputStream, "UTF-8");
+	}
+
+	public void writeContent(final InputStream inputStream, final String charset) throws IOException {
+		BufferedWriter writer = null;
+		Reader reader = null;
+		try {
+			final FileOutputStream fOutput = new FileOutputStream(this);
+			final OutputStreamWriter fStrWriter;
+			if (charset != null) {
+				fStrWriter = new OutputStreamWriter(fOutput, charset);
+			}else{
+				fStrWriter = new OutputStreamWriter(fOutput);
 			}
+			writer = new BufferedWriter(fStrWriter);
+			reader = new InputStreamReader(inputStream, charset);
+
+			int read = 0;
+			final char[] buffer = new char[1024];
+			while ((read = reader.read(buffer)) != -1) {
+				writer.write(buffer, 0, read);
+			}
+			writer.flush();
+		} catch (IOException e) {
+			throw new IOException("Writing file content to " +
+					this.identifier + " \""
+					+ this.getCanonicalOrSimplePath() + "\" failed",e);
+		} finally {
+			closeQuietly(inputStream);
+			closeQuietly(reader);
 		}
 	}
 

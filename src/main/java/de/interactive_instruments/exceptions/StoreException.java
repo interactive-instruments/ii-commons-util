@@ -16,7 +16,7 @@
 package de.interactive_instruments.exceptions;
 
 /**
- * This exception indicates that the an error occurred persisting or loading an object.
+ * This exception indicates that the an internal error occurred persisting or loading an object.
  *
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  *
@@ -31,5 +31,9 @@ public class StoreException extends Exception {
 
 	public StoreException(final Throwable e) {
 		super(e);
+	}
+
+	public StoreException(final String mesg, final Throwable e) {
+		super(mesg, e);
 	}
 }
