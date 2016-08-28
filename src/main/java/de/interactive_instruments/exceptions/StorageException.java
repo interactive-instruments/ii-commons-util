@@ -21,19 +21,19 @@ package de.interactive_instruments.exceptions;
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  *
  */
-public class StoreException extends Exception {
+public class StorageException extends Exception {
 
 	private static final long serialVersionUID = 8918479002295277311L;
 
-	public StoreException(final String mesg) {
+	public StorageException(final String mesg) {
 		super(mesg);
 	}
 
-	public StoreException(final Throwable e) {
+	public StorageException(final Throwable e) {
 		super(e);
 	}
 
-	public StoreException(final String mesg, final Throwable e) {
+	public StorageException(final String mesg, final Throwable e) {
 		super(mesg, e);
 	}
 }
