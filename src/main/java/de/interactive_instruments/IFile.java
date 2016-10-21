@@ -33,9 +33,9 @@ import java.util.zip.ZipFile;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import de.interactive_instruments.container.Pair;
 import org.apache.commons.lang3.SystemUtils;
 
+import de.interactive_instruments.container.Pair;
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
 
@@ -849,15 +849,23 @@ public final class IFile extends File {
 		return new IFile(Files.createTempDirectory(prefix).toString(), "tmp");
 	}
 
-	private static Pair<Pattern,String>[] REPLACEMENTS = new Pair[]{
-			new Pair<>(Pattern.compile(new String("Ä"), Pattern.LITERAL), "Ae"),
-			new Pair<>(Pattern.compile(new String("Ü"), Pattern.LITERAL), "Ue"),
-			new Pair<>(Pattern.compile(new String("Ö"), Pattern.LITERAL), "Oe"),
-			new Pair<>(Pattern.compile(new String("ä"), Pattern.LITERAL), "ae"),
-			new Pair<>(Pattern.compile(new String("ü"), Pattern.LITERAL), "ue"),
-			new Pair<>(Pattern.compile(new String("ö"), Pattern.LITERAL), "oe"),
-			new Pair<>(Pattern.compile(new String("ß"), Pattern.LITERAL), "ss"),
-			new Pair<>(Pattern.compile(new String(","), Pattern.LITERAL), "_")
+	private static Pair<Pattern, String>[] REPLACEMENTS = new Pair[]{
+			new Pair<>(Pattern.compile(new String("\u00C4"), Pattern.LITERAL), "Ae"),
+			new Pair<>(Pattern.compile(new String("\u00DC"), Pattern.LITERAL), "Ue"),
+			new Pair<>(Pattern.compile(new String("\u00D6"), Pattern.LITERAL), "Oe"),
+			new Pair<>(Pattern.compile(new String("\u00E4"), Pattern.LITERAL), "ae"),
+			new Pair<>(Pattern.compile(new String("\u00FC"), Pattern.LITERAL), "ue"),
+			new Pair<>(Pattern.compile(new String("\u00F6"), Pattern.LITERAL), "oe"),
+			new Pair<>(Pattern.compile(new String("\u00DF"), Pattern.LITERAL), "ss"),
+
+			// LATIN SMALL LETTER E WITH GRAVE
+			new Pair<>(Pattern.compile(new String("\u00E8"), Pattern.LITERAL), "e"),
+			// LATIN SMALL LETTER E WITH ACUTE
+			new Pair<>(Pattern.compile(new String("\u00E9"), Pattern.LITERAL), "e"),
+			// LATIN SMALL LETTER E WITH CIRCUMFLEX
+			new Pair<>(Pattern.compile(new String("\u00EA"), Pattern.LITERAL), "e"),
+
+			new Pair<>(Pattern.compile(new String(","), Pattern.LITERAL), "")
 	};
 
 	private static String replaceSpecialChars(String str) {
