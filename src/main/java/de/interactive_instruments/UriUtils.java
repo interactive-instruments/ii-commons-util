@@ -411,4 +411,34 @@ public final class UriUtils {
 		return connection.getContentLength();
 	}
 
+	/**
+	* Ensure that an URL is encoded only once
+	*
+	* @param url
+	* @return
+	*/
+	public static String ensureUrlEncodedOnce(final String url) {
+		try {
+			return URLEncoder.encode(ensureUrlDecoded(url), "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("UTF-8 not supported: " + e);
+		}
+	}
+
+	/**
+	 * Ensure that an URL is encoded
+	 *
+	 * @param url
+	 * @return encoded URL
+	 */
+	public static String ensureUrlDecoded(final String url) {
+		try {
+			final String decoded = URLDecoder.decode(url, "UTF-8");
+			final String decoded2 = URLDecoder.decode(decoded, "UTF-8");
+			return decoded2.equals(decoded) ? decoded : ensureUrlDecoded(decoded2);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("UTF-8 not supported: " + e);
+		}
+	}
+
 }
