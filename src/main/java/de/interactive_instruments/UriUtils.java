@@ -191,8 +191,8 @@ public final class UriUtils {
 		if (isUrl(uri)) {
 			streamFromConnection(openConnection(uri, credentials), false, outputStream);
 		} else if (isFile(uri)) {
-			try(final InputStream in = new FileInputStream(new File(uri))) {
-				IOUtils. copy(in, outputStream);
+			try (final InputStream in = new FileInputStream(new File(uri))) {
+				IOUtils.copy(in, outputStream);
 			}
 		}
 	}
@@ -239,11 +239,18 @@ public final class UriUtils {
 			"(^127\\.)|(^192\\.168\\.)|(^10\\.)|(^172\\.1[6-9]\\.)|(^172\\.2[0-9]\\.)|" +
 					"(^172\\.3[0-1]\\.)|(^::1$)|(^[fF][cCdD])");
 
-	public static boolean isPrivateNet(URI uri) throws MalformedURLException, UnknownHostException {
+	/**
+	 * Checks if the resource points to a private net. Supports IPv6.
+	 *
+	 * @param uri
+	 * @return
+	 * @throws MalformedURLException
+	 * @throws UnknownHostException
+	 */
+	public static boolean isPrivateNet(final URI uri) throws MalformedURLException, UnknownHostException {
 		if (isFile(uri)) {
 			return false;
 		}
-
 		final InetAddress address = InetAddress.getByName(uri.toURL().getHost());
 		final String ip = address.getHostAddress();
 		Matcher m = privateNets.matcher(ip);
@@ -439,6 +446,36 @@ public final class UriUtils {
 		}
 		final URLConnection connection = openConnection(uri, credentials);
 		return connection.getContentLength();
+	}
+
+	/**
+	 * Ensure that an URL is encoded only once
+	 *
+	 * @param url
+	 * @return
+	 */
+	public static String ensureUrlEncodedOnce(final String url) {
+		try {
+			return URLEncoder.encode(ensureUrlDecoded(url),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("UTF-8 not supported: "+e);
+		}
+	}
+
+	/**
+	 * Ensure that an URL is encoded
+	 *
+	 * @param url
+	 * @return encoded URL
+	 */
+	public static String ensureUrlDecoded(final String url) {
+		try {
+			final String decoded = URLDecoder.decode(url, "UTF-8");
+			final String decoded2 = URLDecoder.decode(decoded, "UTF-8");
+			return decoded2.equals(decoded) ? decoded : ensureUrlDecoded(decoded2);
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("UTF-8 not supported: "+e);
+		}
 	}
 
 }

@@ -75,4 +75,23 @@ public class UriUtilsTest {
 		}
 	}
 
+	@Test
+	public void testUrlDecodingEncoding() {
+		final String encoded = "https%3A%2F%2Fexample.com%2Fcsw%3Fgetxml%3D%7B999someidentifier999%7D";
+		final String decoded = "https://example.com/csw?getxml={999someidentifier999}";
+
+		final String url2 = "https://example.com/csw?getxml=%7B999someidentifier999%7D";
+		final String url3 = "https://example.com/csw?getxml=%257B999someidentifier999%257D";
+
+		assertEquals(decoded,UriUtils.ensureUrlDecoded(decoded));
+		assertEquals(decoded,UriUtils.ensureUrlDecoded(encoded));
+		assertEquals(decoded,UriUtils.ensureUrlDecoded(url2));
+		assertEquals(decoded,UriUtils.ensureUrlDecoded(url3));
+
+		assertEquals(encoded, UriUtils.ensureUrlEncodedOnce(decoded));
+		assertEquals(encoded, UriUtils.ensureUrlEncodedOnce(encoded));
+		assertEquals(encoded, UriUtils.ensureUrlEncodedOnce(url2));
+		assertEquals(encoded, UriUtils.ensureUrlEncodedOnce(url3));
+	}
+
 }
