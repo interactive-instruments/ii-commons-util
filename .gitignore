@@ -10,3 +10,4 @@ outputFileStates.bin
 
 .idea
 *.licensed
+.DS_Store
