@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.tika.io.IOUtils;
+import org.apache.commons.io.IOUtils;
 
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.MimeTypeUtilsException;
@@ -85,25 +85,36 @@ public final class UriUtils {
 		}
 	}
 
+	/**
+	 * Keys are transformed to upper-case
+	 *
+	 * @param url
+	 * @return
+	 */
 	public static Map<String, List<String>> getQueryParameters(final URI uri)
 			throws UnsupportedEncodingException {
 		return getQueryParameters(uri.getPath());
 	}
 
-	public static Map<String, List<String>> getQueryParameters(final String url)
-			throws UnsupportedEncodingException {
-		final String[] urlParts = url.split("\\?");
+	/**
+	 * Keys are transformed to upper-case
+	 *
+	 * @param url
+	 * @return
+	 */
+	public static Map<String, List<String>> getQueryParameters(final String url) {
+		final String[] urlParts = ensureUrlDecoded(url).split("\\?");
 		if (urlParts.length > 1) {
 			final String query = urlParts[1];
-			final String[] split = query.split("&");
+			final String[] split = query.split("&amp;|&");
 			final Map<String, List<String>> params = new HashMap<>();
 			for (int i = 0, splitLength = split.length; i < splitLength; i++) {
 				final String param = split[i];
 				final String[] pair = param.split("=");
-				final String key = URLDecoder.decode(pair[0], "UTF-8").toUpperCase();
+				final String key = pair[0].toUpperCase();
 				final String value;
 				if (pair.length > 1) {
-					value = URLDecoder.decode(pair[1], "UTF-8").toUpperCase();
+					value = pair[1];
 				} else {
 					value = "";
 				}
@@ -134,6 +145,7 @@ public final class UriUtils {
 	}
 
 	private static String loadFromConnection(final URLConnection connection, boolean encodeBase64) throws IOException {
+		// todo change to try-with-resources
 		final StringBuffer urlData = new StringBuffer(1024);
 		final InputStream urlStream = connection.getInputStream();
 		BufferedReader reader = null;
@@ -158,13 +170,42 @@ public final class UriUtils {
 		}
 	}
 
-	public static String loadAsString(final URI uri) throws IOException {
+	private static void streamFromConnection(final URLConnection connection, boolean encodeBase64, final OutputStream outputStream) throws IOException {
+		try (final InputStream urlStream = connection.getInputStream()) {
+			if (!encodeBase64) {
+				IOUtils.copy(urlStream, outputStream);
+			} else {
+				final OutputStream encOutputStream = Base64.getEncoder().wrap(outputStream);
+				IOUtils.copy(urlStream, encOutputStream);
+			}
+		}
+	}
+
+	public static String loadAsString(final URI uri, final Credentials credentials) throws IOException {
 		if (isUrl(uri)) {
-			return loadFromConnection(openConnection(uri, null), false);
+			return loadFromConnection(openConnection(uri, credentials), false);
 		} else if (isFile(uri)) {
 			return new IFile(uri).readContent().toString();
 		}
 		return null;
+	}
+
+	public static String loadAsString(final URI uri) throws IOException {
+		return loadAsString(uri, null);
+	}
+
+	public static void stream(final URI uri, final OutputStream outputStream) throws IOException {
+		stream(uri, outputStream, null);
+	}
+
+	public static void stream(final URI uri, final OutputStream outputStream, final Credentials credentials) throws IOException {
+		if (isUrl(uri)) {
+			streamFromConnection(openConnection(uri, credentials), false, outputStream);
+		} else if (isFile(uri)) {
+			try (final InputStream in = new FileInputStream(new File(uri))) {
+				IOUtils.copy(in, outputStream);
+			}
+		}
 	}
 
 	public final static class ContentAndType {
@@ -209,11 +250,18 @@ public final class UriUtils {
 			"(^127\\.)|(^192\\.168\\.)|(^10\\.)|(^172\\.1[6-9]\\.)|(^172\\.2[0-9]\\.)|" +
 					"(^172\\.3[0-1]\\.)|(^::1$)|(^[fF][cCdD])");
 
-	public static boolean isPrivateNet(URI uri) throws MalformedURLException, UnknownHostException {
+	/**
+	 * Checks if the resource points to a private net. Supports IPv6.
+	 *
+	 * @param uri
+	 * @return
+	 * @throws MalformedURLException
+	 * @throws UnknownHostException
+	 */
+	public static boolean isPrivateNet(final URI uri) throws MalformedURLException, UnknownHostException {
 		if (isFile(uri)) {
 			return false;
 		}
-
 		final InetAddress address = InetAddress.getByName(uri.toURL().getHost());
 		final String ip = address.getHostAddress();
 		Matcher m = privateNets.matcher(ip);
@@ -395,7 +443,7 @@ public final class UriUtils {
 				// opening a connection will also fail: check if the scheme is null
 				// here and return an exception in this case
 				if (uri.getScheme() == null) {
-					ExcUtils.supress(exception);
+					ExcUtils.suppress(exception);
 					throw new IllegalArgumentException("URI scheme is null");
 				}
 				return false;
@@ -411,34 +459,99 @@ public final class UriUtils {
 		return connection.getContentLength();
 	}
 
+	public static URI encodedUri(final String uri) {
+		return URI.create(ensureUrlEncodedOnce(uri));
+	}
+
 	/**
-	* Ensure that an URL is encoded only once
-	*
-	* @param url
-	* @return
-	*/
-	public static String ensureUrlEncodedOnce(final String url) {
+	 * Ensure that the URL parameters are encoded once
+	 *
+	 * @param url
+	 * @return
+	 */
+	public static String ensureUrlEncodedParams(final String url) {
 		try {
-			return URLEncoder.encode(ensureUrlDecoded(url), "UTF-8");
+			final String decodedUrl = ensureUrlDecoded(url);
+			final int paramIndex = decodedUrl.indexOf("?");
+			if(paramIndex!=-1) {
+				final StringBuilder newUrl = new StringBuilder(url.length());
+				newUrl.append(decodedUrl.substring(0,paramIndex+1));
+				final String[] split = decodedUrl.substring(paramIndex + 1).split("&amp;|&");
+				int i = 0;
+				while(true) {
+					final String param = split[i];
+					final int pos = param.indexOf("=");
+					if(pos==-1) {
+						newUrl.append(param);
+					}else if(pos==param.length()-1){
+						newUrl.append(param);
+						newUrl.append("=");
+					}else {
+						newUrl.append(param.substring(0, pos));
+						newUrl.append("=");
+						newUrl.append(URLEncoder.encode(param.substring(pos+1), "UTF-8"));
+					}
+					if(++i<split.length) {
+						newUrl.append("&");
+					}else{
+						break;
+					}
+				}
+				return newUrl.toString();
+			}
+			return url;
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("UTF-8 not supported: " + e);
+			throw new RuntimeException("UTF-8 not supported: "+e);
 		}
 	}
 
 	/**
-	 * Ensure that an URL is encoded
+	 * Ensure that an URL is encoded only once
+	 *
+	 * @param url
+	 * @return
+	 */
+	public static String ensureUrlEncodedOnce(final String url) {
+		try {
+			return URLEncoder.encode(ensureUrlDecoded(url),"UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("UTF-8 not supported: "+e);
+		}
+	}
+
+	// does not contain +
+	private static String unsafeChars = " '!?()*$,/:;@<>#%[]";
+	private static boolean isUnsafe(final char ch) {
+		return (ch > 128 || ch < 0) || unsafeChars.indexOf(ch) >= 0;
+	}
+
+	private static boolean containsUnsafeChars(final String str) {
+		for (int i = 0; i < str.length(); i++) {
+			if (isUnsafe( str.charAt(i))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Ensure that an URL is decoded. Preserves plus signs.
 	 *
 	 * @param url
 	 * @return encoded URL
 	 */
 	public static String ensureUrlDecoded(final String url) {
 		try {
-			final String decoded = URLDecoder.decode(url, "UTF-8");
-			final String decoded2 = URLDecoder.decode(decoded, "UTF-8");
-			return decoded2.equals(decoded) ? decoded : ensureUrlDecoded(decoded2);
+			final String encoded = URLDecoder.decode(url, "UTF-8");
+			if(url.length()==encoded.length() && url.contains("+")) {
+				int paramIndex = url.indexOf("?");
+				if(paramIndex!=-1 && containsUnsafeChars(url.substring(paramIndex+1))) {
+					return url;
+				}
+			}
+			return encoded;
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("UTF-8 not supported: " + e);
+			throw new RuntimeException("UTF-8 not supported: "+e);
 		}
 	}
-
 }
