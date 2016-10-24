@@ -79,19 +79,35 @@ public class UriUtilsTest {
 	public void testUrlDecodingEncoding() {
 		final String encoded = "https%3A%2F%2Fexample.com%2Fcsw%3Fgetxml%3D%7B999someidentifier999%7D";
 		final String decoded = "https://example.com/csw?getxml={999someidentifier999}";
-
-		final String url2 = "https://example.com/csw?getxml=%7B999someidentifier999%7D";
-		final String url3 = "https://example.com/csw?getxml=%257B999someidentifier999%257D";
+		final String url = "https://example.com/csw?getxml=%7B999someidentifier999%7D";
 
 		assertEquals(decoded,UriUtils.ensureUrlDecoded(decoded));
 		assertEquals(decoded,UriUtils.ensureUrlDecoded(encoded));
-		assertEquals(decoded,UriUtils.ensureUrlDecoded(url2));
-		assertEquals(decoded,UriUtils.ensureUrlDecoded(url3));
+		assertEquals(decoded,UriUtils.ensureUrlDecoded(url));
 
 		assertEquals(encoded, UriUtils.ensureUrlEncodedOnce(decoded));
 		assertEquals(encoded, UriUtils.ensureUrlEncodedOnce(encoded));
-		assertEquals(encoded, UriUtils.ensureUrlEncodedOnce(url2));
-		assertEquals(encoded, UriUtils.ensureUrlEncodedOnce(url3));
+		assertEquals(encoded, UriUtils.ensureUrlEncodedOnce(url));
 	}
 
+	@Test
+	public void testUrlDecodingPlusSign() {
+		assertEquals("http://server/service?param=1 2",UriUtils.ensureUrlDecoded("http://server/service?param=1+2"));
+		assertEquals("http://server/service?param=1+2/3",UriUtils.ensureUrlDecoded("http://server/service?param=1+2/3"));
+		assertEquals("http://server/service?param=1+2",UriUtils.ensureUrlDecoded("http%3A%2F%2Fserver%2Fservice%3Fparam%3D1%2B2"));
+		assertEquals("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2",UriUtils.ensureUrlDecoded("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2"));
+		assertEquals("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2",UriUtils.ensureUrlDecoded("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2"));
+	}
+
+	@Test
+	public void testUrlEncodedParams() {
+		final String encoded = "http%3A%2F%2Fserver%2Fservice%3FOUTPUTFORMAT%3Dapplication%2Fgml%2Bxml%3B%20version%3D3.2&param2=bla";
+		final String partlyEncoded = "http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2&param2=bla";
+		final String notencoded = "http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2&param2=bla";
+		final String expected = "http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2&param2=bla";
+
+		assertEquals(expected, UriUtils.ensureUrlEncodedParams(encoded));
+		assertEquals(expected, UriUtils.ensureUrlEncodedParams(partlyEncoded));
+		assertEquals(expected, UriUtils.ensureUrlEncodedParams(notencoded));
+	}
 }

@@ -85,25 +85,36 @@ public final class UriUtils {
 		}
 	}
 
+	/**
+	 * Keys are transformed to upper-case
+	 *
+	 * @param url
+	 * @return
+	 */
 	public static Map<String, List<String>> getQueryParameters(final URI uri)
 			throws UnsupportedEncodingException {
 		return getQueryParameters(uri.getPath());
 	}
 
-	public static Map<String, List<String>> getQueryParameters(final String url)
-			throws UnsupportedEncodingException {
-		final String[] urlParts = url.split("\\?");
+	/**
+	 * Keys are transformed to upper-case
+	 *
+	 * @param url
+	 * @return
+	 */
+	public static Map<String, List<String>> getQueryParameters(final String url) {
+		final String[] urlParts = ensureUrlDecoded(url).split("\\?");
 		if (urlParts.length > 1) {
 			final String query = urlParts[1];
-			final String[] split = query.split("&");
+			final String[] split = query.split("&amp;|&");
 			final Map<String, List<String>> params = new HashMap<>();
 			for (int i = 0, splitLength = split.length; i < splitLength; i++) {
 				final String param = split[i];
 				final String[] pair = param.split("=");
-				final String key = URLDecoder.decode(pair[0], "UTF-8").toUpperCase();
+				final String key = pair[0].toUpperCase();
 				final String value;
 				if (pair.length > 1) {
-					value = URLDecoder.decode(pair[1], "UTF-8").toUpperCase();
+					value = pair[1];
 				} else {
 					value = "";
 				}
@@ -448,6 +459,52 @@ public final class UriUtils {
 		return connection.getContentLength();
 	}
 
+	public static URI encodedUri(final String uri) {
+		return URI.create(ensureUrlEncodedOnce(uri));
+	}
+
+	/**
+	 * Ensure that the URL parameters are encoded once
+	 *
+	 * @param url
+	 * @return
+	 */
+	public static String ensureUrlEncodedParams(final String url) {
+		try {
+			final String decodedUrl = ensureUrlDecoded(url);
+			final int paramIndex = decodedUrl.indexOf("?");
+			if(paramIndex!=-1) {
+				final StringBuilder newUrl = new StringBuilder(url.length());
+				newUrl.append(decodedUrl.substring(0,paramIndex+1));
+				final String[] split = decodedUrl.substring(paramIndex + 1).split("&amp;|&");
+				int i = 0;
+				while(true) {
+					final String param = split[i];
+					final int pos = param.indexOf("=");
+					if(pos==-1) {
+						newUrl.append(param);
+					}else if(pos==param.length()-1){
+						newUrl.append(param);
+						newUrl.append("=");
+					}else {
+						newUrl.append(param.substring(0, pos));
+						newUrl.append("=");
+						newUrl.append(URLEncoder.encode(param.substring(pos+1), "UTF-8"));
+					}
+					if(++i<split.length) {
+						newUrl.append("&");
+					}else{
+						break;
+					}
+				}
+				return newUrl.toString();
+			}
+			return url;
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("UTF-8 not supported: "+e);
+		}
+	}
+
 	/**
 	 * Ensure that an URL is encoded only once
 	 *
@@ -462,20 +519,39 @@ public final class UriUtils {
 		}
 	}
 
+	// does not contain +
+	private static String unsafeChars = " '!?()*$,/:;@<>#%[]";
+	private static boolean isUnsafe(final char ch) {
+		return (ch > 128 || ch < 0) || unsafeChars.indexOf(ch) >= 0;
+	}
+
+	private static boolean containsUnsafeChars(final String str) {
+		for (int i = 0; i < str.length(); i++) {
+			if (isUnsafe( str.charAt(i))) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/**
-	 * Ensure that an URL is encoded
+	 * Ensure that an URL is decoded. Preserves plus signs.
 	 *
 	 * @param url
 	 * @return encoded URL
 	 */
 	public static String ensureUrlDecoded(final String url) {
 		try {
-			final String decoded = URLDecoder.decode(url, "UTF-8");
-			final String decoded2 = URLDecoder.decode(decoded, "UTF-8");
-			return decoded2.equals(decoded) ? decoded : ensureUrlDecoded(decoded2);
+			final String encoded = URLDecoder.decode(url, "UTF-8");
+			if(url.length()==encoded.length() && url.contains("+")) {
+				int paramIndex = url.indexOf("?");
+				if(paramIndex!=-1 && containsUnsafeChars(url.substring(paramIndex+1))) {
+					return url;
+				}
+			}
+			return encoded;
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("UTF-8 not supported: "+e);
 		}
 	}
-
 }
