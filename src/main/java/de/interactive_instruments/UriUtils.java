@@ -17,6 +17,8 @@ package de.interactive_instruments;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.security.MessageDigest;
@@ -24,6 +26,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import de.interactive_instruments.exceptions.ExcUtils;
@@ -42,6 +45,15 @@ public final class UriUtils {
 	final private static int TIMEOUT = 11000;
 	// Timeout on waiting to read data: 91 seconds
 	private final static int READ_TIMEOUT = 91000;
+
+	private static IFile tmpDir;
+
+	private static IFile getTempDir() throws IOException {
+		if(tmpDir==null) {
+			tmpDir = IFile.createTempDir("ii_"+UUID.randomUUID().toString());
+		}
+		return tmpDir;
+	}
 
 	private UriUtils() {}
 
@@ -88,7 +100,7 @@ public final class UriUtils {
 	/**
 	 * Keys are transformed to upper-case
 	 *
-	 * @param url
+	 * @param uri
 	 * @return
 	 */
 	public static Map<String, List<String>> getQueryParameters(final URI uri)
@@ -246,6 +258,104 @@ public final class UriUtils {
 		throw new IOException("Unable to handle URI: " + uri);
 	}
 
+	public static IFile download(final URI uri) throws IOException {
+		return download(uri,null);
+	}
+
+	public static IFile download(final URI uri, final Credentials credentials) throws IOException {
+		if(isFile(uri)) {
+			return new IFile(uri);
+		}
+		HttpURLConnection connection=null;
+		try {
+			connection = (HttpURLConnection) openConnection(uri, credentials);
+			final int responseCode = connection.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				String fileName = "";
+				final String disposition = connection.getHeaderField("Content-Disposition");
+				if (disposition != null) {
+					// extract file name from header field
+					final int index = disposition.indexOf("filename=");
+					if (index > 0) {
+						fileName = disposition.substring(index + 10, disposition.length() - 1);
+					}
+				} else {
+					// extract file name from URL
+					final String fileURL = uri.toString();
+					fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
+				}
+				final IFile tmpFile = getTempDir().expandPath(fileName);
+				if(tmpFile.exists()) {
+					tmpFile.delete();
+				}
+				downloadTo(connection, tmpFile);
+				return tmpFile;
+			} else {
+				throw new IOException("Could not download file. Server response code: "+responseCode);
+			}
+		}finally {
+			disconnectQuietly(connection);
+		}
+	}
+
+	public static void downloadTo(final URI uri, final IFile destination) throws IOException {
+		downloadTo(uri, destination);
+	}
+
+	public static void downloadTo(final URI uri, final IFile destination, final Credentials credentials) throws IOException {
+		if(destination.exists()) {
+			throw new IOException("Cannot download file form "+uri.toString()+" as destination file "+destination.getPath()+" already exists");
+		}
+		if(isFile(uri)) {
+			new IFile(uri).copyTo(destination.getPath());
+		}
+		HttpURLConnection connection=null;
+		try {
+			connection = (HttpURLConnection) openConnection(uri, credentials);
+			downloadTo(connection, destination);
+		}finally {
+			disconnectQuietly(connection);
+		}
+	}
+
+	private static void downloadTo(final HttpURLConnection connection, final IFile destination) throws IOException {
+		final int responseCode = connection.getResponseCode();
+		if (responseCode == HttpURLConnection.HTTP_OK) {
+			String contentTypeEncoding="UTF-8";
+			final String contentType = connection.getHeaderField("Content-Type");
+			if(contentType!=null) {
+				final int sep = contentType.indexOf("; charset=");
+				if(sep>0) {
+					contentTypeEncoding=contentType.substring(sep);
+					try {
+						Charset.forName(contentTypeEncoding);
+					}catch(UnsupportedCharsetException ign) {
+						contentTypeEncoding="UTF-8";
+					}
+				}
+			}
+			destination.writeContent(connection.getInputStream(), contentTypeEncoding);
+		} else {
+			throw new IOException("Could not download file. Server response code: "+responseCode);
+		}
+	}
+
+	/**
+	 * Return file name minus the path and parameters from a full URL
+	 *
+	 * @return
+	 */
+	public static String lastSegment(final String url) {
+		if (SUtils.isNullOrEmpty(url)) {
+			return null;
+		}
+		final int sPos = url.indexOf('/');
+		final int beg = sPos!=-1 ? sPos+1 : 0;
+		final int qPos = url.indexOf('?',beg);
+		final int end = qPos!=-1 ? qPos : url.length();
+		return url.substring(beg,end);
+	}
+
 	private static Pattern privateNets = Pattern.compile(
 			"(^127\\.)|(^192\\.168\\.)|(^10\\.)|(^172\\.1[6-9]\\.)|(^172\\.2[0-9]\\.)|" +
 					"(^172\\.3[0-1]\\.)|(^::1$)|(^[fF][cCdD])");
@@ -341,7 +451,7 @@ public final class UriUtils {
 		return hashFromContent(uris, null);
 	}
 
-	public static String hashFromContent(final Collection<URI> uris, Credentials cred) throws IOException {
+	public static String hashFromContent(final Collection<URI> uris, final Credentials cred) throws IOException {
 
 		final MessageDigest md = MdUtils.getMessageDigest();
 
@@ -427,18 +537,34 @@ public final class UriUtils {
 		return new String(md.digest());
 	}
 
+	public static void disconnectQuietly(final HttpURLConnection connection) {
+		if(connection!=null) {
+			try {
+				connection.disconnect();
+			}catch(Exception e) {
+				ExcUtils.suppress(e);
+			}
+		}
+	}
+
 	public static boolean exists(final URI uri) {
+		return exists(uri,null);
+	}
+
+	public static boolean exists(final URI uri, final Credentials cred) {
 		if (isFile(uri)) {
 			return new IFile(uri).exists();
 		} else {
+			HttpURLConnection connection = null;
 			try {
-				final HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
+				connection = (HttpURLConnection) openConnection(uri, cred);
 				connection.setConnectTimeout(TIMEOUT);
 				connection.setReadTimeout(READ_TIMEOUT);
-				connection.setRequestMethod("HEAD");
+				connection.setRequestMethod("GET");
 				final int responseCode = connection.getResponseCode();
 				return (200 >= responseCode && responseCode < 400);
 			} catch (IOException | IllegalArgumentException exception) {
+				disconnectQuietly(connection);
 				// isFile() will return false if the URI scheme is null and
 				// opening a connection will also fail: check if the scheme is null
 				// here and return an exception in this case
@@ -460,7 +586,7 @@ public final class UriUtils {
 	}
 
 	public static URI encodedUri(final String uri) {
-		return URI.create(ensureUrlEncodedOnce(uri));
+		return URI.create(ensureUrlEncodedParams(uri));
 	}
 
 	/**
