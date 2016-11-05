@@ -46,7 +46,7 @@ final public class SUtils {
 
 	/**
 	 * Returns a substring with the "right side" of the indexStr.
-	 *
+	 *i
 	 * String a = "foo.bar"
 	 * rigthOfSubStrOrNull(a, ".") == "bar"
 	 *
@@ -91,12 +91,13 @@ final public class SUtils {
 	}
 
 	public static String requireNonNullOrEmpty(final String str, final String message) {
-		if (str==null)
+		if (str == null)
 			throw new NullPointerException(message);
 		if (str.trim().isEmpty())
 			throw new IllegalArgumentException(message);
 		return str;
 	}
+
 	/**
 	 * Null safe comparison of two String objects.
 	 *
@@ -114,6 +115,11 @@ final public class SUtils {
 		}
 		return obj.compareToIgnoreCase(toObj);
 	}
+
+	public static String nonNullEmptyOrDefault(final String str, final String def) {
+		return isNullOrEmpty(str) ? def : str;
+	}
+
 
 	public static String calcHash(final String str) {
 		return new String(MdUtils.getMessageDigest().digest(str.getBytes()));
