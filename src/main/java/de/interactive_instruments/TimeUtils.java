@@ -15,6 +15,8 @@
  */
 package de.interactive_instruments;
 
+import org.apache.commons.lang3.time.FastDateFormat;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,9 +30,9 @@ public final class TimeUtils {
 
 	private TimeUtils() {}
 
-	public static SimpleDateFormat to8601Format() {
-		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-	}
+	// thread safe (in contrast to SimpleDateFormat)
+	public static final FastDateFormat ISO_DATETIME_TIME_ZONE_FORMAT =
+			FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssZZ");
 
 	/**
 	 * Returns the deltaTime as formatted String with
@@ -103,12 +105,12 @@ public final class TimeUtils {
 	}
 
 	public static String dateToIsoString(final Date date) {
-		return to8601Format().format(date);
+		return ISO_DATETIME_TIME_ZONE_FORMAT.format(date);
 	}
 
 	public static Date string8601ToDate(final String str) {
 		try {
-			return to8601Format().parse(str);
+			return ISO_DATETIME_TIME_ZONE_FORMAT.parse(str);
 		} catch (ParseException e) {
 			throw new IllegalArgumentException(e);
 		}
