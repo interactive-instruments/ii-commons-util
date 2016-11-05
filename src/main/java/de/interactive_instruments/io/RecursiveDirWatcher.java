@@ -37,6 +37,7 @@ public class RecursiveDirWatcher implements Releasable {
 	private final Path rootDir;
 	private final int fireDelay = 4000;
 	private final Collection<FileChangeListener> listeners;
+	private final PathFilter filter;
 
 	private AtomicBoolean running = new AtomicBoolean(false);
 
@@ -45,21 +46,25 @@ public class RecursiveDirWatcher implements Releasable {
 	private Thread watchThread = null;
 	private Timer timer = null;
 
-	private Map<Path, List<WatchEvent<?>>> watchableEventMap = new TreeMap<>();
+	private final Map<Path, List<WatchEvent<?>>> watchableEventMap = new TreeMap<>();
 
-	public static RecursiveDirWatcher create(final Path rootDir, FileChangeListener listener) {
-		return new RecursiveDirWatcher(rootDir, new ArrayList<FileChangeListener>() {
-			{
-				add(listener);
-			}
-		});
+	public static RecursiveDirWatcher create(final Path rootDir, final FileChangeListener listener) {
+		return create(rootDir, listener, null);
 	}
 
-	public static RecursiveDirWatcher create(final Path rootDir, Collection<FileChangeListener> listener) {
-		return new RecursiveDirWatcher(rootDir, listener);
+	public static RecursiveDirWatcher create(final Path rootDir, final FileChangeListener listener, final PathFilter filter) {
+		return new RecursiveDirWatcher(rootDir, new ArrayList<FileChangeListener>() {{ add(listener); }}, filter);
 	}
 
-	private RecursiveDirWatcher(final Path rootDir, final Collection<FileChangeListener> listeners) {
+	public static RecursiveDirWatcher create(final Path rootDir, final Collection<FileChangeListener> listeners) {
+		return create(rootDir, listeners, null);
+	}
+
+	public static RecursiveDirWatcher create(final Path rootDir, final Collection<FileChangeListener> listeners, final PathFilter filter) {
+		return new RecursiveDirWatcher(rootDir, listeners, filter);
+	}
+
+	private RecursiveDirWatcher(final Path rootDir, final Collection<FileChangeListener> listeners, final PathFilter filter) {
 		if (rootDir == null) {
 			throw new IllegalArgumentException("Root directory is null");
 		}
@@ -71,6 +76,7 @@ public class RecursiveDirWatcher implements Releasable {
 		}
 		this.listeners = listeners;
 		this.rootDir = rootDir;
+		this.filter = filter;
 	}
 
 	public void start() throws IOException {
@@ -133,7 +139,9 @@ public class RecursiveDirWatcher implements Releasable {
 			Files.walkFileTree(rootDir, new FileVisitor<Path>() {
 				@Override
 				public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
-					registerWatch(dir);
+					if(filter==null || filter.accept(dir)) {
+						registerWatch(dir);
+					}
 					return FileVisitResult.CONTINUE;
 				}
 
