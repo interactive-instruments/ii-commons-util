@@ -25,6 +25,9 @@ import java.security.MessageDigest;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -49,8 +52,8 @@ public final class UriUtils {
 	private static IFile tmpDir;
 
 	private static IFile getTempDir() throws IOException {
-		if(tmpDir==null) {
-			tmpDir = IFile.createTempDir("ii_"+UUID.randomUUID().toString());
+		if (tmpDir == null) {
+			tmpDir = IFile.createTempDir("ii_" + UUID.randomUUID().toString());
 		}
 		return tmpDir;
 	}
@@ -182,8 +185,39 @@ public final class UriUtils {
 		}
 	}
 
-	private static void streamFromConnection(final URLConnection connection, boolean encodeBase64, final OutputStream outputStream) throws IOException {
-		try (final InputStream urlStream = connection.getInputStream()) {
+	/**
+	 * Supports gzip and deflate
+	 *
+	 * @param connection
+	 * @return
+	 * @throws IOException
+	 */
+	private static InputStream decodedInputStream(final URLConnection connection) throws IOException {
+		final String contentTypeEncoding = connection.getContentEncoding();
+		if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("gzip")) {
+			return new GZIPInputStream(connection.getInputStream());
+		}else if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("deflate")) {
+			return new InflaterInputStream(connection.getInputStream(), new Inflater(true));
+		}else {
+			return connection.getInputStream();
+		}
+	}
+
+	private static void streamFromConnection(final URLConnection connection, final boolean encodeBase64, final OutputStream outputStream) throws IOException {
+		streamFromConnection(connection, encodeBase64, outputStream, false);
+	}
+
+	/**
+	 * streamFromConnection
+	 *
+	 * @param connection
+	 * @param encodeBase64
+	 * @param outputStream
+	 * @param decode decode before copying to output stream
+	 * @throws IOException
+	 */
+	private static void streamFromConnection(final URLConnection connection, final boolean encodeBase64, final OutputStream outputStream, final boolean decode) throws IOException {
+		try (final InputStream urlStream = decode==false ? connection.getInputStream() : decodedInputStream(connection)) {
 			if (!encodeBase64) {
 				IOUtils.copy(urlStream, outputStream);
 			} else {
@@ -259,85 +293,119 @@ public final class UriUtils {
 	}
 
 	public static IFile download(final URI uri) throws IOException {
-		return download(uri,null);
+		return download(uri, null);
 	}
 
 	public static IFile download(final URI uri, final Credentials credentials) throws IOException {
-		if(isFile(uri)) {
+		if (isFile(uri)) {
 			return new IFile(uri);
 		}
-		HttpURLConnection connection=null;
+		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection) openConnection(uri, credentials);
 			final int responseCode = connection.getResponseCode();
 			if (responseCode == HttpURLConnection.HTTP_OK) {
-				String fileName = "";
-				final String disposition = connection.getHeaderField("Content-Disposition");
-				if (disposition != null) {
-					// extract file name from header field
-					final int index = disposition.indexOf("filename=");
-					if (index > 0) {
-						fileName = disposition.substring(index + 10, disposition.length() - 1);
-					}
-				} else {
-					// extract file name from URL
-					final String fileURL = uri.toString();
-					fileName = fileURL.substring(fileURL.lastIndexOf("/") + 1, fileURL.length());
-				}
+				final String fileName = getFilenameFromConnection(connection);
 				final IFile tmpFile = getTempDir().expandPath(fileName);
-				if(tmpFile.exists()) {
+				if (tmpFile.exists()) {
 					tmpFile.delete();
 				}
 				downloadTo(connection, tmpFile);
 				return tmpFile;
 			} else {
-				throw new IOException("Could not download file. Server response code: "+responseCode);
+				throw new IOException("Could not download file. Server response code: " + responseCode);
 			}
-		}finally {
+		} finally {
 			disconnectQuietly(connection);
 		}
 	}
 
-	public static void downloadTo(final URI uri, final IFile destination) throws IOException {
-		downloadTo(uri, destination);
+	public static IFile downloadTo(final URI uri, final IFile destination) throws IOException {
+		return downloadTo(uri, destination, null);
 	}
 
-	public static void downloadTo(final URI uri, final IFile destination, final Credentials credentials) throws IOException {
-		if(destination.exists()) {
-			throw new IOException("Cannot download file form "+uri.toString()+" as destination file "+destination.getPath()+" already exists");
+	public static IFile downloadTo(final URI uri, final IFile destination, final Credentials credentials) throws IOException {
+		if(!destination.isDirectory()) {
+			if (destination.exists()) {
+				throw new IOException("Cannot download file form " + uri.toString() + " as destination file " + destination.getPath() + " already exists");
+			}
+			if (isFile(uri)) {
+				return new IFile(uri).copyTo(destination.getPath());
+			}
+		}else if (isFile(uri)) {
+			return new IFile(uri).copyTo(destination.secureExpandPathDown(UriUtils.lastSegment(uri.getPath())).getPath());
 		}
-		if(isFile(uri)) {
-			new IFile(uri).copyTo(destination.getPath());
-		}
-		HttpURLConnection connection=null;
+
+		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection) openConnection(uri, credentials);
-			downloadTo(connection, destination);
-		}finally {
+			return downloadTo(connection, destination);
+		} finally {
 			disconnectQuietly(connection);
 		}
 	}
 
-	private static void downloadTo(final HttpURLConnection connection, final IFile destination) throws IOException {
+	private static IFile downloadTo(final HttpURLConnection connection, final IFile destination) throws IOException {
 		final int responseCode = connection.getResponseCode();
 		if (responseCode == HttpURLConnection.HTTP_OK) {
-			String contentTypeEncoding="UTF-8";
-			final String contentType = connection.getHeaderField("Content-Type");
-			if(contentType!=null) {
-				final int sep = contentType.indexOf("; charset=");
-				if(sep>0) {
-					contentTypeEncoding=contentType.substring(sep);
+			final IFile destinationFile;
+			if(destination.isDirectory()) {
+				destinationFile=destination.secureExpandPathDown(getFilenameFromConnection(connection));
+			}else {
+				destinationFile=destination;
+			}
+
+			// 4 possible cases:
+			// - handle gziped content
+			// - handle deflated content
+			// - handle content in a special charset
+			// - handle content without any encoding information
+
+			final String contentTypeEncoding = connection.getContentEncoding();
+			if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("gzip")) {
+				destinationFile.write(new GZIPInputStream(connection.getInputStream()));
+
+			}else if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("deflate")) {
+				destinationFile.write(new InflaterInputStream(connection.getInputStream(), new Inflater(true)));
+			}else {
+				if(contentTypeEncoding != null) {
 					try {
 						Charset.forName(contentTypeEncoding);
-					}catch(UnsupportedCharsetException ign) {
-						contentTypeEncoding="UTF-8";
+						destinationFile.writeContent(connection.getInputStream(), contentTypeEncoding);
+					} catch (UnsupportedCharsetException ign) {
+						ExcUtils.suppress(ign);
+						destinationFile.write(connection.getInputStream());
 					}
+				}else {
+					destinationFile.write(connection.getInputStream());
 				}
 			}
-			destination.writeContent(connection.getInputStream(), contentTypeEncoding);
+			return destinationFile;
 		} else {
-			throw new IOException("Could not download file. Server response code: "+responseCode);
+			throw new IOException("Could not download file. Server response code: " + responseCode);
 		}
+	}
+
+	// from
+	private static final Pattern CONTENT_DISPOSITION_PATTERN =
+			Pattern.compile("attachment;\\s*filename\\s*=\\s*\"([^\"]*)\"");
+
+
+	/**
+	 * Returns the file name from the connections Content-Disposition header or from the last URL segment
+	 *
+	 * @return
+	 */
+	public static String getFilenameFromConnection(final HttpURLConnection connection) {
+		final String disposition = connection.getHeaderField("Content-Disposition");
+		if(!SUtils.isNullOrEmpty(disposition)) {
+			final Matcher m = CONTENT_DISPOSITION_PATTERN.matcher(disposition);
+			if (m.find()) {
+				return m.group(1);
+			}
+		}
+		// extract file name from URL
+		return lastSegment(connection.getURL().toString());
 	}
 
 	/**
@@ -349,11 +417,13 @@ public final class UriUtils {
 		if (SUtils.isNullOrEmpty(url)) {
 			return null;
 		}
-		final int sPos = url.indexOf('/');
-		final int beg = sPos!=-1 ? sPos+1 : 0;
-		final int qPos = url.indexOf('?',beg);
-		final int end = qPos!=-1 ? qPos : url.length();
-		return url.substring(beg,end);
+		final String decUrl = ensureUrlDecoded(url);
+
+		final int qPos = decUrl.indexOf('?');
+		final int end = qPos != -1 ? qPos : decUrl.length();
+		final int sPos = decUrl.lastIndexOf('/',end);
+		final int beg = sPos != -1 ? sPos + 1 : 0;
+		return decUrl.substring(beg, end);
 	}
 
 	private static Pattern privateNets = Pattern.compile(
@@ -538,17 +608,17 @@ public final class UriUtils {
 	}
 
 	public static void disconnectQuietly(final HttpURLConnection connection) {
-		if(connection!=null) {
+		if (connection != null) {
 			try {
 				connection.disconnect();
-			}catch(Exception e) {
+			} catch (Exception e) {
 				ExcUtils.suppress(e);
 			}
 		}
 	}
 
 	public static boolean exists(final URI uri) {
-		return exists(uri,null);
+		return exists(uri, null);
 	}
 
 	public static boolean exists(final URI uri, final Credentials cred) {
@@ -577,6 +647,10 @@ public final class UriUtils {
 		}
 	}
 
+	public static long getContentLength(final URI uri) throws IOException {
+		return getContentLength(uri, null);
+	}
+
 	public static long getContentLength(final URI uri, final Credentials credentials) throws IOException {
 		if (isFile(uri)) {
 			return new RandomAccessFile(uri.getPath(), "r").length();
@@ -599,27 +673,27 @@ public final class UriUtils {
 		try {
 			final String decodedUrl = ensureUrlDecoded(url);
 			final int paramIndex = decodedUrl.indexOf("?");
-			if(paramIndex!=-1) {
+			if (paramIndex != -1) {
 				final StringBuilder newUrl = new StringBuilder(url.length());
-				newUrl.append(decodedUrl.substring(0,paramIndex+1));
+				newUrl.append(decodedUrl.substring(0, paramIndex + 1));
 				final String[] split = decodedUrl.substring(paramIndex + 1).split("&amp;|&");
 				int i = 0;
-				while(true) {
+				while (true) {
 					final String param = split[i];
 					final int pos = param.indexOf("=");
-					if(pos==-1) {
+					if (pos == -1) {
 						newUrl.append(param);
-					}else if(pos==param.length()-1){
+					} else if (pos == param.length() - 1) {
 						newUrl.append(param);
 						newUrl.append("=");
-					}else {
+					} else {
 						newUrl.append(param.substring(0, pos));
 						newUrl.append("=");
-						newUrl.append(URLEncoder.encode(param.substring(pos+1), "UTF-8"));
+						newUrl.append(URLEncoder.encode(param.substring(pos + 1), "UTF-8"));
 					}
-					if(++i<split.length) {
+					if (++i < split.length) {
 						newUrl.append("&");
-					}else{
+					} else {
 						break;
 					}
 				}
@@ -627,7 +701,7 @@ public final class UriUtils {
 			}
 			return url;
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("UTF-8 not supported: "+e);
+			throw new RuntimeException("UTF-8 not supported: " + e);
 		}
 	}
 
@@ -639,21 +713,22 @@ public final class UriUtils {
 	 */
 	public static String ensureUrlEncodedOnce(final String url) {
 		try {
-			return URLEncoder.encode(ensureUrlDecoded(url),"UTF-8");
+			return URLEncoder.encode(ensureUrlDecoded(url), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("UTF-8 not supported: "+e);
+			throw new RuntimeException("UTF-8 not supported: " + e);
 		}
 	}
 
 	// does not contain +
 	private static String unsafeChars = " '!?()*$,/:;@<>#%[]";
+
 	private static boolean isUnsafe(final char ch) {
 		return (ch > 128 || ch < 0) || unsafeChars.indexOf(ch) >= 0;
 	}
 
 	private static boolean containsUnsafeChars(final String str) {
 		for (int i = 0; i < str.length(); i++) {
-			if (isUnsafe( str.charAt(i))) {
+			if (isUnsafe(str.charAt(i))) {
 				return true;
 			}
 		}
@@ -669,15 +744,15 @@ public final class UriUtils {
 	public static String ensureUrlDecoded(final String url) {
 		try {
 			final String encoded = URLDecoder.decode(url, "UTF-8");
-			if(url.length()==encoded.length() && url.contains("+")) {
+			if (url.length() == encoded.length() && url.contains("+")) {
 				int paramIndex = url.indexOf("?");
-				if(paramIndex!=-1 && containsUnsafeChars(url.substring(paramIndex+1))) {
+				if (paramIndex != -1 && containsUnsafeChars(url.substring(paramIndex + 1))) {
 					return url;
 				}
 			}
 			return encoded;
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("UTF-8 not supported: "+e);
+			throw new RuntimeException("UTF-8 not supported: " + e);
 		}
 	}
 }
