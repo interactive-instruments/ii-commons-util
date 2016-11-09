@@ -33,9 +33,9 @@ import java.util.zip.ZipFile;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import de.interactive_instruments.container.Pair;
 import org.apache.commons.lang3.SystemUtils;
 
+import de.interactive_instruments.container.Pair;
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
 
@@ -524,7 +524,7 @@ public final class IFile extends File {
 	public IFile copyTo(final String destPath) throws IOException {
 		final IFile targetFile = new IFile(destPath);
 		targetFile.expectFileIsWritable();
-		if(!Files.isSameFile(this.toPath(), targetFile.toPath())) {
+		if (!Files.isSameFile(this.toPath(), targetFile.toPath())) {
 			final FileInputStream fileInputStream = new FileInputStream(this);
 			final FileChannel inChannel = fileInputStream.getChannel();
 			final FileOutputStream fileOutputStream = new FileOutputStream(targetFile);
@@ -601,16 +601,16 @@ public final class IFile extends File {
 	}
 
 	private static String getBasename(final String path) {
-		if(SUtils.isNullOrEmpty(path)) {
+		if (SUtils.isNullOrEmpty(path)) {
 			return null;
 		}
 		final int lastUnixPos = path.lastIndexOf('/');
 		final int lastWindowsPos = path.lastIndexOf('\\');
 		final int lastSlashPos = Math.max(lastUnixPos, lastWindowsPos);
-		if(lastSlashPos==-1) {
+		if (lastSlashPos == -1) {
 			return path;
 		}
-		return path.substring(lastSlashPos+1);
+		return path.substring(lastSlashPos + 1);
 	}
 
 	// removes all version information in a basename beginning with a number, followed by a dot
@@ -627,10 +627,19 @@ public final class IFile extends File {
 		return pattern.matcher(getBasename(path)).replaceAll("");
 	}
 
-
+	/**
+	 * Unzips a zip file to a destination directory
+	 *
+	 * @param destDir
+	 * @throws IOException
+	 */
+	public void unzipTo(final IFile destDir) throws IOException {
+		unzipTo(destDir, null);
+	}
 
 	/**
 	 * Unzips a zip file to a destination directory
+	 *
 	 * @param destDir
 	 * @param filter
 	 * @throws IOException
@@ -833,42 +842,27 @@ public final class IFile extends File {
 	}
 
 	/**
-	 * Write from an inputStream to a File
+	 * Write from an inputStream to a File in a specific charset
 	 *
 	 * Note: Will close the inputStream afterwards!
 	 *
 	 * @param inputStream
+	 * @param inputCharset
 	 * @throws IOException
 	 */
-	public void writeContent(final InputStream inputStream)
-			throws IOException {
-		writeContent(inputStream, "UTF-8");
-	}
-
-	/**
-	 * Write from an inputStream to a File
-	 *
-	 * Note: Will close the inputStream afterwards!
-	 *
-	 * @param inputStream
-	 * @param charset
-	 * @throws IOException
-	 */
-	public void writeContent(final InputStream inputStream, final String charset) throws IOException {
-		BufferedWriter writer = null;
+	public void writeContent(final InputStream inputStream, final String inputCharset) throws IOException {
+		BufferedWriter writer;
 		Reader reader = null;
 		try {
 			final FileOutputStream fOutput = new FileOutputStream(this);
-			final OutputStreamWriter fStrWriter;
-			if (charset != null) {
-				fStrWriter = new OutputStreamWriter(fOutput, charset);
-			} else {
-				fStrWriter = new OutputStreamWriter(fOutput);
+			writer = new BufferedWriter(new OutputStreamWriter(fOutput, "UTF-8"));
+			if(inputCharset==null) {
+				reader = new InputStreamReader(inputStream, inputCharset);
+			}else{
+				reader = new InputStreamReader(inputStream, "UTF-8");
 			}
-			writer = new BufferedWriter(fStrWriter);
-			reader = new InputStreamReader(inputStream, charset);
 
-			int read = 0;
+			int read;
 			final char[] buffer = new char[1024];
 			while ((read = reader.read(buffer)) != -1) {
 				writer.write(buffer, 0, read);
@@ -881,6 +875,30 @@ public final class IFile extends File {
 		} finally {
 			closeQuietly(inputStream);
 			closeQuietly(reader);
+		}
+	}
+
+	/**
+	 * Write from an inputStream to a File
+	 *
+	 * Note: Will close the inputStream afterwards!
+	 *
+	 * @param inputStream
+	 * @throws IOException
+	 */
+	public void write(final InputStream inputStream) throws IOException {
+		try(final FileOutputStream fOutput = new FileOutputStream(this)) {
+			final byte[] bytes = new byte[1024];
+			int read;
+			while ((read = inputStream.read(bytes)) != -1) {
+				fOutput.write(bytes, 0, read);
+			}
+		} catch (IOException e) {
+			throw new IOException("Writing file content to " +
+					this.identifier + " \""
+					+ this.getCanonicalOrSimplePath() + "\" failed", e);
+		} finally {
+			closeQuietly(inputStream);
 		}
 	}
 
@@ -939,13 +957,12 @@ public final class IFile extends File {
 		return dir;
 	}
 
-
 	public static void deleteOnExit(final IFile file) {
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			try {
-				if(file.isDirectory()) {
+				if (file.isDirectory()) {
 					file.deleteDirectory();
-				}else{
+				} else {
 					Files.delete(file.toPath());
 				}
 			} catch (final IOException e) {
@@ -954,7 +971,7 @@ public final class IFile extends File {
 		}));
 	}
 
-	private static Pair<Pattern,String>[] REPLACEMENTS = new Pair[]{
+	private static Pair<Pattern, String>[] REPLACEMENTS = new Pair[]{
 			new Pair<>(Pattern.compile("\u00C4", Pattern.LITERAL), "Ae"),
 			new Pair<>(Pattern.compile("\u00DC", Pattern.LITERAL), "Ue"),
 			new Pair<>(Pattern.compile("\u00D6", Pattern.LITERAL), "Oe"),
