@@ -17,34 +17,38 @@ package de.interactive_instruments.io;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.nio.file.Path;
+import java.util.Objects;
 
 /**
- *
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  */
-public abstract class FileAndPathFilter implements FileFilter, PathFilter {
+public class AndFilter implements MultiFileFilter {
+	private final FileFilter[] fileFilters;
 
-	private final FileFilter ff;
-
-	protected FileAndPathFilter(final FileFilter ff) {
-		this.ff = ff;
+	AndFilter(final FileFilter... fileFilters) {
+		this.fileFilters = Objects.requireNonNull(fileFilters, "Filters are null");
 	}
 
-	protected FileAndPathFilter() {
-		ff = null;
+	public AndFilter(final MultiFileFilter multiFileFilter, final FileFilter[] fileFilters) {
+		if (fileFilters == null) {
+			this.fileFilters = new FileFilter[1];
+			this.fileFilters[0] = multiFileFilter;
+		} else {
+			this.fileFilters = new FileFilter[fileFilters.length + 1];
+			this.fileFilters[0] = multiFileFilter;
+			for (int i = 0; i < this.fileFilters.length; i++) {
+				this.fileFilters[i + 1] = fileFilters[i];
+			}
+		}
 	}
-
-	public abstract boolean doAccept(final File pathname);
 
 	@Override
 	public boolean accept(final File pathname) {
-		return doAccept(pathname) &&
-				(ff == null || ff.accept(pathname));
-	}
-
-	@Override
-	public boolean accept(final Path path) {
-		return accept(path.toFile());
+		for (int i = 1; i < this.fileFilters.length; i++) {
+			if (!fileFilters[i].accept(pathname)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
