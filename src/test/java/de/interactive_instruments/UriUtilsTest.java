@@ -18,7 +18,9 @@ package de.interactive_instruments;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -81,9 +83,9 @@ public class UriUtilsTest {
 		final String decoded = "https://example.com/csw?getxml={999someidentifier999}";
 		final String url = "https://example.com/csw?getxml=%7B999someidentifier999%7D";
 
-		assertEquals(decoded,UriUtils.ensureUrlDecoded(decoded));
-		assertEquals(decoded,UriUtils.ensureUrlDecoded(encoded));
-		assertEquals(decoded,UriUtils.ensureUrlDecoded(url));
+		assertEquals(decoded, UriUtils.ensureUrlDecoded(decoded));
+		assertEquals(decoded, UriUtils.ensureUrlDecoded(encoded));
+		assertEquals(decoded, UriUtils.ensureUrlDecoded(url));
 
 		assertEquals(encoded, UriUtils.ensureUrlEncodedOnce(decoded));
 		assertEquals(encoded, UriUtils.ensureUrlEncodedOnce(encoded));
@@ -92,11 +94,11 @@ public class UriUtilsTest {
 
 	@Test
 	public void testUrlDecodingPlusSign() {
-		assertEquals("http://server/service?param=1 2",UriUtils.ensureUrlDecoded("http://server/service?param=1+2"));
-		assertEquals("http://server/service?param=1+2/3",UriUtils.ensureUrlDecoded("http://server/service?param=1+2/3"));
-		assertEquals("http://server/service?param=1+2",UriUtils.ensureUrlDecoded("http%3A%2F%2Fserver%2Fservice%3Fparam%3D1%2B2"));
-		assertEquals("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2",UriUtils.ensureUrlDecoded("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2"));
-		assertEquals("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2",UriUtils.ensureUrlDecoded("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2"));
+		assertEquals("http://server/service?param=1 2", UriUtils.ensureUrlDecoded("http://server/service?param=1+2"));
+		assertEquals("http://server/service?param=1+2/3", UriUtils.ensureUrlDecoded("http://server/service?param=1+2/3"));
+		assertEquals("http://server/service?param=1+2", UriUtils.ensureUrlDecoded("http%3A%2F%2Fserver%2Fservice%3Fparam%3D1%2B2"));
+		assertEquals("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2", UriUtils.ensureUrlDecoded("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2"));
+		assertEquals("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2", UriUtils.ensureUrlDecoded("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2"));
 	}
 
 	@Test
@@ -109,5 +111,36 @@ public class UriUtilsTest {
 		assertEquals(expected, UriUtils.ensureUrlEncodedParams(encoded));
 		assertEquals(expected, UriUtils.ensureUrlEncodedParams(partlyEncoded));
 		assertEquals(expected, UriUtils.ensureUrlEncodedParams(notencoded));
+	}
+
+	@Test
+	public void testLastSegment() {
+		assertEquals("file.txt", UriUtils.lastSegment("https://server/file.txt"));
+
+		final String encoded = "http%3A%2F%2Fserver%2Fservice%3FOUTPUTFORMAT%3Dapplication%2Fgml%2Bxml%3B%20version%3D3.2&param2=bla";
+		assertEquals("service", UriUtils.lastSegment(encoded));
+	}
+
+	@Test
+	public void testDownloadFile() throws URISyntaxException, IOException {
+		final URI url = new URI("http://jherrmann.org/ps-ro-50.zip");
+		final IFile downloadedFile = UriUtils.download(url);
+		assertEquals(2414481L, UriUtils.getContentLength(downloadedFile.toURI()));
+	}
+
+	@Test
+	public void testDownloadFile2() throws URISyntaxException, IOException {
+		final URI url1 = new URI("http://jherrmann.org/ps-ro-50.zip");
+		final IFile downloadedFile1 = UriUtils.download(url1);
+		assertEquals(2414481L, UriUtils.getContentLength(downloadedFile1.toURI()));
+
+		final URI url2 = new URI("https://www.dropbox.com/s/uewjg48vq4owwlb/ps-ro-50.zip?dl=1");
+		final IFile downloadedFile2 = UriUtils.download(url2);
+		assertEquals(2414481L, UriUtils.getContentLength(downloadedFile2.toURI()));
+
+		assertEquals(UriUtils.hashFromContent(downloadedFile1.toURI()),
+				UriUtils.hashFromContent(downloadedFile2.toURI()));
+
+		downloadedFile2.unzipTo(new IFile("/Users/herrmann/tmp/bla"));
 	}
 }
