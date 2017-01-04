@@ -35,7 +35,63 @@ import de.interactive_instruments.exceptions.MimeTypeUtilsException;
  */
 public class MimeTypeUtils {
 
-	private static ConcurrentMap<String, String> mimeTypeToFileExt = new ConcurrentHashMap<String, String>();
+	private static ConcurrentMap<String, String> mimeTypeToFileExt = new ConcurrentHashMap<String, String>() {
+		{
+			put("application/gml+xml", ".gml");
+		}
+
+		{
+			put("application/gml", ".gml");
+		}
+
+		{
+			put("application/gml+xml; version=2.1", ".gml");
+		}
+
+		{
+			put("application/gml+xml; version=3.0", ".gml");
+		}
+
+		{
+			put("application/gml+xml; version=3.1", ".gml");
+		}
+
+		{
+			put("application/gml+xml; version=3.2", ".gml");
+		}
+
+		{
+			put("text/xml; subtype=gml/2.1.2", ".gml");
+		}
+
+		{
+			put("text/xml; subtype=gml/3.0.1", ".gml");
+		}
+
+		{
+			put("text/xml; subtype=gml/3.1.1", ".gml");
+		}
+
+		{
+			put("text/xml; subtype=gml/3.2.1", ".gml");
+		}
+
+		{
+			put("text/xml; subtype=\"gml/2.1.2\"", ".gml");
+		}
+
+		{
+			put("text/xml; subtype=\"gml/3.0.1\"", ".gml");
+		}
+
+		{
+			put("text/xml; subtype=\"gml/3.1.1\"", ".gml");
+		}
+
+		{
+			put("text/xml; subtype=\"gml/3.2.1\"", ".gml");
+		}
+	};
 	private static MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
 	private static Tika tika = new Tika();
 
@@ -74,7 +130,7 @@ public class MimeTypeUtils {
 		}
 	}
 
-	public static String detectMimeType(final IFile file) throws MimeTypeUtilsException {
+	public static String detectMimeType(final File file) throws MimeTypeUtilsException {
 		try {
 			return tika.detect(file);
 		} catch (IOException e) {

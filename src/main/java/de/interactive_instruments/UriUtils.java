@@ -196,9 +196,9 @@ public final class UriUtils {
 		final String contentTypeEncoding = connection.getContentEncoding();
 		if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("gzip")) {
 			return new GZIPInputStream(connection.getInputStream());
-		}else if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("deflate")) {
+		} else if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("deflate")) {
 			return new InflaterInputStream(connection.getInputStream(), new Inflater(true));
-		}else {
+		} else {
 			return connection.getInputStream();
 		}
 	}
@@ -217,7 +217,7 @@ public final class UriUtils {
 	 * @throws IOException
 	 */
 	private static void streamFromConnection(final URLConnection connection, final boolean encodeBase64, final OutputStream outputStream, final boolean decode) throws IOException {
-		try (final InputStream urlStream = decode==false ? connection.getInputStream() : decodedInputStream(connection)) {
+		try (final InputStream urlStream = decode == false ? connection.getInputStream() : decodedInputStream(connection)) {
 			if (!encodeBase64) {
 				IOUtils.copy(urlStream, outputStream);
 			} else {
@@ -325,14 +325,14 @@ public final class UriUtils {
 	}
 
 	public static IFile downloadTo(final URI uri, final IFile destination, final Credentials credentials) throws IOException {
-		if(!destination.isDirectory()) {
+		if (!destination.isDirectory()) {
 			if (destination.exists()) {
 				throw new IOException("Cannot download file form " + uri.toString() + " as destination file " + destination.getPath() + " already exists");
 			}
 			if (isFile(uri)) {
 				return new IFile(uri).copyTo(destination.getPath());
 			}
-		}else if (isFile(uri)) {
+		} else if (isFile(uri)) {
 			return new IFile(uri).copyTo(destination.secureExpandPathDown(UriUtils.lastSegment(uri.getPath())).getPath());
 		}
 
@@ -349,10 +349,10 @@ public final class UriUtils {
 		final int responseCode = connection.getResponseCode();
 		if (responseCode == HttpURLConnection.HTTP_OK) {
 			final IFile destinationFile;
-			if(destination.isDirectory()) {
-				destinationFile=destination.secureExpandPathDown(getFilenameFromConnection(connection));
-			}else {
-				destinationFile=destination;
+			if (destination.isDirectory()) {
+				destinationFile = destination.secureExpandPathDown(getFilenameFromConnection(connection));
+			} else {
+				destinationFile = destination;
 			}
 
 			// 4 possible cases:
@@ -365,10 +365,10 @@ public final class UriUtils {
 			if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("gzip")) {
 				destinationFile.write(new GZIPInputStream(connection.getInputStream()));
 
-			}else if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("deflate")) {
+			} else if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("deflate")) {
 				destinationFile.write(new InflaterInputStream(connection.getInputStream(), new Inflater(true)));
-			}else {
-				if(contentTypeEncoding != null) {
+			} else {
+				if (contentTypeEncoding != null) {
 					try {
 						Charset.forName(contentTypeEncoding);
 						destinationFile.writeContent(connection.getInputStream(), contentTypeEncoding);
@@ -376,7 +376,7 @@ public final class UriUtils {
 						ExcUtils.suppress(ign);
 						destinationFile.write(connection.getInputStream());
 					}
-				}else {
+				} else {
 					destinationFile.write(connection.getInputStream());
 				}
 			}
@@ -387,9 +387,7 @@ public final class UriUtils {
 	}
 
 	// from
-	private static final Pattern CONTENT_DISPOSITION_PATTERN =
-			Pattern.compile("attachment;\\s*filename\\s*=\\s*\"([^\"]*)\"");
-
+	private static final Pattern CONTENT_DISPOSITION_PATTERN = Pattern.compile("attachment;\\s*filename\\s*=\\s*\"([^\"]*)\"");
 
 	/**
 	 * Returns the file name from the connections Content-Disposition header or from the last URL segment
@@ -398,14 +396,31 @@ public final class UriUtils {
 	 */
 	public static String getFilenameFromConnection(final HttpURLConnection connection) {
 		final String disposition = connection.getHeaderField("Content-Disposition");
-		if(!SUtils.isNullOrEmpty(disposition)) {
+		final String name;
+		if (!SUtils.isNullOrEmpty(disposition)) {
 			final Matcher m = CONTENT_DISPOSITION_PATTERN.matcher(disposition);
 			if (m.find()) {
-				return m.group(1);
+				name = m.group(1);
+			} else {
+				name = lastSegment(connection.getURL().toString());
+			}
+		} else {
+			// extract file name from URL
+			name = lastSegment(connection.getURL().toString());
+		}
+		// add a file extension if nescessary
+		if (name.indexOf(".") == -1) {
+			final String contentType = connection.getHeaderField("Content-Type");
+			if (!SUtils.isNullOrEmpty(contentType)) {
+				try {
+					final String ext = MimeTypeUtils.getFileExtensionForMimeType(contentType);
+					return name + ext;
+				} catch (MimeTypeUtilsException ign) {
+					ExcUtils.suppress(ign);
+				}
 			}
 		}
-		// extract file name from URL
-		return lastSegment(connection.getURL().toString());
+		return name;
 	}
 
 	/**
@@ -421,7 +436,7 @@ public final class UriUtils {
 
 		final int qPos = decUrl.indexOf('?');
 		final int end = qPos != -1 ? qPos : decUrl.length();
-		final int sPos = decUrl.lastIndexOf('/',end);
+		final int sPos = decUrl.lastIndexOf('/', end);
 		final int beg = sPos != -1 ? sPos + 1 : 0;
 		return decUrl.substring(beg, end);
 	}
