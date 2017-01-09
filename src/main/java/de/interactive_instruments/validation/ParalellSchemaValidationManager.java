@@ -1,11 +1,11 @@
-/*
- * Copyright ${year} interactive instruments GmbH
+/**
+ * Copyright 2010-2016 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,39 +13,71 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package de.interactive_instruments.validation;
 
-import de.interactive_instruments.Factory;
-import org.xml.sax.SAXException;
+import static javax.xml.validation.SchemaFactory.newInstance;
+
+import java.io.File;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 
-import java.io.File;
+import org.xml.sax.SAXException;
 
-import static javax.xml.validation.SchemaFactory.newInstance;
+import de.interactive_instruments.Factory;
+import de.interactive_instruments.io.MultiFileFilter;
 
 /**
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  */
-public class SchemaValidatorFactory implements Factory<DefaultSchemaValidator> {
+public class ParalellSchemaValidationManager implements Factory<MultiFileFilter> {
 
 	private static final int MAX_ERRORS = 1000;
 	private final Schema schema;
 	private final ValidatorErrorCollector collHandler;
 
-	public SchemaValidatorFactory(final File schemaFile) throws SAXException {
+	public ParalellSchemaValidationManager(final File schemaFile) throws SAXException {
 		this.schema = newInstance("http://www.w3.org/2001/XMLSchema").newSchema(schemaFile);
 		collHandler = new ValidatorErrorCollector(MAX_ERRORS);
 	}
 
-	@Override public DefaultSchemaValidator create() {
+	public ParalellSchemaValidationManager() throws SAXException {
+		this.schema = null;
+		collHandler = new ValidatorErrorCollector(MAX_ERRORS);
+	}
+
+	@Override
+	public SchemaValidator create() {
 		try {
-			return new DefaultSchemaValidator(this.schema, collHandler);
+			return new SchemaValidator(this.schema, collHandler);
 		} catch (ParserConfigurationException | SAXException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
+
+	@Override
+	public void release() {
+		collHandler.release();
+	}
+
+	/**
+	 * Returns all concatenated error messages.
+	 *
+	 * @return concatenated error messages
+	 */
+	final public String getErrorMessages() {
+		return collHandler.getErrorMessages();
+	}
+
+	/**
+	 * Returns the number of errors.
+	 *
+	 * @return number of errors.
+	 */
+	final public int getErrorCount() {
+		return collHandler.getErrorCount();
+	}
+
 }

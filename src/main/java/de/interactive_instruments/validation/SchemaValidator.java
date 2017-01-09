@@ -1,11 +1,11 @@
-/*
- * Copyright ${year} interactive instruments GmbH
+/**
+ * Copyright 2010-2016 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,31 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package de.interactive_instruments.validation;
 
-import de.interactive_instruments.IFile;
-import de.interactive_instruments.Releasable;
-import de.interactive_instruments.exceptions.ExcUtils;
-import de.interactive_instruments.io.MultiFileFilter;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.validation.Schema;
 import javax.xml.validation.ValidatorHandler;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Set;
+
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
+
+import de.interactive_instruments.IFile;
+import de.interactive_instruments.Releasable;
+import de.interactive_instruments.exceptions.ExcUtils;
+import de.interactive_instruments.io.MultiFileFilter;
 
 /**
  * Schema validator.
  *
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  */
-public class DefaultSchemaValidator implements Releasable, MultiFileFilter {
+public class SchemaValidator implements Releasable, MultiFileFilter {
 
 	private final ValidatorErrorCollector collHandler;
 	private final ValidatorHandler vh;
@@ -48,13 +50,21 @@ public class DefaultSchemaValidator implements Releasable, MultiFileFilter {
 	 *
 	 * @throws SAXException
 	 */
-	DefaultSchemaValidator(final Schema schema, final ValidatorErrorCollector collHandler) throws SAXException, ParserConfigurationException {
+	SchemaValidator(final Schema schema, final ValidatorErrorCollector collHandler) throws SAXException, ParserConfigurationException {
 		this.collHandler = collHandler;
 		final SAXParserFactory spf = SAXParserFactory.newInstance();
+		if (schema == null) {
+			spf.setValidating(false);
+			spf.setNamespaceAware(true);
+		}
 		spf.setNamespaceAware(true);
 		reader = spf.newSAXParser().getXMLReader();
-		vh = schema.newValidatorHandler();
-		reader.setContentHandler(vh);
+		if (schema != null) {
+			vh = schema.newValidatorHandler();
+			reader.setContentHandler(vh);
+		} else {
+			vh = null;
+		}
 	}
 
 	/**
@@ -62,12 +72,9 @@ public class DefaultSchemaValidator implements Releasable, MultiFileFilter {
 	 *
 	 * @throws SAXException
 	 */
-	public DefaultSchemaValidator(final Schema schema) throws SAXException, ParserConfigurationException {
+	public SchemaValidator(final Schema schema) throws SAXException, ParserConfigurationException {
 		this(schema, new ValidatorErrorCollector(1000));
 	}
-
-
-
 
 	/**
 	 * Removes the problematic UTF-8 byte order mark
@@ -153,21 +160,29 @@ public class DefaultSchemaValidator implements Releasable, MultiFileFilter {
 	 */
 	public boolean validate(final File inputFile) {
 		BufferedReader bufferedReader = null;
+		final ValidatorErrorCollector.ValidatorErrorHandler eh = collHandler.newErrorHandler(inputFile);
 		try {
-			final ValidatorErrorCollector.ValidatorErrorHandler eh =
-					collHandler.newErrorHandler(inputFile);
-			vh.setErrorHandler(eh);
+			if (vh != null) {
+				vh.setErrorHandler(eh);
+			} else {
+				reader.setErrorHandler(eh);
+			}
 			bufferedReader = getRemovedBomReader(inputFile);
 			reader.parse(new InputSource(bufferedReader));
 			eh.release();
-		} catch (Exception ign) {
+			return !eh.hasErrors();
+		} catch (SAXParseException ign) {
+			// Already logged by error handler
 			ExcUtils.suppress(ign);
+		} catch (IOException | SAXException e) {
+			eh.logUnknownError();
 		} finally {
+			eh.release();
 			if (bufferedReader != null) {
 				IFile.closeQuietly(bufferedReader);
 			}
 		}
-		return true;
+		return false;
 	}
 
 	@Override
@@ -193,16 +208,8 @@ public class DefaultSchemaValidator implements Releasable, MultiFileFilter {
 		return collHandler.getErrorCount();
 	}
 
-	/**
-	 *
-	 *
-	 * @return
-	 */
-	final public Set<File> getSchemaInvalidFiles() {
-		return collHandler.getInvalidFiles();
-	}
-
-	@Override public boolean accept(final File pathname) {
+	@Override
+	public boolean accept(final File pathname) {
 		return validate(pathname);
 	}
 }
