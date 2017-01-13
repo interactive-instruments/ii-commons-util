@@ -44,9 +44,7 @@ public class TimedExpiredItemsRemover extends TimerTask {
 	@Override
 	public void run() {
 		try {
-			if (holders != null && holders.isEmpty()) {
-				holders.forEach(e -> e.holder.removeExpiredItems(e.maxTime, e.timeUnit));
-			}
+			holders.forEach(e -> e.holder.removeExpiredItems(e.maxTime, e.timeUnit));
 		} catch (Exception e) {
 			ExcUtils.suppress(e);
 		}
