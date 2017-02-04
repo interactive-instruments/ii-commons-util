@@ -40,12 +40,10 @@ dependencies {
     // Extra helper libraries for String manipulation, etc.
     compile group: 'org.apache.commons', name: 'commons-lang3', version: etf_commonsLang3Version
 
-    compile group: 'org.apache.commons', name: 'commons-lang3', version: etf_commonsLang3Version
-
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
 
     // Mime type detection
-    compile group: 'org.apache.tika', name: 'tika-core', version: '1.13'
+    compile group: 'org.apache.tika', name: 'tika-core', version: '1.14'
 
     // Testing
     testCompile group: 'junit', name: 'junit', version: etf_junitTestVersion
