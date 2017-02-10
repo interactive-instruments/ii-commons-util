@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,7 +35,7 @@ import de.interactive_instruments.exceptions.ExcUtils;
 
 /**
  * Implements the Observer pattern and notifies clients about file changes.
- * Singleton, registered listeners can be prioritized (see FileChangeListener).
+ * Singleton. Registered listeners can be prioritized (see FileChangeListener).
  *
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  */
@@ -42,13 +43,14 @@ public final class DirWatcher {
 
 	private final static Logger logger = LoggerFactory.getLogger(DirWatcher.class);
 
-	private final static int fireDelay = 4321;
+	private final static int fireDelay = 3321;
 	// private final Collection<FileChangeListener> listeners;
 	// private final PathFilter filter;
 
-	private AtomicBoolean running = new AtomicBoolean(false);
+	private AtomicBoolean serviceRunning = new AtomicBoolean(false);
+	private AtomicBoolean eventFireInProgress = new AtomicBoolean(false);
 
-	private WatchService watchService = null;
+	private static WatchService watchService = null;
 	private Thread watchThread = null;
 	private Timer timer = null;
 
@@ -58,7 +60,7 @@ public final class DirWatcher {
 		private final TreeSet<FileChangeListener> listeners;
 		private final WatchKey watchKey;
 
-		public WatchKeyListeners(final Path rootDir, final Collection<FileChangeListener> listeners,
+		public WatchKeyListeners(final Collection<FileChangeListener> listeners,
 				final WatchKey watchKey) {
 			this.listeners = new TreeSet<>(listeners);
 			this.watchKey = watchKey;
@@ -86,9 +88,7 @@ public final class DirWatcher {
 
 		@Override
 		public void release() {
-			if (watchKey != null) {
-				watchKey.cancel();
-			}
+			watchKey.cancel();
 		}
 
 		public boolean releaseStaleDir() {
@@ -97,7 +97,7 @@ public final class DirWatcher {
 					return false;
 				} else {
 					release();
-					return false;
+					return true;
 				}
 			}
 			// Not sure if this may happen?
@@ -105,7 +105,8 @@ public final class DirWatcher {
 		}
 	}
 
-	private static class ListenerRegistry implements Releasable {
+	private static class ListenerRegistry {
+		// Note that the types are important for the map (priority notification)
 		// Listeners observing root directories
 		private final TreeMap<FileChangeListener, Set<Path>> registeredListenersForRootDirs = new TreeMap<>();
 		// All observed sub-directories
@@ -113,10 +114,8 @@ public final class DirWatcher {
 
 		private final Lock listenerLock = new ReentrantLock();
 
-		private final WatchService watchService;
-
-		private ListenerRegistry(final WatchService watchService) {
-			this.watchService = watchService;
+		private int listenerSize() {
+			return registeredListenersForRootDirs.size();
 		}
 
 		private void registerListeners(final Collection<FileChangeListener> listeners, final Path dir) {
@@ -128,13 +127,16 @@ public final class DirWatcher {
 			} else {
 				final WatchKey watchKey;
 				try {
+					if(watchService==null) {
+						throw new IllegalStateException("Watch Service not serviceRunning");
+					}
 					watchKey = dir.register(watchService,
 							OVERFLOW, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 				} catch (IOException e) {
 					logger.error("Cannot watch directory", e);
 					return;
 				}
-				watchedSubDirs.put(dir, new WatchKeyListeners(dir, listeners, watchKey));
+				watchedSubDirs.put(dir, new WatchKeyListeners(listeners, watchKey));
 			}
 			for (final FileChangeListener listener : listeners) {
 				final Set<Path> paths = registeredListenersForRootDirs.get(listener);
@@ -153,7 +155,11 @@ public final class DirWatcher {
 
 		private void unregisterListeners(final Collection<FileChangeListener> listeners) {
 			for (final FileChangeListener listener : listeners) {
-				listenerLock.lock();
+				try {
+					listenerLock.tryLock(30, TimeUnit.SECONDS);
+				} catch (InterruptedException ign) {
+					ExcUtils.suppress(ign);
+				}
 				final Set<Path> dirs = registeredListenersForRootDirs.get(listener);
 				if (dirs != null) {
 					for (final Path dir : dirs) {
@@ -179,13 +185,15 @@ public final class DirWatcher {
 		}
 
 		private void unregisterStaleDirWatches() {
+			listenerLock.lock();
 			watchedSubDirs.values().removeIf(e -> e.releaseStaleDir());
+			listenerLock.unlock();
 		}
 
-		private void ensureDirectoryObserved(final Path dir, final Collection<FileChangeListener> listeners) {
-			// not locked !
-			for (final FileChangeListener listener : listeners) {
-				final MultiFileFilter filter = listener.filter();
+		private void ensureDirectoryObserved(final Path dir, final TreeSet<FileChangeListener> listeners) {
+			listenerLock.lock();
+			for (final FileChangeListener listener : new TreeSet<>(listeners)) {
+				final MultiFileFilter filter = listener.fileChangePreFilter();
 				if (filter == null || filter.accept(dir)) {
 					final WatchKeyListeners watchKeyListeners = watchedSubDirs.get(dir);
 					if (watchKeyListeners != null) {
@@ -194,20 +202,24 @@ public final class DirWatcher {
 						try {
 							final WatchKey watchKey = dir.register(watchService,
 									OVERFLOW, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-							watchedSubDirs.put(dir, new WatchKeyListeners(dir, listeners, watchKey));
+							watchedSubDirs.put(dir, new WatchKeyListeners(listeners, watchKey));
 						} catch (IOException e) {
 							logger.error("Cannot watch directory", e);
 							return;
 						}
 					}
+				}else{
+					listeners.remove(listener);
 				}
 			}
+			listenerLock.unlock();
 		}
 
 		private void registerDirWatchesRecursively() {
 			// Ensure that each FileChangeListener is notified when a subdirectory gets changed
 			// groupd the listeners by their root directory
 			final Map<Path, TreeSet<FileChangeListener>> groupedListeners = new TreeMap<>();
+			listenerLock.lock();
 			for (final Map.Entry<FileChangeListener, Set<Path>> fileChangeListenerSetEntry : registeredListenersForRootDirs.entrySet()) {
 				final Set<Path> paths = fileChangeListenerSetEntry.getValue();
 				for (final Path path : paths) {
@@ -224,6 +236,7 @@ public final class DirWatcher {
 					}
 				}
 			}
+			listenerLock.unlock();
 
 			for (final Map.Entry<Path, TreeSet<FileChangeListener>> groupedListenersEntry : groupedListeners.entrySet()) {
 				final TreeSet<FileChangeListener> listeners = groupedListenersEntry.getValue();
@@ -261,44 +274,32 @@ public final class DirWatcher {
 		}
 
 		private void updateDirectories() {
-			listenerLock.lock();
-			try {
-				registerDirWatchesRecursively();
-				unregisterStaleDirWatches();
-			} catch (Exception ign) {
-				ExcUtils.suppress(ign);
-			} finally {
-				listenerLock.unlock();
-			}
+			registerDirWatchesRecursively();
+			unregisterStaleDirWatches();
 		}
 
 		public TreeSet<FileChangeListener> getListeners(final Set<Path> paths) {
 			final TreeSet<FileChangeListener> res = new TreeSet<>();
+			listenerLock.lock();
 			for (final Path path : paths) {
 				final WatchKeyListeners l = watchedSubDirs.get(path);
 				if (l != null) {
 					res.addAll(l.getListeners());
 				}
 			}
+			listenerLock.unlock();
 			return res;
-		}
-
-		@Override
-		public void release() {
-			watchedSubDirs.values().forEach(e -> e.release());
 		}
 	}
 
-	private final ListenerRegistry listenerRegistry = new ListenerRegistry(watchService);
+	private final ListenerRegistry listenerRegistry = new ListenerRegistry();
 
-	// Note that the types are important for the map (priority notification)
-	// Directories observer by listeners
-	// /// private final TreeMap<Path, TreeSet<FileChangeListener>> watchedDirs = new TreeMap<>();
 	// Events fired for a path
 	private final TreeMap<Path, List<WatchEvent<?>>> watchedEvents = new TreeMap<>();
 
 	// Non-fair locking!
 	private final Lock processEventLock = new ReentrantLock();
+	private final Lock timerLock = new ReentrantLock();
 
 	private static class DelWatchEvent implements WatchEvent {
 		private final Path watchable;
@@ -341,15 +342,29 @@ public final class DirWatcher {
 		if (listeners == null || listeners.isEmpty() || listeners.iterator().next() == null) {
 			throw new IllegalArgumentException("List of Listeners is empty or null");
 		}
-		InstanceHolder.INSTANCE.listenerRegistry.registerListeners(listeners, rootDir);
+		final DirWatcher instance = InstanceHolder.INSTANCE;
+		final boolean start = instance.listenerRegistry.listenerSize()<1;
 
-		// TODO sub dirs
+		if(start) {
+			instance.prepareStart();
+		}
+		instance.listenerRegistry.registerListeners(listeners, rootDir);
+		instance.listenerRegistry.registerDirWatchesRecursively();
+		if(start) {
+			instance.start();
+		}
+	}
+
+	public static void unregister(final FileChangeListener listener) {
+		unregister(Collections.singletonList(listener));
 	}
 
 	public static void unregister(final Collection<FileChangeListener> listeners) {
-		InstanceHolder.INSTANCE.listenerRegistry.unregisterListeners(listeners);
-
-		// Todo sub dirs
+		final DirWatcher instance = InstanceHolder.INSTANCE;
+		instance.listenerRegistry.unregisterListeners(listeners);
+		if(instance.listenerRegistry.listenerSize()<1) {
+			instance.stop();
+		}
 	}
 
 	private List<WatchEvent<?>> pollEvents(final WatchKey watchKey) {
@@ -368,16 +383,27 @@ public final class DirWatcher {
 		}
 	}
 
-	public void start() throws IOException {
-		if (running.get()) {
-			throw new IllegalStateException("RecursiveDirWatcher already started!");
+	private void prepareStart() {
+		if(watchService==null) {
+			try {
+				watchService = FileSystems.getDefault().newWatchService();
+			} catch (IOException ign) {
+				ExcUtils.suppress(ign);
+			}
 		}
-		watchService = FileSystems.getDefault().newWatchService();
-		watchThread = new Thread(() -> {
-			running.set(true);
-			listenerRegistry.registerDirWatchesRecursively();
+	}
 
-			while (running.get()) {
+	private synchronized void start() {
+		if (watchService==null) {
+			throw new IllegalStateException("Watch Service is null!");
+		}
+		if (serviceRunning.get()) {
+			logger.error("RecursiveDirWatcher already started!");
+			return;
+		}
+		watchThread = new Thread(() -> {
+			serviceRunning.set(true);
+			while (serviceRunning.get()) {
 				try {
 					final WatchKey watchKey = watchService.take();
 					final List<WatchEvent<?>> events = pollEvents(watchKey);
@@ -386,65 +412,24 @@ public final class DirWatcher {
 						delayedFire(events, (Path) watchKey.watchable());
 					}
 				} catch (InterruptedException | ClosedWatchServiceException e) {
-					running.set(false);
+					serviceRunning.set(false);
 				}
 			}
 		}, this.getClass().getSimpleName());
 		watchThread.start();
 	}
 
-	private synchronized void delayedFire(final List<WatchEvent<?>> events, final Path watchable) {
-		// Redelay
-		if (timer != null) {
-			timer.cancel();
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				ExcUtils.suppress(e);
-			}
-		}
 
-		// Add events to an already existing watchable
-		processEventLock.lock();
-		final List<WatchEvent<?>> entries = watchedEvents.get(watchable);
-		if (entries != null) {
-			entries.addAll(events);
-		} else {
-			watchedEvents.put(watchable, events);
-		}
-		processEventLock.unlock();
 
-		timer = new Timer("RecursiveDirWatchDelay");
-		timer.schedule(new TimerTask() {
-			@Override
-			public void run() {
-				listenerRegistry.updateDirectories();
-				processEventLock.lock();
-				final TreeMap<Path, List<WatchEvent<?>>> watchedEventsCopy = new TreeMap<>(watchedEvents);
-				watchedEvents.clear();
-				processEventLock.unlock();
-				// Fire
-				final TreeSet<FileChangeListener> targetListeners = listenerRegistry.getListeners(watchedEventsCopy.keySet());
-				for (final FileChangeListener targetListener : targetListeners) {
-					try {
-						targetListener.fileChanged(watchedEventsCopy);
-					} catch (Exception e) {
-						logger.error("Failed to trigger " + FileChangeListener.class.getName(), e);
-					}
-				}
-			}
-		}, fireDelay);
-	}
-
-	public synchronized void stop() {
+	private synchronized void stop() {
 		if (watchThread != null) {
 			try {
 				if (timer != null) {
 					timer.cancel();
 				}
-				listenerRegistry.release();
 				watchService.close();
-				running.set(false);
+				watchService=null;
+				serviceRunning.set(false);
 				watchThread.interrupt();
 			} catch (IOException e) {
 				ExcUtils.suppress(e);
@@ -452,4 +437,62 @@ public final class DirWatcher {
 		}
 	}
 
+	@Override
+	protected void finalize() throws Throwable {
+		this.stop();
+	}
+
+	private synchronized void delayedFire(final List<WatchEvent<?>> events, final Path watchable) throws InterruptedException {
+		if (timer != null) {
+			// Kill scheduled threads but wait for started once
+			if(eventFireInProgress.get()) {
+				// wait for it
+				logger.trace("Waiting for event trigger to complete");
+				synchronized(eventFireInProgress) {
+					eventFireInProgress.wait();
+				}
+			}else {
+				timer.cancel();
+				logger.trace("Canceled file event trigger preparation");
+			}
+		}
+
+		// Add events to an existing watchable. Applicable, when a
+		// scheduled task was canceled.
+		final List<WatchEvent<?>> entries = watchedEvents.get(watchable);
+		if (entries != null) {
+			entries.addAll(events);
+		} else {
+			watchedEvents.put(watchable, events);
+		}
+
+		timer = new Timer("RecursiveDirWatchDelay");
+		logger.trace("Preparing to trigger changed file events");
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					eventFireInProgress.set(true);
+					// Fire
+					final TreeSet<FileChangeListener> targetListeners = listenerRegistry.getListeners(watchedEvents.keySet());
+					for (final FileChangeListener targetListener : targetListeners) {
+						logger.trace("Triggering changed file events for {}", targetListener.toString());
+						try {
+							targetListener.fileChanged(watchedEvents);
+						} catch (Exception e) {
+							logger.error("Failed to invoke " + FileChangeListener.class.getSimpleName()+ " "+targetListener.getClass().getName(), e);
+						}
+					}
+					listenerRegistry.updateDirectories();
+				}finally {
+					watchedEvents.clear();
+					eventFireInProgress.set(false);
+					// notify waiting threads
+					synchronized(eventFireInProgress) {
+						eventFireInProgress.notify();
+					}
+				}
+			}
+		}, fireDelay);
+	}
 }
