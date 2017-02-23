@@ -190,6 +190,10 @@ public class SchemaValidator implements Releasable, MultiFileFilter {
 		collHandler.release();
 	}
 
+	public Set<File> getSkippedFiles() {
+		return collHandler.getSkippedFiles();
+	}
+
 	/**
 	 * Returns all concatenated error messages.
 	 *

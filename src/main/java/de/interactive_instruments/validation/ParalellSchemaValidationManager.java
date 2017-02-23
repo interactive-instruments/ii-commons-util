@@ -42,9 +42,19 @@ public class ParalellSchemaValidationManager implements Factory<MultiFileFilter>
 		collHandler = new ValidatorErrorCollector(MAX_ERRORS);
 	}
 
+	public ParalellSchemaValidationManager(final File schemaFile, final int errorLimit) throws SAXException {
+		this.schema = newInstance("http://www.w3.org/2001/XMLSchema").newSchema(schemaFile);
+		collHandler = new ValidatorErrorCollector(errorLimit);
+	}
+
 	public ParalellSchemaValidationManager() throws SAXException {
 		this.schema = null;
 		collHandler = new ValidatorErrorCollector(MAX_ERRORS);
+	}
+
+	public ParalellSchemaValidationManager(final int errorLimit) throws SAXException {
+		this.schema = null;
+		collHandler = new ValidatorErrorCollector(errorLimit);
 	}
 
 	@Override
@@ -80,4 +90,7 @@ public class ParalellSchemaValidationManager implements Factory<MultiFileFilter>
 		return collHandler.getErrorCount();
 	}
 
+	public Set<File> getSkippedFiles() {
+		return collHandler.getSkippedFiles();
+	}
 }
