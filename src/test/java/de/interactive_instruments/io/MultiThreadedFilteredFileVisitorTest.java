@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@ public class MultiThreadedFilteredFileVisitorTest {
 				put("hash", new FileHashVisitor());
 			}
 		};
-		final MultiThreadedFilteredFileVisitor visitor = new MultiThreadedFilteredFileVisitor(new GmlAndXmlFilter().filename(), null, visitors, logger);
+		final MultiThreadedFilteredFileVisitor visitor = new MultiThreadedFilteredFileVisitor(new GmlAndXmlFilter().filename(),
+				null, visitors, logger);
 		Files.walkFileTree(files.toPath(), visitor);
 		System.out.println(((FileHashVisitor) visitors.get("hash")).getHash());
 	}

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,20 +47,18 @@ public class IFileTest {
 
 	@Test
 	public void testFilenameWithoutExtAndVersion() throws IOException {
-		assertEquals( "libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1.1.0-SNAPSHOT.jar"));
-		assertEquals( "libraryX", IFile.getFilenameWithoutExtAndVersion("/dir/libraryX-1.1.0-SNAPSHOT.jar"));
-		assertEquals( "libraryX", IFile.getFilenameWithoutExtAndVersion("C:\\dir\\libraryX-1.1.0-SNAPSHOT.jar"));
-		assertEquals( "libraryX-ALPHA1", IFile.getFilenameWithoutExtAndVersion("C:\\dir\\libraryX-ALPHA1.jar"));
-		assertEquals( "libraryX-sub2", IFile.getFilenameWithoutExtAndVersion("libraryX-sub2-1-ALPHA1.jar"));
+		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1.1.0-SNAPSHOT.jar"));
+		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("/dir/libraryX-1.1.0-SNAPSHOT.jar"));
+		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("C:\\dir\\libraryX-1.1.0-SNAPSHOT.jar"));
+		assertEquals("libraryX-ALPHA1", IFile.getFilenameWithoutExtAndVersion("C:\\dir\\libraryX-ALPHA1.jar"));
+		assertEquals("libraryX-sub2", IFile.getFilenameWithoutExtAndVersion("libraryX-sub2-1-ALPHA1.jar"));
 
-		assertEquals( "libraryX-1", IFile.getFilenameWithoutExtAndVersion("libraryX-1"));
-		assertEquals( "libraryX-1", IFile.getFilenameWithoutExtAndVersion("libraryX-1.jar"));
-		assertEquals( "libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1.2.jar"));
-		assertEquals( "libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1-SNAPSHOT.jar"));
-		assertEquals( "libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1-BETA-2.jar"));
+		assertEquals("libraryX-1", IFile.getFilenameWithoutExtAndVersion("libraryX-1"));
+		assertEquals("libraryX-1", IFile.getFilenameWithoutExtAndVersion("libraryX-1.jar"));
+		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1.2.jar"));
+		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1-SNAPSHOT.jar"));
+		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1-BETA-2.jar"));
 
 	}
-
-
 
 }

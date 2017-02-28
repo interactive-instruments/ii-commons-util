@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.util.Map.Entry;
 
 import de.interactive_instruments.SUtils;
 
-
 public class Properties implements MutablePropertyHolder, ClassifyingPropertyHolder {
 
 	private Map<String, Property> properties;
@@ -29,15 +28,17 @@ public class Properties implements MutablePropertyHolder, ClassifyingPropertyHol
 		private String name;
 		private String value;
 
-		public Property() {
-		}
+		public Property() {}
+
 		public Property(final String name, final String value) {
 			this.name = name;
 			this.value = value;
 		}
+
 		public String getName() {
 			return name;
 		}
+
 		public String getValue() {
 			return value;
 		}
@@ -51,12 +52,11 @@ public class Properties implements MutablePropertyHolder, ClassifyingPropertyHol
 		set(map);
 	}
 
-
 	private void set(final Map<String, String> map) {
 		if (map == null) {
 			throw new IllegalArgumentException("Map is null");
 		}
-		map.entrySet().forEach( e -> properties.put(e.getKey(), new Property(e.getKey(), e.getValue())));
+		map.entrySet().forEach(e -> properties.put(e.getKey(), new Property(e.getKey(), e.getValue())));
 	}
 
 	public Properties(final PropertyHolder propertyHolder) {
@@ -70,13 +70,14 @@ public class Properties implements MutablePropertyHolder, ClassifyingPropertyHol
 
 	private Map<String, String> getAsMap() {
 		final Map<String, String> vals = new HashMap<>();
-		properties.entrySet().forEach( e -> vals.put(e.getKey(), e.getValue().getValue()));
+		properties.entrySet().forEach(e -> vals.put(e.getKey(), e.getValue().getValue()));
 		return Collections.unmodifiableMap(vals);
 	}
 
 	@Override
 	public String getProperty(String key) {
-		return properties.get(key).getValue();
+		final Property val = properties.get(key);
+		return val != null ? val.getValue() : null;
 	}
 
 	@Override

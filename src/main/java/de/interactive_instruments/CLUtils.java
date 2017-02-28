@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,6 @@
  */
 package de.interactive_instruments;
 
-import de.interactive_instruments.exceptions.ExcUtils;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URLClassLoader;
@@ -29,6 +24,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 import java.util.jar.JarFile;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.interactive_instruments.exceptions.ExcUtils;
 
 /**
  * Classloader utilities
@@ -42,7 +43,8 @@ public final class CLUtils {
 
 	}
 
-	public static List<Class> getLoadedClasses(final ClassLoader classLoader) throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+	public static List<Class> getLoadedClasses(final ClassLoader classLoader)
+			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
 		final Field f = ClassLoader.class.getDeclaredField("classes");
 		f.setAccessible(true);
 		return new ArrayList<>(((Vector<Class>) f.get(classLoader)));
@@ -60,7 +62,8 @@ public final class CLUtils {
 			for (final Class c : getLoadedClasses(classLoader)) {
 				final CodeSource cs = c.getProtectionDomain().getCodeSource();
 				if (cs != null && cs.getLocation() != null && cs.getLocation().getFile() != null) {
-					logger.info(" {} <- {} ", c.getCanonicalName(), c.getProtectionDomain().getCodeSource().getLocation().getFile());
+					logger.info(" {} <- {} ", c.getCanonicalName(),
+							c.getProtectionDomain().getCodeSource().getLocation().getFile());
 				} else {
 					logger.info(c.getCanonicalName());
 				}
@@ -74,11 +77,11 @@ public final class CLUtils {
 	 * 	Workaround for Windows: close all jar file handles
 	 *
 	 * 	@param classLoader any URLClassLoader
- 	 */
+	 */
 	public static void forceCloseUcp(final URLClassLoader classLoader) {
-		if(classLoader!=null) {
+		if (classLoader != null) {
 			try {
-					classLoader.close();
+				classLoader.close();
 			} catch (final IOException ignore) {
 				ExcUtils.suppress(ignore);
 			}

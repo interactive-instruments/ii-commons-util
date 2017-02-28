@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,7 +127,7 @@ public final class DirWatcher {
 			} else {
 				final WatchKey watchKey;
 				try {
-					if(watchService==null) {
+					if (watchService == null) {
 						throw new IllegalStateException("Watch Service not serviceRunning");
 					}
 					watchKey = dir.register(watchService,
@@ -208,7 +208,7 @@ public final class DirWatcher {
 							return;
 						}
 					}
-				}else{
+				} else {
 					listeners.remove(listener);
 				}
 			}
@@ -220,7 +220,8 @@ public final class DirWatcher {
 			// groupd the listeners by their root directory
 			final Map<Path, TreeSet<FileChangeListener>> groupedListeners = new TreeMap<>();
 			listenerLock.lock();
-			for (final Map.Entry<FileChangeListener, Set<Path>> fileChangeListenerSetEntry : registeredListenersForRootDirs.entrySet()) {
+			for (final Map.Entry<FileChangeListener, Set<Path>> fileChangeListenerSetEntry : registeredListenersForRootDirs
+					.entrySet()) {
 				final Set<Path> paths = fileChangeListenerSetEntry.getValue();
 				for (final Path path : paths) {
 					final TreeSet<FileChangeListener> ls = groupedListeners.get(path);
@@ -245,7 +246,8 @@ public final class DirWatcher {
 					ensureDirectoryObserved(path, listeners);
 					Files.walkFileTree(path, new FileVisitor<Path>() {
 						@Override
-						public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+						public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs)
+								throws IOException {
 							if (defaultFileIgnoreFilter.accept(dir)) {
 								ensureDirectoryObserved(dir, listeners);
 							}
@@ -343,14 +345,14 @@ public final class DirWatcher {
 			throw new IllegalArgumentException("List of Listeners is empty or null");
 		}
 		final DirWatcher instance = InstanceHolder.INSTANCE;
-		final boolean start = instance.listenerRegistry.listenerSize()<1;
+		final boolean start = instance.listenerRegistry.listenerSize() < 1;
 
-		if(start) {
+		if (start) {
 			instance.prepareStart();
 		}
 		instance.listenerRegistry.registerListeners(listeners, rootDir);
 		instance.listenerRegistry.registerDirWatchesRecursively();
-		if(start) {
+		if (start) {
 			instance.start();
 		}
 	}
@@ -362,7 +364,7 @@ public final class DirWatcher {
 	public static void unregister(final Collection<FileChangeListener> listeners) {
 		final DirWatcher instance = InstanceHolder.INSTANCE;
 		instance.listenerRegistry.unregisterListeners(listeners);
-		if(instance.listenerRegistry.listenerSize()<1) {
+		if (instance.listenerRegistry.listenerSize() < 1) {
 			instance.stop();
 		}
 	}
@@ -384,7 +386,7 @@ public final class DirWatcher {
 	}
 
 	private void prepareStart() {
-		if(watchService==null) {
+		if (watchService == null) {
 			try {
 				watchService = FileSystems.getDefault().newWatchService();
 			} catch (IOException ign) {
@@ -394,7 +396,7 @@ public final class DirWatcher {
 	}
 
 	private synchronized void start() {
-		if (watchService==null) {
+		if (watchService == null) {
 			throw new IllegalStateException("Watch Service is null!");
 		}
 		if (serviceRunning.get()) {
@@ -419,8 +421,6 @@ public final class DirWatcher {
 		watchThread.start();
 	}
 
-
-
 	private synchronized void stop() {
 		if (watchThread != null) {
 			try {
@@ -428,7 +428,7 @@ public final class DirWatcher {
 					timer.cancel();
 				}
 				watchService.close();
-				watchService=null;
+				watchService = null;
 				serviceRunning.set(false);
 				watchThread.interrupt();
 			} catch (IOException e) {
@@ -445,13 +445,13 @@ public final class DirWatcher {
 	private synchronized void delayedFire(final List<WatchEvent<?>> events, final Path watchable) throws InterruptedException {
 		if (timer != null) {
 			// Kill scheduled threads but wait for started once
-			if(eventFireInProgress.get()) {
+			if (eventFireInProgress.get()) {
 				// wait for it
 				logger.trace("Waiting for event trigger to complete");
-				synchronized(eventFireInProgress) {
+				synchronized (eventFireInProgress) {
 					eventFireInProgress.wait();
 				}
-			}else {
+			} else {
 				timer.cancel();
 				logger.trace("Canceled file event trigger preparation");
 			}
@@ -480,15 +480,16 @@ public final class DirWatcher {
 						try {
 							targetListener.fileChanged(watchedEvents);
 						} catch (Exception e) {
-							logger.error("Failed to invoke " + FileChangeListener.class.getSimpleName()+ " "+targetListener.getClass().getName(), e);
+							logger.error("Failed to invoke " + FileChangeListener.class.getSimpleName() + " "
+									+ targetListener.getClass().getName(), e);
 						}
 					}
 					listenerRegistry.updateDirectories();
-				}finally {
+				} finally {
 					watchedEvents.clear();
 					eventFireInProgress.set(false);
 					// notify waiting threads
-					synchronized(eventFireInProgress) {
+					synchronized (eventFireInProgress) {
 						eventFireInProgress.notify();
 					}
 				}

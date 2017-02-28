@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,8 @@ public final class ConfigProperties implements ConfigPropertyHolder {
 
 	private ConfigProperties(final ConfigProperties configProperties) {
 		this.properties = new LinkedHashMap<String, String>(configProperties.properties);
-		this.requiredProperties = configProperties.requiredProperties != null ? new LinkedHashSet<String>(configProperties.requiredProperties) : null;
+		this.requiredProperties = configProperties.requiredProperties != null
+				? new LinkedHashSet<String>(configProperties.requiredProperties) : null;
 	}
 
 	public ConfigProperties cloneWithoutLock() {
@@ -128,10 +129,11 @@ public final class ConfigProperties implements ConfigPropertyHolder {
 	public void expectAllRequiredPropertiesSet() throws MissingPropertyException {
 		if (!allRequiredPropertiesSet()) {
 			List<String> missingProperties = new ArrayList<String>(requiredProperties.size());
-			missingProperties.addAll(this.requiredProperties.stream().filter(requiredProperty -> !properties.containsKey(requiredProperty)).collect(Collectors.toList()));
-			if(missingProperties.size()<=1) {
+			missingProperties.addAll(this.requiredProperties.stream()
+					.filter(requiredProperty -> !properties.containsKey(requiredProperty)).collect(Collectors.toList()));
+			if (missingProperties.size() <= 1) {
 				throw new MissingPropertyException(missingProperties.get(0));
-			}else{
+			} else {
 				throw new MissingPropertyException(missingProperties);
 			}
 		}

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,16 +90,19 @@ public class MapToListAdapterTest {
 			"    <properties>\n" +
 			"        <ii:Items>\n" +
 			"            <ii:Item name=\"KEY\">\n" +
-			"                <ii:value xsi:type=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">VALUE</ii:value>\n" +
+			"                <ii:value xsi:type=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">VALUE</ii:value>\n"
+			+
 			"            </ii:Item>\n" +
 			"        </ii:Items>\n" +
 			"    </properties>\n" +
 			"    <assertions>\n" +
 			"        <ii:Item name=\"ID.1\">\n" +
-			"            <ii:value xsi:type=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">Assertion.1</ii:value>\n" +
+			"            <ii:value xsi:type=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">Assertion.1</ii:value>\n"
+			+
 			"        </ii:Item>\n" +
 			"        <ii:Item name=\"ID.2\">\n" +
-			"            <ii:value xsi:type=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">Assertion.2</ii:value>\n" +
+			"            <ii:value xsi:type=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">Assertion.2</ii:value>\n"
+			+
 			"        </ii:Item>\n" +
 			"    </assertions>\n" +
 			"    <requirements>\n" +

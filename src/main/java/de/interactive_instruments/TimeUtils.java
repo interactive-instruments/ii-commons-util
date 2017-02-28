@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,11 @@
  */
 package de.interactive_instruments;
 
-import org.apache.commons.lang3.time.FastDateFormat;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.commons.lang3.time.FastDateFormat;
 
 /**
  * Time Utilities
@@ -31,8 +31,7 @@ public final class TimeUtils {
 	private TimeUtils() {}
 
 	// thread safe (in contrast to SimpleDateFormat)
-	public static final FastDateFormat ISO_DATETIME_TIME_ZONE_FORMAT =
-			FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssZZ");
+	public static final FastDateFormat ISO_DATETIME_TIME_ZONE_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssZZ");
 
 	/**
 	 * Returns the deltaTime as formatted String with
@@ -42,8 +41,8 @@ public final class TimeUtils {
 	 * @return
 	 */
 	public static String milisAsHrMins(final long deltaTime) {
-		long minutes = (long) ((deltaTime / 1000) / 60);
-		final long hours = (long) (minutes / 60);
+		long minutes = (deltaTime / 1000) / 60;
+		final long hours = minutes / 60;
 		minutes = minutes - (hours * 60);
 
 		if (hours == 0 && minutes == 0) {

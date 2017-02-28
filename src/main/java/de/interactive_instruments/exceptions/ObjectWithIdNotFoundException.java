@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,13 +44,15 @@ public class ObjectWithIdNotFoundException extends Exception {
 	}
 
 	public ObjectWithIdNotFoundException(final String id, final String objLabel) {
-		super("An object with the id \"" + id + "\" ("+objLabel+") could not be found!");
+		super("An object with the id \"" + id + "\" (" + objLabel + ") could not be found!");
 	}
-
 
 	public ObjectWithIdNotFoundException(final Iterable iterable) {
 		super("Objects with the ids \"" + SUtils.toBlankSepStr(iterable) + "\" could not be found!");
 	}
 
-
+	// User with super(message, 1L);
+	protected ObjectWithIdNotFoundException(final String message, final long placeholder) {
+		super(message);
+	}
 }

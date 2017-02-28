@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,9 +96,12 @@ public class UriUtilsTest {
 	public void testUrlDecodingPlusSign() {
 		assertEquals("http://server/service?param=1 2", UriUtils.ensureUrlDecoded("http://server/service?param=1+2"));
 		assertEquals("http://server/service?param=1+2/3", UriUtils.ensureUrlDecoded("http://server/service?param=1+2/3"));
-		assertEquals("http://server/service?param=1+2", UriUtils.ensureUrlDecoded("http%3A%2F%2Fserver%2Fservice%3Fparam%3D1%2B2"));
-		assertEquals("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2", UriUtils.ensureUrlDecoded("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2"));
-		assertEquals("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2", UriUtils.ensureUrlDecoded("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2"));
+		assertEquals("http://server/service?param=1+2",
+				UriUtils.ensureUrlDecoded("http%3A%2F%2Fserver%2Fservice%3Fparam%3D1%2B2"));
+		assertEquals("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2",
+				UriUtils.ensureUrlDecoded("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2"));
+		assertEquals("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2",
+				UriUtils.ensureUrlDecoded("http://server/service?OUTPUTFORMAT=application/gml+xml; version=3.2"));
 	}
 
 	@Test

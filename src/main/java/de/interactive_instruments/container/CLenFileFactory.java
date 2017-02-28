@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
 
-import de.interactive_instruments.exceptions.*;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import de.interactive_instruments.Configurable;
 import de.interactive_instruments.IFile;
 import de.interactive_instruments.MimeTypeUtils;
 import de.interactive_instruments.SUtils;
+import de.interactive_instruments.exceptions.*;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
 import de.interactive_instruments.properties.ConfigProperties;
 import de.interactive_instruments.properties.ConfigPropertyHolder;
@@ -128,7 +128,8 @@ public final class CLenFileFactory implements ContainerFactory, Configurable {
 	}
 
 	@Override
-	public LazyLoadContainer createReferencedContainer(final String name, final String mimeType, final URI tempStorageUri) throws ContainerFactoryException {
+	public LazyLoadContainer createReferencedContainer(final String name, final String mimeType, final URI tempStorageUri)
+			throws ContainerFactoryException {
 		try {
 			final IFile file = new IFile(tempStorageUri);
 			file.expectFileIsReadable();
