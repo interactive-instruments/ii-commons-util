@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public final class XmlUtils {
 	private XmlUtils() {}
 
 	public static String[] nodeValues(final NodeList nodeList) {
-		if( nodeList == null ) {
+		if (nodeList == null) {
 			return null;
 		}
 		final String[] strArr = new String[nodeList.getLength()];
@@ -60,10 +60,10 @@ public final class XmlUtils {
 	}
 
 	public static String nodeValue(final Node node) {
-		if( node == null ) {
+		if (node == null) {
 			return null;
 		}
-		if( node.getNodeType() == Node.ELEMENT_NODE || node.getNodeType() == Node.DOCUMENT_FRAGMENT_NODE) {
+		if (node.getNodeType() == Node.ELEMENT_NODE || node.getNodeType() == Node.DOCUMENT_FRAGMENT_NODE) {
 			final Node firstChildNode = node.getFirstChild();
 			if (firstChildNode != null && firstChildNode.getNodeType() == Node.TEXT_NODE) {
 				return firstChildNode.getNodeValue();
@@ -91,10 +91,11 @@ public final class XmlUtils {
 
 	public static class XmlHandle {
 		private final XPath xpath;
+		// FIXME can only be used once! Use buffer!
 		private final InputSource source;
 
 		XmlHandle(final XPath xpath, final InputSource source) {
-			this.xpath = xpath!=null ? xpath : XPathFactory.newInstance().newXPath();
+			this.xpath = xpath != null ? xpath : XPathFactory.newInstance().newXPath();
 			this.source = source;
 		}
 
@@ -104,6 +105,43 @@ public final class XmlUtils {
 
 		public String[] evaluateValues(final String xpathExpression) throws XPathExpressionException {
 			return nodeValues((NodeList) xpath.evaluate(xpathExpression, source, XPathConstants.NODESET));
+		}
+	}
+
+	public static String getLastXpathSegment(final String xpath, final boolean excludeNamespace) {
+		final int lastSlash = xpath.lastIndexOf('/');
+		final int lastFragmentBeginPos;
+		final int maxLength;
+		if (lastSlash == xpath.length() - 1) {
+			lastFragmentBeginPos = xpath.lastIndexOf('/', xpath.length() - 2);
+			maxLength = xpath.length() - 1;
+		} else {
+			lastFragmentBeginPos = lastSlash;
+			maxLength = xpath.length();
+		}
+		if (lastFragmentBeginPos != -1) {
+			final int filterSelectPos = SUtils.minIndexOf(xpath, lastFragmentBeginPos, "[", "=");
+			final int lastFragmentEndPos;
+			if (filterSelectPos != -1) {
+				lastFragmentEndPos = filterSelectPos;
+			} else {
+				lastFragmentEndPos = maxLength;
+			}
+
+			final int fragmentBeginPos;
+			if (excludeNamespace) {
+				final int afterNamespacePos = xpath.indexOf(':', lastFragmentBeginPos);
+				if (afterNamespacePos != -1 && afterNamespacePos < lastFragmentEndPos) {
+					fragmentBeginPos = afterNamespacePos + 1;
+				} else {
+					fragmentBeginPos = lastFragmentBeginPos + 1;
+				}
+			} else {
+				fragmentBeginPos = lastFragmentBeginPos + 1;
+			}
+			return xpath.substring(fragmentBeginPos, lastFragmentEndPos);
+		} else {
+			return "/";
 		}
 	}
 

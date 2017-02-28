@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import de.interactive_instruments.exceptions.ExcUtils;
@@ -44,10 +43,10 @@ import de.interactive_instruments.io.FileHashVisitor;
  */
 public final class UriUtils {
 
-	// Initial TCP handshake connection timeout: 11 seconds
-	final private static int TIMEOUT = 11000;
-	// Timeout on waiting to read data: 91 seconds
-	private final static int READ_TIMEOUT = 91000;
+	// Initial TCP handshake connection timeout: 60 seconds
+	final private static int TIMEOUT = 60000;
+	// Timeout on waiting to read data: 120 seconds
+	private final static int READ_TIMEOUT = 120000;
 
 	private static IFile tmpDir;
 
@@ -59,6 +58,19 @@ public final class UriUtils {
 	}
 
 	private UriUtils() {}
+
+	public static class UriNotAbsoluteException extends IOException {
+		final URI uri;
+
+		public UriNotAbsoluteException(final String message, final URI uri) {
+			super(message);
+			this.uri = uri;
+		}
+
+		public URI getUri() {
+			return uri;
+		}
+	}
 
 	/**
 	 * Return the parent location or the current URI if applicable
@@ -151,6 +163,51 @@ public final class UriUtils {
 		}
 	}
 
+	public static String withoutQueryParameters(final String url) {
+		final int paramIndex = Objects.requireNonNull(url, "URL is null").indexOf("?");
+		if (paramIndex != -1) {
+			return url.substring(0, paramIndex);
+		}
+		return url;
+	}
+
+	public static URI withoutQueryParameters(final URI uri) throws URISyntaxException {
+		return new URI(uri.getScheme(),
+				uri.getAuthority(),
+				uri.getPath(),
+				null,
+				uri.getFragment());
+	}
+
+	public static String withQueryParameters(final String url, final Map<String, String> parameters) {
+		return withQueryParameters(url, parameters, false);
+	}
+
+	public static String withQueryParameters(final String url, final Map<String, String> parameters,
+			final boolean keysUpperCase) {
+		final String urlWithoutParams = withoutQueryParameters(url);
+		if (parameters != null && !parameters.isEmpty()) {
+			final StringBuilder urlWithParams = new StringBuilder(urlWithoutParams + "?");
+			final Iterator<Map.Entry<String, String>> it = parameters.entrySet().iterator();
+			for (Map.Entry<String, String> param = it.next();;) {
+				if (keysUpperCase) {
+					urlWithParams.append(param.getKey().toUpperCase(Locale.ENGLISH));
+				} else {
+					urlWithParams.append(param.getKey());
+				}
+				urlWithParams.append("=").append(param.getValue());
+				if (it.hasNext()) {
+					urlWithParams.append("&");
+					param = it.next();
+				} else {
+					break;
+				}
+			}
+			return urlWithParams.toString();
+		}
+		return urlWithoutParams;
+	}
+
 	public static boolean isFile(final URI uri) {
 		return "file".equalsIgnoreCase(uri.getScheme());
 	}
@@ -160,15 +217,10 @@ public final class UriUtils {
 	}
 
 	private static String loadFromConnection(final URLConnection connection, boolean encodeBase64) throws IOException {
-		// todo change to try-with-resources
 		final StringBuffer urlData = new StringBuffer(1024);
 		final InputStream urlStream = connection.getInputStream();
-		BufferedReader reader = null;
 		if (!encodeBase64) {
-			try {
-				final InputStreamReader urlStreamReader = new InputStreamReader(
-						urlStream);
-				reader = new BufferedReader(urlStreamReader);
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream))) {
 				final char[] buf = new char[1024];
 				int numRead;
 				while ((numRead = reader.read(buf)) != -1) {
@@ -176,7 +228,6 @@ public final class UriUtils {
 				}
 			} finally {
 				IFile.closeQuietly(urlStream);
-				IFile.closeQuietly(reader);
 			}
 			return urlData.toString();
 		} else {
@@ -203,7 +254,8 @@ public final class UriUtils {
 		}
 	}
 
-	private static void streamFromConnection(final URLConnection connection, final boolean encodeBase64, final OutputStream outputStream) throws IOException {
+	private static void streamFromConnection(final URLConnection connection, final boolean encodeBase64,
+			final OutputStream outputStream) throws IOException {
 		streamFromConnection(connection, encodeBase64, outputStream, false);
 	}
 
@@ -216,7 +268,8 @@ public final class UriUtils {
 	 * @param decode decode before copying to output stream
 	 * @throws IOException
 	 */
-	private static void streamFromConnection(final URLConnection connection, final boolean encodeBase64, final OutputStream outputStream, final boolean decode) throws IOException {
+	private static void streamFromConnection(final URLConnection connection, final boolean encodeBase64,
+			final OutputStream outputStream, final boolean decode) throws IOException {
 		try (final InputStream urlStream = decode == false ? connection.getInputStream() : decodedInputStream(connection)) {
 			if (!encodeBase64) {
 				IOUtils.copy(urlStream, outputStream);
@@ -244,7 +297,8 @@ public final class UriUtils {
 		stream(uri, outputStream, null);
 	}
 
-	public static void stream(final URI uri, final OutputStream outputStream, final Credentials credentials) throws IOException {
+	public static void stream(final URI uri, final OutputStream outputStream, final Credentials credentials)
+			throws IOException {
 		if (isUrl(uri)) {
 			streamFromConnection(openConnection(uri, credentials), false, outputStream);
 		} else if (isFile(uri)) {
@@ -305,7 +359,7 @@ public final class UriUtils {
 			connection = (HttpURLConnection) openConnection(uri, credentials);
 			final int responseCode = connection.getResponseCode();
 			if (responseCode == HttpURLConnection.HTTP_OK) {
-				final String fileName = getFilenameFromConnection(connection);
+				final String fileName = proposeFilenameFromConnection(connection, true);
 				final IFile tmpFile = getTempDir().expandPath(fileName);
 				if (tmpFile.exists()) {
 					tmpFile.delete();
@@ -327,7 +381,8 @@ public final class UriUtils {
 	public static IFile downloadTo(final URI uri, final IFile destination, final Credentials credentials) throws IOException {
 		if (!destination.isDirectory()) {
 			if (destination.exists()) {
-				throw new IOException("Cannot download file form " + uri.toString() + " as destination file " + destination.getPath() + " already exists");
+				throw new IOException("Cannot download file form " + uri.toString() + " as destination file "
+						+ destination.getPath() + " already exists");
 			}
 			if (isFile(uri)) {
 				return new IFile(uri).copyTo(destination.getPath());
@@ -350,7 +405,7 @@ public final class UriUtils {
 		if (responseCode == HttpURLConnection.HTTP_OK) {
 			final IFile destinationFile;
 			if (destination.isDirectory()) {
-				destinationFile = destination.secureExpandPathDown(getFilenameFromConnection(connection));
+				destinationFile = destination.secureExpandPathDown(proposeFilenameFromConnection(connection, true));
 			} else {
 				destinationFile = destination;
 			}
@@ -394,22 +449,47 @@ public final class UriUtils {
 	 *
 	 * @return
 	 */
-	public static String getFilenameFromConnection(final HttpURLConnection connection) {
+	public static String proposeFilename(final URI uri, boolean proposeFileExtension) throws IOException {
+		return proposeFilenameFromConnection((HttpURLConnection) openConnection(uri, null), proposeFileExtension);
+	}
+
+	/**
+	 * Returns the file name from the connections Content-Disposition header or from the last URL segment
+	 *
+	 * @return
+	 */
+	public static String proposeFilename(final URI uri, final Credentials credentials, boolean proposeFileExtension)
+			throws IOException {
+		return proposeFilenameFromConnection((HttpURLConnection) openConnection(uri, credentials), proposeFileExtension);
+	}
+
+	/**
+	 * Returns the file name from the connections Content-Disposition header, from the last URL segment or the hostname
+	 *
+	 * @return
+	 */
+	public static String proposeFilenameFromConnection(final HttpURLConnection connection, boolean proposeFileExtension) {
 		final String disposition = connection.getHeaderField("Content-Disposition");
+		final String url = connection.getURL().toString();
 		final String name;
 		if (!SUtils.isNullOrEmpty(disposition)) {
 			final Matcher m = CONTENT_DISPOSITION_PATTERN.matcher(disposition);
 			if (m.find()) {
 				name = m.group(1);
 			} else {
-				name = lastSegment(connection.getURL().toString());
+				name = lastSegment(url);
 			}
+		} else if (url.indexOf('/', 7) != -1) {
+			// take last segment after slash
+			name = lastSegment(url);
 		} else {
-			// extract file name from URL
-			name = lastSegment(connection.getURL().toString());
+			// take domain name
+			final String hostName = connection.getURL().getHost();
+			name = hostName.startsWith("www.") ? hostName.substring(4) : hostName;
 		}
+
 		// add a file extension if nescessary
-		if (name.indexOf(".") == -1) {
+		if (proposeFileExtension && name.indexOf(".") == -1) {
 			final String contentType = connection.getHeaderField("Content-Type");
 			if (!SUtils.isNullOrEmpty(contentType)) {
 				try {
@@ -463,9 +543,9 @@ public final class UriUtils {
 		return m.find();
 	}
 
-	private static void expectAbsolute(final URI uri) throws IOException {
+	private static void expectAbsolute(final URI uri) throws UriNotAbsoluteException {
 		if (!uri.isAbsolute()) {
-			throw new IOException("URI '" + uri.toString() + "' is not absolute");
+			throw new UriNotAbsoluteException("URI '" + uri.toString() + "' is not absolute", uri);
 		}
 	}
 
@@ -489,7 +569,7 @@ public final class UriUtils {
 	 * @return
 	 * @throws IOException
 	 */
-	private static InputStream openStream(final URI uri, final Credentials cred) throws IOException {
+	public static InputStream openStream(final URI uri, final Credentials cred) throws IOException {
 		final URLConnection c = openConnection(uri, cred);
 		InputStream s = null;
 		try {
@@ -501,7 +581,7 @@ public final class UriUtils {
 		return s;
 	}
 
-	private static InputStream openStream(URI uri) throws IOException {
+	public static InputStream openStream(URI uri) throws IOException {
 		return openStream(uri, null);
 	}
 
@@ -594,7 +674,8 @@ public final class UriUtils {
 		return hashFromTimestampOrContent(uris, null);
 	}
 
-	public static synchronized String hashFromTimestampOrContent(final Collection<URI> uris, Credentials cred) throws IOException {
+	public static synchronized String hashFromTimestampOrContent(final Collection<URI> uris, Credentials cred)
+			throws IOException {
 
 		final MessageDigest md = MdUtils.getMessageDigest();
 
@@ -758,14 +839,14 @@ public final class UriUtils {
 	 */
 	public static String ensureUrlDecoded(final String url) {
 		try {
-			final String encoded = URLDecoder.decode(url, "UTF-8");
-			if (url.length() == encoded.length() && url.contains("+")) {
+			final String decoded = URLDecoder.decode(url, "UTF-8");
+			if (url.length() == decoded.length() && url.contains("+")) {
 				int paramIndex = url.indexOf("?");
 				if (paramIndex != -1 && containsUnsafeChars(url.substring(paramIndex + 1))) {
 					return url;
 				}
 			}
-			return encoded;
+			return decoded;
 		} catch (UnsupportedEncodingException e) {
 			throw new RuntimeException("UTF-8 not supported: " + e);
 		}
