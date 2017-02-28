@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang3.time.FastDateFormat;
+
 /**
  * Time Utilities
  *
@@ -28,9 +30,8 @@ public final class TimeUtils {
 
 	private TimeUtils() {}
 
-	public static SimpleDateFormat to8601Format() {
-		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-	}
+	// thread safe (in contrast to SimpleDateFormat)
+	public static final FastDateFormat ISO_DATETIME_TIME_ZONE_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssZZ");
 
 	/**
 	 * Returns the deltaTime as formatted String with
@@ -40,8 +41,8 @@ public final class TimeUtils {
 	 * @return
 	 */
 	public static String milisAsHrMins(final long deltaTime) {
-		long minutes = (long) ((deltaTime / 1000) / 60);
-		final long hours = (long) (minutes / 60);
+		long minutes = (deltaTime / 1000) / 60;
+		final long hours = minutes / 60;
 		minutes = minutes - (hours * 60);
 
 		if (hours == 0 && minutes == 0) {
@@ -52,9 +53,11 @@ public final class TimeUtils {
 		if (hours > 0) {
 			duration.append(hours);
 			duration.append("hr");
+			if (minutes > 0) {
+				duration.append(" ");
+			}
 		}
 		if (minutes > 0) {
-			duration.append(" ");
 			duration.append(minutes);
 			duration.append("min");
 		}
@@ -79,9 +82,11 @@ public final class TimeUtils {
 		if (minutes > 0) {
 			duration.append(minutes);
 			duration.append("min");
+			if (seconds > 0) {
+				duration.append(" ");
+			}
 		}
 		if (seconds > 0) {
-			duration.append(" ");
 			duration.append(seconds);
 			duration.append("sec");
 		}
@@ -99,12 +104,12 @@ public final class TimeUtils {
 	}
 
 	public static String dateToIsoString(final Date date) {
-		return to8601Format().format(date);
+		return ISO_DATETIME_TIME_ZONE_FORMAT.format(date);
 	}
 
 	public static Date string8601ToDate(final String str) {
 		try {
-			return to8601Format().parse(str);
+			return ISO_DATETIME_TIME_ZONE_FORMAT.parse(str);
 		} catch (ParseException e) {
 			throw new IllegalArgumentException(e);
 		}

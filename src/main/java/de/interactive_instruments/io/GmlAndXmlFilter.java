@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,21 @@
  */
 package de.interactive_instruments.io;
 
-import java.io.File;
-import java.io.FileFilter;
-
 /**
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  */
-public class GmlAndXmlFilter extends FileAndPathFilter {
+public class GmlAndXmlFilter implements FileContentFilterHolder {
 
-	public GmlAndXmlFilter(FileFilter ff) {
-		super(ff);
-	}
-
-	public GmlAndXmlFilter() {}
+	private ContentTypeFilter contentFilter = new ContentTypeFilter("application/xml", "application/gml+xml");
+	private MultiFileFilter filenameFilter = new FilenameExtensionFilter(".xml", ".gml");
 
 	@Override
-	public boolean doAccept(final File pathname) {
-		final String p = pathname.getName().toUpperCase();
-		return ('.' != p.charAt(0)) &&
-				(p.endsWith(".XML") || p.endsWith(".GML"));
+	public ContentTypeFilter content() {
+		return contentFilter;
+	}
+
+	@Override
+	public MultiFileFilter filename() {
+		return filenameFilter;
 	}
 }

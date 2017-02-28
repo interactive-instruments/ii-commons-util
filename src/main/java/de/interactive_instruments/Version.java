@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,12 @@ public class Version implements ImmutableVersion, Comparable<ImmutableVersion> {
 		this.major = major;
 		this.minor = minor;
 		this.bugfix = bugfix;
+	}
+
+	public Version(final Version version) {
+		this.major = version.major;
+		this.minor = version.minor;
+		this.bugfix = version.bugfix;
 	}
 
 	/**

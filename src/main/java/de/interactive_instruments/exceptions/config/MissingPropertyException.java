@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,13 +31,13 @@ public class MissingPropertyException extends ConfigurationException {
 	private static final long serialVersionUID = 218983095766850743L;
 
 	public MissingPropertyException(String property) {
-		super("Incomplete configuration: missing property \"" +
-				property + "\"!");
+		super("Incomplete configuration:the required property \"" +
+				property + "\" is not set!");
 	}
 
 	public MissingPropertyException(Collection properties) {
-		super("Incomplete configuration: missing properties \"" +
-				SUtils.toBlankSepStr(properties) + "\"!");
+		super("Incomplete configuration: the required properties \"" +
+				SUtils.toBlankSepStr(properties) + "\" are not set!");
 	}
 
 }

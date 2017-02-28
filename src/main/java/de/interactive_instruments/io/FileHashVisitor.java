@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import java.nio.file.FileVisitor;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import de.interactive_instruments.MdUtils;
 
@@ -30,27 +31,24 @@ import de.interactive_instruments.MdUtils;
  */
 public class FileHashVisitor implements FileVisitor<Path> {
 
-	private long fileCount = 0;
 	private long size = 0;
+	private final Set<byte[]> files = new LinkedHashSet<>();
+	private long byteLength = 0;
 	private final PathFilter filter;
 	private final MessageDigest md;
 
-	public FileHashVisitor(PathFilter filter) {
-		if (filter == null) {
-			this.filter = (p) -> true;
-		} else {
-			this.filter = filter;
-		}
-		this.md = MdUtils.getMessageDigest();
+	public FileHashVisitor(final PathFilter filter, final MessageDigest md) {
+		this.filter = filter;
+		this.md = md;
 	}
 
-	public FileHashVisitor(PathFilter filter, MessageDigest md) {
-		if (filter == null) {
-			this.filter = (p) -> true;
-		} else {
-			this.filter = filter;
-		}
-		this.md = md;
+	public FileHashVisitor(final PathFilter filter) {
+		this(filter, MdUtils.getMessageDigest());
+
+	}
+
+	public FileHashVisitor() {
+		this(null, MdUtils.getMessageDigest());
 	}
 
 	@Override
@@ -59,15 +57,16 @@ public class FileHashVisitor implements FileVisitor<Path> {
 	}
 
 	@Override
-	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-		if (!filter.accept(file)) {
-			return FileVisitResult.CONTINUE;
-		}
-		fileCount++;
-		size += attrs.size();
+	public FileVisitResult visitFile(Path file, final BasicFileAttributes attrs) throws IOException {
 		final String mod = file.getFileName() + String.valueOf(
 				attrs.lastModifiedTime().toMillis() + attrs.size());
-		md.update(mod.getBytes());
+		if (filter == null || filter.accept(file)) {
+			synchronized (this) {
+				files.add(mod.getBytes());
+				byteLength += mod.length();
+				size += attrs.size();
+			}
+		}
 		return FileVisitResult.CONTINUE;
 	}
 
@@ -81,15 +80,29 @@ public class FileHashVisitor implements FileVisitor<Path> {
 		return FileVisitResult.CONTINUE;
 	}
 
+	public byte[] getHash() {
+		if (this.byteLength < Integer.MAX_VALUE) {
+			final byte[] bytes = new byte[(int) this.byteLength];
+			int i = 0;
+			for (final byte[] fileBytes : files) {
+				for (int j = 0, fileBytesLength = fileBytes.length; j < fileBytesLength; j++) {
+					bytes[i++] = fileBytes[j];
+				}
+			}
+			this.md.update(bytes);
+		} else {
+			for (final byte[] fileBytes : files) {
+				this.md.update(fileBytes);
+			}
+		}
+		return this.md.digest();
+	}
+
 	public long getFileCount() {
-		return fileCount;
+		return files.size();
 	}
 
 	public long getSize() {
 		return size;
-	}
-
-	public byte[] getHash() {
-		return md.digest();
 	}
 }

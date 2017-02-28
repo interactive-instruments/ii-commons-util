@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,11 +44,9 @@ public class TimedExpiredItemsRemover extends TimerTask {
 	@Override
 	public void run() {
 		try {
-			if (holders != null && holders.isEmpty()) {
-				holders.forEach(e -> e.holder.removeExpiredItems(e.maxTime, e.timeUnit));
-			}
+			holders.forEach(e -> e.holder.removeExpiredItems(e.maxTime, e.timeUnit));
 		} catch (Exception e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 		}
 	}
 

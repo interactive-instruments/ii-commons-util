@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
  */
 package de.interactive_instruments;
 
-import de.interactive_instruments.concurrent.InvalidStateTransitionException;
 import de.interactive_instruments.exceptions.InitializationException;
+import de.interactive_instruments.exceptions.InvalidStateTransitionException;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
 
 /**
@@ -26,7 +26,19 @@ import de.interactive_instruments.exceptions.config.ConfigurationException;
  */
 public interface Initializable {
 
+	/**
+	 * Initialized the Object
+	 *
+	 * @throws ConfigurationException if the configuration options are invalid
+	 * @throws InitializationException if the initialization failed
+	 * @throws InvalidStateTransitionException if Object is already initialized
+	 */
 	void init() throws ConfigurationException, InitializationException, InvalidStateTransitionException;
 
+	/**
+	 * Checks if the Object is initialized
+	 *
+	 * @return true if object is initialized, false otherwise
+	 */
 	boolean isInitialized();
 }

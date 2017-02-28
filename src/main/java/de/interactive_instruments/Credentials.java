@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,9 @@
 package de.interactive_instruments;
 
 import java.util.Map;
+import java.util.Objects;
 
+import de.interactive_instruments.properties.Properties;
 import de.interactive_instruments.properties.PropertyHolder;
 
 /**
@@ -25,7 +27,7 @@ import de.interactive_instruments.properties.PropertyHolder;
 public class Credentials {
 
 	private final String username;
-	private String password;
+	private final String password;
 
 	/**
 	 * Constructs new Credentials, when both username and password are not set
@@ -40,12 +42,26 @@ public class Credentials {
 	}
 
 	public static Credentials fromProperties(final PropertyHolder holder) {
-		return holder == null ? null : new Credentials(
+		if (holder == null || !holder.hasProperty("username")) {
+			return null;
+		}
+		return new Credentials(
 				holder.getProperty("username"), holder.getProperty("password"));
 	}
 
+	public static Credentials fromProperties(final Properties properties) {
+		if (properties == null || !properties.hasProperty("username")) {
+			return null;
+		}
+		return new Credentials(
+				properties.getProperty("username"), properties.getProperty("password"));
+	}
+
 	public static Credentials fromMap(final Map<String, String> map) {
-		return map == null ? null : new Credentials(
+		if (map == null || !map.containsKey("username")) {
+			return null;
+		}
+		return new Credentials(
 				map.get("username"), map.get("password"));
 	}
 
@@ -53,12 +69,12 @@ public class Credentials {
 		return username;
 	}
 
-	public String getPassword() {
-		return password;
+	public boolean checkPassword(final String password) {
+		return Objects.equals(this.password, password);
 	}
 
-	public void setPassword(String password) {
-		this.password = password;
+	public String getPassword() {
+		return password;
 	}
 
 	public boolean isEmpty() {
@@ -73,6 +89,6 @@ public class Credentials {
 
 	@Override
 	public String toString() {
-		return super.toString() + " " + this.username;
+		return this.username + ":*******";
 	}
 }

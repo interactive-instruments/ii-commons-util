@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,6 @@ package de.interactive_instruments.container;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import de.interactive_instruments.jaxb.adapters.ContainerAdapter;
-
 /**
  * Every Container object implements the LazyLoadContainer Interface which allows
  * access of the underlying object.
@@ -29,7 +25,6 @@ import de.interactive_instruments.jaxb.adapters.ContainerAdapter;
  * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
  *
  */
-@XmlJavaTypeAdapter(ContainerAdapter.class)
 public interface LazyLoadContainer {
 
 	/**

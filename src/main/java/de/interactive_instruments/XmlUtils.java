@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
  */
 package de.interactive_instruments;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -25,11 +28,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -42,6 +47,103 @@ import org.xml.sax.SAXException;
 public final class XmlUtils {
 
 	private XmlUtils() {}
+
+	public static String[] nodeValues(final NodeList nodeList) {
+		if (nodeList == null) {
+			return null;
+		}
+		final String[] strArr = new String[nodeList.getLength()];
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			strArr[i] = nodeValue(nodeList.item(i));
+		}
+		return strArr;
+	}
+
+	public static String nodeValue(final Node node) {
+		if (node == null) {
+			return null;
+		}
+		if (node.getNodeType() == Node.ELEMENT_NODE || node.getNodeType() == Node.DOCUMENT_FRAGMENT_NODE) {
+			final Node firstChildNode = node.getFirstChild();
+			if (firstChildNode != null && firstChildNode.getNodeType() == Node.TEXT_NODE) {
+				return firstChildNode.getNodeValue();
+			}
+			return null;
+		}
+		return node.getNodeValue();
+	}
+
+	public static XmlHandle newXmlHandle(final InputSource source) throws FileNotFoundException {
+		return new XmlHandle(null, source);
+	}
+
+	public static XmlHandle newXmlHandle(final XPath xpath, final InputSource source) {
+		return new XmlHandle(xpath, source);
+	}
+
+	public static XmlHandle newXmlHandle(final File source) throws FileNotFoundException {
+		return new XmlHandle(null, new InputSource(new FileInputStream(source)));
+	}
+
+	public static XmlHandle newXmlHandle(final XPath xpath, final File source) throws FileNotFoundException {
+		return new XmlHandle(xpath, new InputSource(new FileInputStream(source)));
+	}
+
+	public static class XmlHandle {
+		private final XPath xpath;
+		// FIXME can only be used once! Use buffer!
+		private final InputSource source;
+
+		XmlHandle(final XPath xpath, final InputSource source) {
+			this.xpath = xpath != null ? xpath : XPathFactory.newInstance().newXPath();
+			this.source = source;
+		}
+
+		public String evaluateValue(final String xpathExpression) throws XPathExpressionException {
+			return (String) xpath.evaluate(xpathExpression, source, XPathConstants.STRING);
+		}
+
+		public String[] evaluateValues(final String xpathExpression) throws XPathExpressionException {
+			return nodeValues((NodeList) xpath.evaluate(xpathExpression, source, XPathConstants.NODESET));
+		}
+	}
+
+	public static String getLastXpathSegment(final String xpath, final boolean excludeNamespace) {
+		final int lastSlash = xpath.lastIndexOf('/');
+		final int lastFragmentBeginPos;
+		final int maxLength;
+		if (lastSlash == xpath.length() - 1) {
+			lastFragmentBeginPos = xpath.lastIndexOf('/', xpath.length() - 2);
+			maxLength = xpath.length() - 1;
+		} else {
+			lastFragmentBeginPos = lastSlash;
+			maxLength = xpath.length();
+		}
+		if (lastFragmentBeginPos != -1) {
+			final int filterSelectPos = SUtils.minIndexOf(xpath, lastFragmentBeginPos, "[", "=");
+			final int lastFragmentEndPos;
+			if (filterSelectPos != -1) {
+				lastFragmentEndPos = filterSelectPos;
+			} else {
+				lastFragmentEndPos = maxLength;
+			}
+
+			final int fragmentBeginPos;
+			if (excludeNamespace) {
+				final int afterNamespacePos = xpath.indexOf(':', lastFragmentBeginPos);
+				if (afterNamespacePos != -1 && afterNamespacePos < lastFragmentEndPos) {
+					fragmentBeginPos = afterNamespacePos + 1;
+				} else {
+					fragmentBeginPos = lastFragmentBeginPos + 1;
+				}
+			} else {
+				fragmentBeginPos = lastFragmentBeginPos + 1;
+			}
+			return xpath.substring(fragmentBeginPos, lastFragmentEndPos);
+		} else {
+			return "/";
+		}
+	}
 
 	/**
 	 * Append a text element as child to an element

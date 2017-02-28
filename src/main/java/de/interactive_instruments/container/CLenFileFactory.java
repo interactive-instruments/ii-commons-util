@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package de.interactive_instruments.container;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.UUID;
@@ -28,11 +27,7 @@ import de.interactive_instruments.Configurable;
 import de.interactive_instruments.IFile;
 import de.interactive_instruments.MimeTypeUtils;
 import de.interactive_instruments.SUtils;
-import de.interactive_instruments.concurrent.InvalidStateTransitionException;
-import de.interactive_instruments.exceptions.ContainerFactoryException;
-import de.interactive_instruments.exceptions.ExcUtils;
-import de.interactive_instruments.exceptions.InitializationException;
-import de.interactive_instruments.exceptions.MimeTypeUtilsException;
+import de.interactive_instruments.exceptions.*;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
 import de.interactive_instruments.properties.ConfigProperties;
 import de.interactive_instruments.properties.ConfigPropertyHolder;
@@ -133,7 +128,8 @@ public final class CLenFileFactory implements ContainerFactory, Configurable {
 	}
 
 	@Override
-	public LazyLoadContainer createReferencedContainer(final String name, final String mimeType, final URI tempStorageUri) throws ContainerFactoryException {
+	public LazyLoadContainer createReferencedContainer(final String name, final String mimeType, final URI tempStorageUri)
+			throws ContainerFactoryException {
 		try {
 			final IFile file = new IFile(tempStorageUri);
 			file.expectFileIsReadable();
@@ -156,7 +152,7 @@ public final class CLenFileFactory implements ContainerFactory, Configurable {
 
 			return new UrlReferenceContainer(name, size, new URI(baseUri + filename).toURL(), detMimeType, false);
 		} catch (URISyntaxException | IOException | MimeTypeUtilsException e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 			throw new ContainerFactoryException(e);
 		}
 	}
@@ -177,7 +173,7 @@ public final class CLenFileFactory implements ContainerFactory, Configurable {
 		try {
 			return new URI(outputDir.expandPath(this.filenamePrefix + UUID.randomUUID().toString()).getAbsolutePath());
 		} catch (URISyntaxException e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 			throw new ContainerFactoryException(e);
 		}
 	}

@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,12 +15,9 @@
  */
 package de.interactive_instruments.container;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -57,7 +54,8 @@ public class UrlReferenceContainer implements LazyLoadContainer {
 
 	UrlReferenceContainer() {}
 
-	UrlReferenceContainer(final String name, final long size, final URL referenceURL, final String contentType, final boolean loadDataOnDemand) {
+	UrlReferenceContainer(final String name, final long size, final URL referenceURL, final String contentType,
+			final boolean loadDataOnDemand) {
 		this.name = name;
 		this.loadDataOnDemand = loadDataOnDemand;
 		this.referenceURL = referenceURL;
@@ -108,7 +106,7 @@ public class UrlReferenceContainer implements LazyLoadContainer {
 		try {
 			return UriUtils.getContentLength(referenceURL.toURI(), null);
 		} catch (IOException | URISyntaxException e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 			return -2;
 		}
 	}
@@ -117,7 +115,7 @@ public class UrlReferenceContainer implements LazyLoadContainer {
 		try {
 			return UriUtils.loadAsString(referenceURL.toURI());
 		} catch (URISyntaxException e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 			return "InvalidUrlReferenceContainer";
 		}
 	}

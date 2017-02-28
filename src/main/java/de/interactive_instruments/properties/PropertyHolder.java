@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,7 +115,7 @@ public interface PropertyHolder extends Iterable<Entry<String, String>> {
 			try {
 				return getPropertyAsFile(key);
 			} catch (MissingPropertyException e) {
-				ExcUtils.supress(e);
+				ExcUtils.suppress(e);
 			}
 		}
 		if (defaultValue instanceof IFile) {
@@ -132,12 +132,6 @@ public interface PropertyHolder extends Iterable<Entry<String, String>> {
 			return Collections.emptyIterator();
 		}
 		return namePropertyPairs().iterator();
-	}
-
-	default Map<String, String> getAsUnmodifiableMap() {
-		final Map<String, String> map = new LinkedHashMap<>();
-		forEach(e -> map.put(e.getKey(), e.getValue()));
-		return Collections.unmodifiableMap(map);
 	}
 
 }

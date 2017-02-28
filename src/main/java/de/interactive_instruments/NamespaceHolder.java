@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,8 @@ public interface NamespaceHolder {
 	 * xmlns:<namespacePrefix>='<namespaceURL>'
 	 */
 	default String getXmlnsDeclarations() {
-		return getEntrySet().stream().map(e -> "xmlns:" + e.getValue() + "='" + e.getKey() + "'").collect(Collectors.joining(" "));
+		return getEntrySet().stream().map(e -> "xmlns:" + e.getValue() + "='" + e.getKey() + "'")
+				.collect(Collectors.joining(" "));
 	}
 
 	/**
@@ -74,6 +75,8 @@ public interface NamespaceHolder {
 	 * declare namespace <namespacePrefix>='<namespaceURL>';
 	 */
 	default String getDeclarationsForXPathExpressions() {
-		return getEntrySet().stream().map(e -> "declare namespace " + e.getValue() + "='" + e.getKey() + "';" + System.getProperty("line.separator")).collect(Collectors.joining(" "));
+		return getEntrySet().stream()
+				.map(e -> "declare namespace " + e.getValue() + "='" + e.getKey() + "';" + System.getProperty("line.separator"))
+				.collect(Collectors.joining(" "));
 	}
 }

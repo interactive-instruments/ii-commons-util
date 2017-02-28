@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public interface MutablePropertyHolder extends PropertyHolder {
 
 	default void setPropertiesFrom(final PropertyHolder properties, boolean overwrite) {
 		if (properties == null) {
-			throw new IllegalArgumentException("PropertHolder is null");
+			throw new IllegalArgumentException("PropertyHolder is null");
 		}
 		properties.namePropertyPairs().forEach(p -> {
 			if (overwrite || !hasProperty(p.getKey())) {

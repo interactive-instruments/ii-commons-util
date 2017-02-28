@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,10 @@ import java.io.*;
 import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.zip.*;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -37,6 +31,8 @@ import org.apache.commons.lang3.SystemUtils;
 
 import de.interactive_instruments.container.Pair;
 import de.interactive_instruments.exceptions.ExcUtils;
+import de.interactive_instruments.io.DefaultFileIgnoreFilter;
+import de.interactive_instruments.io.MultiFileFilter;
 import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
 
 /**
@@ -143,7 +139,7 @@ public final class IFile extends File {
 	 * @param path
 	 * @return
 	 */
-	private static final Pattern REL_PATH_REM = Pattern.compile("\\.\\.(\\\\*|\\/*)");
+	private static final Pattern REL_PATH_REM = Pattern.compile("\\.\\.(\\\\*|/*)");
 
 	public IFile secureExpandPathDown(final String path) {
 		final IFile tmp = new IFile(this,
@@ -319,13 +315,26 @@ public final class IFile extends File {
 	}
 
 	public List<IFile> listDirs() {
-		final List<IFile> dirs = new ArrayList<>();
-		for (final File file : this.listFiles()) {
-			if (file.isDirectory() && !".DS_Store".equals(file.getName())) {
+		final File[] files = this.listFiles((FileFilter) DefaultFileIgnoreFilter.getInstance());
+		final List<IFile> dirs = new ArrayList<>(files.length);
+		for (final File file : files) {
+			if (file.isDirectory()) {
 				dirs.add(new IFile(file));
 			}
 		}
 		return dirs;
+	}
+
+	public IFile[] listIFiles() {
+		final String[] ss = list(DefaultFileIgnoreFilter.getInstance());
+		if (ss == null)
+			return null;
+		final int n = ss.length;
+		final IFile[] fs = new IFile[n];
+		for (int i = 0; i < n; i++) {
+			fs[i] = new IFile(this, ss[i]);
+		}
+		return fs;
 	}
 
 	/**
@@ -343,9 +352,10 @@ public final class IFile extends File {
 			return null;
 		}
 
-		final List<IFile> appFiles = new ArrayList<IFile>();
+		final List<IFile> appFiles = new ArrayList<>();
 		for (final File file : filesInDir) {
 			if (file.isFile()
+					&& DefaultFileIgnoreFilter.acceptFile(file)
 					&& regExp.matcher(file.getName()).matches()) {
 				appFiles.add(new IFile(file));
 			}
@@ -389,12 +399,15 @@ public final class IFile extends File {
 		final File[] filesInDir = this.listFiles();
 		if (filesInDir != null) {
 			for (final File file : filesInDir) {
-				if (file.isFile() && regExp.matcher(file.getName()).matches()) {
-					appFiles.add(new IFile(file));
-				} else if (maxDepth >= 1 && file.isDirectory()) {
-					final List<IFile> subDirFiles = new IFile(file).getFilesInDirRecursiveByRegex(regExp, maxDepth - 1, false);
-					if (subDirFiles != null) {
-						appFiles.addAll(subDirFiles);
+				if (DefaultFileIgnoreFilter.acceptFile(file)) {
+					if (file.isFile() && regExp.matcher(file.getName()).matches()) {
+						appFiles.add(new IFile(file));
+					} else if (maxDepth >= 1 && file.isDirectory()) {
+						final List<IFile> subDirFiles = new IFile(file).getFilesInDirRecursiveByRegex(regExp, maxDepth - 1,
+								false);
+						if (subDirFiles != null) {
+							appFiles.addAll(subDirFiles);
+						}
 					}
 				}
 			}
@@ -406,6 +419,37 @@ public final class IFile extends File {
 			Collections.sort(appFiles);
 		}
 
+		return appFiles;
+	}
+
+	public List<IFile> getFilesInDirRecursive()
+			throws IOException {
+		return getFilesInDirRecursive(15, true);
+	}
+
+	public List<IFile> getFilesInDirRecursive(final int maxDepth, final boolean sort) throws IOException {
+		this.expectDirIsReadable();
+		final List<IFile> appFiles = new ArrayList<>();
+		final File[] filesInDir = this.listFiles();
+		if (filesInDir != null) {
+			for (final File file : filesInDir) {
+				if (DefaultFileIgnoreFilter.acceptFile(file)) {
+					if (file.isFile()) {
+						appFiles.add(new IFile(file));
+					} else if (maxDepth >= 1 && file.isDirectory()) {
+						final List<IFile> subDirFiles = new IFile(file).getFilesInDirRecursive(maxDepth - 1, false);
+						if (subDirFiles != null) {
+							appFiles.addAll(subDirFiles);
+						}
+					}
+				}
+			}
+		}
+		if (appFiles.isEmpty()) {
+			return null;
+		} else if (sort) {
+			Collections.sort(appFiles);
+		}
 		return appFiles;
 	}
 
@@ -454,11 +498,11 @@ public final class IFile extends File {
 
 	/**
 	 * Deletes a directory recursively and returns true on success
+	 *
 	 * @return true on success
 	 * @throws IOException
 	 */
 	public boolean deleteDirectory() throws IOException {
-		this.expectDirIsReadable();
 		if (this.exists()) {
 			final File[] files = this.listFiles();
 			if (files != null) {
@@ -484,7 +528,7 @@ public final class IFile extends File {
 				closeable.close();
 			}
 		} catch (final Exception e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 		}
 	}
 
@@ -518,33 +562,106 @@ public final class IFile extends File {
 	}
 
 	/**
-	 * Fast file copy via Java FileChannel
+	 * Compresses a file or directory as GZIP
+	 * @param outputStream Output stream for the compressed data
 	 * @throws IOException
 	 */
-	public void copyTo(final String destPath) throws IOException {
-		final IFile targetFile = new IFile(destPath);
-		targetFile.expectFileIsWritable();
+	public void compressTo(final OutputStream outputStream) throws IOException {
+		final ZipOutputStream wrappedOut = new ZipOutputStream(outputStream);
+		final byte[] buffer = new byte[8192];
+		int bytes_read;
 
-		final FileInputStream fileInputStream = new FileInputStream(this);
-		final FileChannel inChannel = fileInputStream.getChannel();
-		final FileOutputStream fileOutputStream = new FileOutputStream(targetFile);
-		final FileChannel outChannel = fileOutputStream.getChannel();
-
+		final List<IFile> files;
+		if (this.isDirectory()) {
+			files = this.getFilesInDirRecursive();
+		} else {
+			files = Collections.singletonList(this);
+		}
 		try {
-			inChannel.transferTo(0, inChannel.size(),
-					outChannel);
+			compressAndStream(wrappedOut, buffer, files);
 		} catch (final IOException e) {
 			this.expectIsReadable();
-			throw new IOException("Copying of " + this.identifier +
+			throw new IOException("Compression of " + this.identifier +
 					" \"" + getCanonicalOrSimplePath() +
 					"\" failed: " + e.getMessage());
 		} finally {
-			if (fileInputStream != null) {
-				fileInputStream.close();
+			closeQuietly(wrappedOut);
+		}
+	}
+
+	/**
+	 * Compresses a file or directory as GZIP
+	 * @param outputStream Output stream for the compressed data
+	 * @throws IOException
+	 */
+	public static void compressTo(final List<IFile> files, final OutputStream outputStream) throws IOException {
+		final ZipOutputStream wrappedOut = new ZipOutputStream(outputStream);
+		final byte[] buffer = new byte[8192];
+
+		final Set<IFile> allFiles = new HashSet<>();
+		for (final IFile file : files) {
+			allFiles.addAll(file.getFilesInDirRecursive());
+		}
+		try {
+			compressAndStream(wrappedOut, buffer, allFiles);
+		} catch (final IOException e) {
+			throw new IOException("Compression failed: " + e.getMessage());
+		} finally {
+			closeQuietly(wrappedOut);
+		}
+	}
+
+	private static void compressAndStream(final ZipOutputStream wrappedOut, final byte[] buffer, final Collection<IFile> files)
+			throws IOException {
+		int bytes_read;
+		for (final IFile file : files) {
+			final FileInputStream in = new FileInputStream(file);
+			final ZipEntry entry = new ZipEntry(file.getPath());
+			wrappedOut.putNextEntry(entry);
+			while ((bytes_read = in.read(buffer)) != -1)
+				wrappedOut.write(buffer, 0, bytes_read);
+			in.close();
+		}
+	}
+
+	/**
+	 * Fast file copy via Java FileChannel
+	 * @throws IOException
+	 */
+	public IFile copyTo(final String destPath) throws IOException {
+		final IFile targetFile = new IFile(destPath);
+		targetFile.expectFileIsWritable();
+		if (!Files.isSameFile(this.toPath(), targetFile.toPath())) {
+			final FileInputStream fileInputStream = new FileInputStream(this);
+			final FileChannel inChannel = fileInputStream.getChannel();
+			final FileOutputStream fileOutputStream = new FileOutputStream(targetFile);
+			final FileChannel outChannel = fileOutputStream.getChannel();
+
+			try {
+				inChannel.transferTo(0, inChannel.size(),
+						outChannel);
+			} catch (final IOException e) {
+				this.expectIsReadable();
+				throw new IOException("Copying of " + this.identifier +
+						" \"" + getCanonicalOrSimplePath() +
+						"\" failed: " + e.getMessage());
+			} finally {
+				if (fileInputStream != null) {
+					fileInputStream.close();
+				}
+				if (fileOutputStream != null) {
+					fileOutputStream.close();
+				}
 			}
-			if (fileOutputStream != null) {
-				fileOutputStream.close();
-			}
+		}
+		return targetFile;
+	}
+
+	public void moveTo(final String destPath) throws IOException {
+		final IFile targetFile = new IFile(destPath);
+		if (!targetFile.exists() || !Files.isSameFile(this.toPath(), targetFile.toPath())) {
+			targetFile.expectFileIsWritable();
+			this.renameTo(new File(destPath));
 		}
 	}
 
@@ -566,7 +683,7 @@ public final class IFile extends File {
 	 */
 	public IFile createTempCopy(
 			final String tmpPrefix, final String tmpSuffix, final IFile dir)
-					throws IOException {
+			throws IOException {
 		dir.expectDirIsWritable();
 		final IFile tmpFile = new IFile(
 				File.createTempFile(tmpPrefix + "_", tmpSuffix, dir));
@@ -598,8 +715,46 @@ public final class IFile extends File {
 		return fileNameWithoutExt;
 	}
 
+	private static String getBasename(final String path) {
+		if (SUtils.isNullOrEmpty(path)) {
+			return null;
+		}
+		final int lastUnixPos = path.lastIndexOf('/');
+		final int lastWindowsPos = path.lastIndexOf('\\');
+		final int lastSlashPos = Math.max(lastUnixPos, lastWindowsPos);
+		if (lastSlashPos == -1) {
+			return path;
+		}
+		return path.substring(lastSlashPos + 1);
+	}
+
+	// removes all version information in a basename beginning with a number, followed by a dot
+	private final static Pattern pattern = Pattern.compile(
+			"-(?:0|(?:[1-9]\\d*))(?:-|(?:\\.(?:0|(?:[1-9]\\d*)))).*|\\.(?:.(?!\\.))+$");
+
+	/**
+	 * Return the name of the file without the extension
+	 *
+	 * @return The filename without extension after the last dot
+	 * @throws IOException
+	 */
+	public static String getFilenameWithoutExtAndVersion(final String path) {
+		return pattern.matcher(getBasename(path)).replaceAll("");
+	}
+
 	/**
 	 * Unzips a zip file to a destination directory
+	 *
+	 * @param destDir
+	 * @throws IOException
+	 */
+	public void unzipTo(final IFile destDir) throws IOException {
+		unzipTo(destDir, null);
+	}
+
+	/**
+	 * Unzips a zip file to a destination directory
+	 *
 	 * @param destDir
 	 * @param filter
 	 * @throws IOException
@@ -668,7 +823,7 @@ public final class IFile extends File {
 			raf = new RandomAccessFile(this, "r");
 			magic = raf.read() & 0xff | ((raf.read() << 8) & 0xff00);
 		} catch (IOException e) {
-			ExcUtils.supress(e);
+			ExcUtils.suppress(e);
 		} finally {
 			IFile.closeQuietly(raf);
 		}
@@ -734,9 +889,11 @@ public final class IFile extends File {
 			} else {
 				fInput = new FileInputStream(this);
 			}
-			InputStreamReader fStrReader = new InputStreamReader(fInput);
+			final InputStreamReader fStrReader;
 			if (charset != null) {
 				fStrReader = new InputStreamReader(fInput, charset);
+			} else {
+				fStrReader = new InputStreamReader(fInput);
 			}
 			reader = new BufferedReader(fStrReader);
 			final char[] buf = new char[1024];
@@ -766,7 +923,7 @@ public final class IFile extends File {
 	 */
 	public void writeContent(final StringBuffer content)
 			throws IOException {
-		writeContent(content, null);
+		writeContent(content, "UTF-8");
 	}
 
 	/**
@@ -782,21 +939,81 @@ public final class IFile extends File {
 		BufferedWriter writer = null;
 		try {
 			final FileOutputStream fOutput = new FileOutputStream(this);
-			OutputStreamWriter fStrWriter = new OutputStreamWriter(fOutput);
+			final OutputStreamWriter fStrWriter;
 			if (charset != null) {
 				fStrWriter = new OutputStreamWriter(fOutput, charset);
+			} else {
+				fStrWriter = new OutputStreamWriter(fOutput);
 			}
 			writer = new BufferedWriter(fStrWriter);
 			writer.write(content.toString());
 		} catch (IOException e) {
 			throw new IOException("Writing file content to " +
 					this.identifier + " \""
-					+ this.getCanonicalOrSimplePath() + "\" failed: " +
-					e.getMessage());
+					+ this.getCanonicalOrSimplePath() + "\" failed ", e);
 		} finally {
-			if (writer != null) {
-				writer.close();
+			closeQuietly(writer);
+		}
+	}
+
+	/**
+	 * Write from an inputStream to a File in a specific charset
+	 *
+	 * Note: Will close the inputStream afterwards!
+	 *
+	 * @param inputStream
+	 * @param inputCharset
+	 * @throws IOException
+	 */
+	public void writeContent(final InputStream inputStream, final String inputCharset) throws IOException {
+		BufferedWriter writer;
+		Reader reader = null;
+		try {
+			final FileOutputStream fOutput = new FileOutputStream(this);
+			writer = new BufferedWriter(new OutputStreamWriter(fOutput, "UTF-8"));
+			if (inputCharset == null) {
+				reader = new InputStreamReader(inputStream, inputCharset);
+			} else {
+				reader = new InputStreamReader(inputStream, "UTF-8");
 			}
+
+			int read;
+			final char[] buffer = new char[1024];
+			while ((read = reader.read(buffer)) != -1) {
+				writer.write(buffer, 0, read);
+			}
+			writer.flush();
+		} catch (IOException e) {
+			throw new IOException("Writing file content to " +
+					this.identifier + " \""
+					+ this.getCanonicalOrSimplePath() + "\" failed", e);
+		} finally {
+			closeQuietly(inputStream);
+			closeQuietly(reader);
+		}
+	}
+
+	/**
+	 * Write from an inputStream to a File
+	 *
+	 * Note: Will close the inputStream afterwards!
+	 *
+	 * @param inputStream
+	 * @throws IOException
+	 */
+	public void write(final InputStream inputStream) throws IOException {
+		try (final FileOutputStream fOutput = new FileOutputStream(this)) {
+			final byte[] bytes = new byte[1024];
+			int read;
+			while ((read = inputStream.read(bytes)) != -1) {
+				fOutput.write(bytes, 0, read);
+			}
+		} catch (IOException e) {
+			throw new IOException("Writing file content to " +
+					this.identifier + " \""
+					+ this.getCanonicalOrSimplePath() + "\" failed", e);
+		} finally {
+			closeQuietly(inputStream);
 		}
 	}
 
@@ -826,7 +1043,9 @@ public final class IFile extends File {
 	 */
 	public static IFile createTempFile(final String prefix, final String suffix)
 			throws IOException {
-		return new IFile(File.createTempFile(prefix + "_", suffix));
+		final IFile file = new IFile(File.createTempFile(prefix + "_", suffix));
+		deleteOnExit(file);
+		return file;
 	}
 
 	/**
@@ -835,8 +1054,10 @@ public final class IFile extends File {
 	 */
 	public static IFile createTempFile(
 			final String prefix, final String suffix, final IFile dir)
-					throws IOException {
-		return new IFile(File.createTempFile(prefix + "_", suffix, dir));
+			throws IOException {
+		final IFile file = new IFile(File.createTempFile(prefix + "_", suffix, dir));
+		deleteOnExit(file);
+		return file;
 	}
 
 	/**
@@ -846,26 +1067,42 @@ public final class IFile extends File {
 	 */
 	public static IFile createTempDir(final String prefix)
 			throws IOException {
-		return new IFile(Files.createTempDirectory(prefix).toString(), "tmp");
+		final IFile dir = new IFile(Files.createTempDirectory(prefix).toString(), "tmp");
+		deleteOnExit(dir);
+		return dir;
+	}
+
+	public static void deleteOnExit(final IFile file) {
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			try {
+				if (file.isDirectory()) {
+					file.deleteDirectory();
+				} else {
+					Files.delete(file.toPath());
+				}
+			} catch (final IOException e) {
+				ExcUtils.suppress(e);
+			}
+		}));
 	}
 
 	private static Pair<Pattern, String>[] REPLACEMENTS = new Pair[]{
-			new Pair<>(Pattern.compile(new String("\u00C4"), Pattern.LITERAL), "Ae"),
-			new Pair<>(Pattern.compile(new String("\u00DC"), Pattern.LITERAL), "Ue"),
-			new Pair<>(Pattern.compile(new String("\u00D6"), Pattern.LITERAL), "Oe"),
-			new Pair<>(Pattern.compile(new String("\u00E4"), Pattern.LITERAL), "ae"),
-			new Pair<>(Pattern.compile(new String("\u00FC"), Pattern.LITERAL), "ue"),
-			new Pair<>(Pattern.compile(new String("\u00F6"), Pattern.LITERAL), "oe"),
-			new Pair<>(Pattern.compile(new String("\u00DF"), Pattern.LITERAL), "ss"),
+			new Pair<>(Pattern.compile("\u00C4", Pattern.LITERAL), "Ae"),
+			new Pair<>(Pattern.compile("\u00DC", Pattern.LITERAL), "Ue"),
+			new Pair<>(Pattern.compile("\u00D6", Pattern.LITERAL), "Oe"),
+			new Pair<>(Pattern.compile("\u00E4", Pattern.LITERAL), "ae"),
+			new Pair<>(Pattern.compile("\u00FC", Pattern.LITERAL), "ue"),
+			new Pair<>(Pattern.compile("\u00F6", Pattern.LITERAL), "oe"),
+			new Pair<>(Pattern.compile("\u00DF", Pattern.LITERAL), "ss"),
 
 			// LATIN SMALL LETTER E WITH GRAVE
-			new Pair<>(Pattern.compile(new String("\u00E8"), Pattern.LITERAL), "e"),
+			new Pair<>(Pattern.compile("\u00E8", Pattern.LITERAL), "e"),
 			// LATIN SMALL LETTER E WITH ACUTE
-			new Pair<>(Pattern.compile(new String("\u00E9"), Pattern.LITERAL), "e"),
+			new Pair<>(Pattern.compile("\u00E9", Pattern.LITERAL), "e"),
 			// LATIN SMALL LETTER E WITH CIRCUMFLEX
-			new Pair<>(Pattern.compile(new String("\u00EA"), Pattern.LITERAL), "e"),
+			new Pair<>(Pattern.compile("\u00EA", Pattern.LITERAL), "e"),
 
-			new Pair<>(Pattern.compile(new String(","), Pattern.LITERAL), "")
+			new Pair<>(Pattern.compile(",", Pattern.LITERAL), "")
 	};
 
 	private static String replaceSpecialChars(String str) {
