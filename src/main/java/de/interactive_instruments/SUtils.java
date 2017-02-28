@@ -1,5 +1,5 @@
 /**
- * Copyright 2010-2016 interactive instruments GmbH
+ * Copyright 2010-2017 interactive instruments GmbH
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
  */
 package de.interactive_instruments;
 
-import java.util.Iterator;
+import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * String Utility Functions
@@ -120,7 +121,6 @@ final public class SUtils {
 		return isNullOrEmpty(str) ? def : str;
 	}
 
-
 	public static String calcHash(final String str) {
 		return new String(MdUtils.getMessageDigest().digest(str.getBytes()));
 	}
@@ -131,7 +131,7 @@ final public class SUtils {
 	 * @param it
 	 * @return
 	 */
-	public final static String toBlankSepStr(Iterable<String> it) {
+	public final static String toBlankSepStr(final Iterable<String> it) {
 		String list = "";
 		Iterator<String> t = it.iterator();
 		while (t.hasNext()) {
@@ -143,4 +143,111 @@ final public class SUtils {
 		return list;
 	}
 
+	public final static String concatStr(final String separator, final String... strings) {
+		if (strings != null) {
+			final StringBuilder builder = new StringBuilder(strings.length * 6);
+			for (int i = 0;;) {
+				builder.append(strings[i++]);
+				if (i < strings.length) {
+					builder.append(separator);
+				} else {
+					break;
+				}
+			}
+			return builder.toString();
+		}
+		return null;
+	}
+
+	public final static String concatStr(final String separator, final Collection<String> strings) {
+		if (strings != null) {
+			final StringBuilder builder = new StringBuilder(strings.size() * 6);
+			for (Iterator<String> it = strings.iterator();;) {
+				builder.append(it.next());
+				if (it.hasNext()) {
+					builder.append(separator);
+				} else {
+					break;
+				}
+			}
+			return builder.toString();
+		}
+		return null;
+	}
+
+	public static int lastMinIndexOf(final String str, final int from, final String... search) {
+		int min = -1;
+		for (int i = 0; i < search.length; i++) {
+			int pos = str.lastIndexOf(search[i], from);
+			if (pos != -1 && (min == -1 || pos < min)) {
+				min = pos;
+			}
+		}
+		return min;
+	}
+
+	public static int minIndexOf(final String str, final int from, final String... search) {
+		int min = -1;
+		for (int i = 0; i < search.length; i++) {
+			int pos = str.indexOf(search[i], from);
+			if (pos != -1 && (min == -1 || pos < min)) {
+				min = pos;
+			}
+		}
+		return min;
+	}
+
+	public static String toKvpStr(final String... strings) {
+		if (strings != null) {
+			if (strings.length % 2 != 0) {
+				throw new IllegalArgumentException("Number of arguments is odd!");
+			}
+			final StringBuilder builder = new StringBuilder(strings.length * 6);
+			for (int i = 0;;) {
+				builder.append(strings[i]);
+				builder.append("=");
+				builder.append(strings[i + 1]);
+				i = +2;
+				if (i < strings.length) {
+					builder.append(", ");
+				} else {
+					break;
+				}
+			}
+			return builder.toString();
+		}
+		return null;
+	}
+
+	public static Map<String, String> toStrMap(final String... strings) {
+		if (strings != null) {
+			if (strings.length % 2 != 0) {
+				throw new IllegalArgumentException("Number of arguments is odd!");
+			}
+			final Map<String, String> map = new TreeMap<>();
+			for (int i = 0; i < strings.length; i += 2) {
+				map.put(strings[i], strings[i + 1]);
+			}
+			return map;
+		}
+		return null;
+	}
+
+	public static Map<String, String> toStrMap(final Collection<String> strings) {
+		if (strings != null) {
+			if (strings.size() % 2 != 0) {
+				throw new IllegalArgumentException("Number of arguments is odd!");
+			}
+			final Map<String, String> map = new TreeMap<>();
+			for (Iterator<String> it = strings.iterator(); it.hasNext();) {
+				map.put(it.next(), it.next());
+			}
+			return map;
+		}
+		return null;
+	}
+
+	public static boolean strContainsAny(final String str, final String... items) {
+		return Arrays.stream(items).parallel().anyMatch(str::contains);
+	}
 }
