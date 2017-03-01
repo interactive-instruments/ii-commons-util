@@ -38,8 +38,7 @@ public class MimeTypeUtilsTest {
 
 		System.out.println(
 				classLoader.getResource(
-						"MimeTypeUtilsTest/xmlFile.xml").getFile()
-		);
+						"MimeTypeUtilsTest/xmlFile.xml").getFile());
 
 		xmlFile.expectFileIsReadable();
 
