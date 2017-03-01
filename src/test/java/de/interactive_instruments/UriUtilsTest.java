@@ -144,6 +144,6 @@ public class UriUtilsTest {
 		assertEquals(UriUtils.hashFromContent(downloadedFile1.toURI()),
 				UriUtils.hashFromContent(downloadedFile2.toURI()));
 
-		downloadedFile2.unzipTo(new IFile("/Users/herrmann/tmp/bla"));
+		downloadedFile2.unzipTo(new IFile("/tmp/bla"));
 	}
 }

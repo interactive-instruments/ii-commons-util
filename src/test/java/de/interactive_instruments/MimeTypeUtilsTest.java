@@ -18,6 +18,7 @@ package de.interactive_instruments;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.junit.Test;
 
@@ -29,11 +30,16 @@ import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 public class MimeTypeUtilsTest {
 
 	@Test
-	public void testGetParent() throws IOException, MimeTypeUtilsException {
+	public void testGetParent() throws IOException, MimeTypeUtilsException, URISyntaxException {
 
 		final ClassLoader classLoader = getClass().getClassLoader();
 		final IFile xmlFile = new IFile(classLoader.getResource(
-				"MimeTypeUtilsTest/xmlFile.xml").getFile());
+				"MimeTypeUtilsTest/xmlFile.xml").toURI());
+
+		System.out.println(
+				classLoader.getResource(
+						"MimeTypeUtilsTest/xmlFile.xml").getFile()
+		);
 
 		xmlFile.expectFileIsReadable();
 
