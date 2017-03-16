@@ -148,9 +148,9 @@ public final class UriUtils {
 				final String param = split[i];
 				final String[] pair = param.split("=", 2);
 				final String key;
-				if(keysUpperCase) {
+				if (keysUpperCase) {
 					key = pair[0].toUpperCase(Locale.ENGLISH);
-				}else{
+				} else {
 					key = pair[0];
 				}
 				final String value;
