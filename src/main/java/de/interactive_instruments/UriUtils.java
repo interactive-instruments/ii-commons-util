@@ -113,32 +113,46 @@ public final class UriUtils {
 	}
 
 	/**
-	 * Keys are transformed to upper-case
+	 * Keys can be transformed to upper-case
 	 *
 	 * @param uri
 	 * @return
 	 */
-	public static Map<String, List<String>> getQueryParameters(final URI uri)
-			throws UnsupportedEncodingException {
-		return getQueryParameters(uri.getPath());
+	public static Map<String, List<String>> getQueryParameters(final URI uri, final boolean keysUpperCase) {
+		return getQueryParameters(uri.toString(), keysUpperCase);
 	}
 
 	/**
 	 * Keys are transformed to upper-case
 	 *
+	 * @param uri
+	 * @return
+	 */
+	public static Map<String, List<String>> getQueryParameters(final URI uri) {
+		return getQueryParameters(uri.toString(), true);
+	}
+
+	/**
+	 * Keys can be transformed to upper-case
+	 *
 	 * @param url
 	 * @return
 	 */
-	public static Map<String, List<String>> getQueryParameters(final String url) {
-		final String[] urlParts = ensureUrlDecoded(url).split("\\?");
+	public static Map<String, List<String>> getQueryParameters(final String url, final boolean keysUpperCase) {
+		final String[] urlParts = ensureUrlDecoded(url).split("\\?", 2);
 		if (urlParts.length > 1) {
 			final String query = urlParts[1];
 			final String[] split = query.split("&amp;|&");
 			final Map<String, List<String>> params = new HashMap<>();
 			for (int i = 0, splitLength = split.length; i < splitLength; i++) {
 				final String param = split[i];
-				final String[] pair = param.split("=");
-				final String key = pair[0].toUpperCase();
+				final String[] pair = param.split("=", 2);
+				final String key;
+				if(keysUpperCase) {
+					key = pair[0].toUpperCase(Locale.ENGLISH);
+				}else{
+					key = pair[0];
+				}
 				final String value;
 				if (pair.length > 1) {
 					value = pair[1];
@@ -161,6 +175,16 @@ public final class UriUtils {
 		} else {
 			return Collections.emptyMap();
 		}
+	}
+
+	/**
+	 * Keys are transformed to upper-case
+	 *
+	 * @param url
+	 * @return
+	 */
+	public static Map<String, List<String>> getQueryParameters(final String url) {
+		return getQueryParameters(url, true);
 	}
 
 	public static String withoutQueryParameters(final String url) {

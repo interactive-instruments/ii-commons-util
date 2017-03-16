@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -114,6 +116,39 @@ public class UriUtilsTest {
 		assertEquals(expected, UriUtils.ensureUrlEncodedParams(encoded));
 		assertEquals(expected, UriUtils.ensureUrlEncodedParams(partlyEncoded));
 		assertEquals(expected, UriUtils.ensureUrlEncodedParams(notencoded));
+	}
+
+	@Test
+	public void testGetQueryParameters() throws URISyntaxException, IOException {
+		final URI url1 = new URI("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2&param2=bla");
+		final Map<String, List<String>> params = UriUtils.getQueryParameters(url1, false);
+		final List<String> outputformats = params.get("OUTPUTFORMAT");
+		assertEquals("application/gml+xml; version=3.2", outputformats.get(0));
+
+		final List<String> param2 = params.get("param2");
+		assertEquals("bla", param2.get(0));
+	}
+
+	@Test
+	public void testGetQueryParametersWithTemplateUrls() throws URISyntaxException, IOException {
+		final String url1 = "http://service/service"
+				+ "?spatial_dataset_identifier_code={inspire_dls:spatial_dataset_identifier_code?}"
+				+ "&spatial_dataset_identifier_namespace={inspire_dls:spatial_dataset_identifier_namespace?}"
+				+ "&p=p"
+				+ "&q=";
+		final Map<String, List<String>> params = UriUtils.getQueryParameters(url1, false);
+
+		final List<String> spatial_dataset_identifier_code = params.get("spatial_dataset_identifier_code");
+		assertEquals("{inspire_dls:spatial_dataset_identifier_code?}", spatial_dataset_identifier_code.get(0));
+
+		final List<String> spatial_dataset_identifier_namespace = params.get("spatial_dataset_identifier_namespace");
+		assertEquals("{inspire_dls:spatial_dataset_identifier_namespace?}", spatial_dataset_identifier_namespace.get(0));
+
+		final List<String> p = params.get("p");
+		assertEquals("p", p.get(0));
+
+		final List<String> q = params.get("q");
+		assertEquals("", q.get(0));
 	}
 
 	@Test
