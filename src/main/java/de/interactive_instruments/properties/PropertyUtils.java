@@ -27,6 +27,11 @@ public class PropertyUtils {
 		return (val == null) ? def : val;
 	}
 
+	private static String getenvOrProperty(final String key) {
+		final String val = System.getenv(key);
+		return val == null ? System.getProperty(key.toLowerCase().replace("_", "."), null) : val;
+	}
+
 	/**
 	 * Returns a upper case system environment variable (e.g. SYS_SUBSYSTEM_VAR),
 	 * the corresponding lower case runtime environment property
@@ -37,7 +42,35 @@ public class PropertyUtils {
 	 * @return variable
 	 */
 	public static String getenvOrProperty(final String key, final String def) {
-		final String val = System.getenv(key);
-		return val == null ? System.getProperty(key.toLowerCase().replace("_", "."), def) : val;
+		final String val = getenvOrProperty(key);
+		return val != null ? val : def;
+	}
+
+	/**
+	 * Returns a upper case system environment variable (e.g. SYS_SUBSYSTEM_VAR),
+	 * the corresponding lower case runtime environment property
+	 * (e.g. sys.subystem.var) or if both not set a default value.
+	 *
+	 * @param key upper case variable name
+	 * @param def default value
+	 * @return variable
+	 */
+	public static int getenvOrProperty(final String key, final int def) {
+		final String val = getenvOrProperty(key);
+		return val != null ? Integer.parseInt(val) : def;
+	}
+
+	/**
+	 * Returns a upper case system environment variable (e.g. SYS_SUBSYSTEM_VAR),
+	 * the corresponding lower case runtime environment property
+	 * (e.g. sys.subystem.var) or if both not set a default value.
+	 *
+	 * @param key upper case variable name
+	 * @param def default value
+	 * @return variable
+	 */
+	public static long getenvOrProperty(final String key, final long def) {
+		final String val = getenvOrProperty(key);
+		return val != null ? Long.parseLong(val) : def;
 	}
 }
