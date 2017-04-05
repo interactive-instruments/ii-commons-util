@@ -28,7 +28,7 @@ public class ObjectWithIdNotFoundException extends Exception {
 	private static final long serialVersionUID = 7040707309361467467L;
 
 	public ObjectWithIdNotFoundException(final Object mngObj, final int hashCode) {
-		super(mngObj + ": an object with the id \"" + hashCode + "\" could not be found!");
+		super((mngObj!=null ? mngObj.getClass().getSimpleName() + ":" : "")  + " An object with the id \"" + hashCode + "\" could not be found!");
 	}
 
 	public ObjectWithIdNotFoundException(final int id) {
@@ -36,7 +36,7 @@ public class ObjectWithIdNotFoundException extends Exception {
 	}
 
 	public ObjectWithIdNotFoundException(final Object mngObj, final String id) {
-		super(mngObj + ": an object with the id \"" + id + "\" could not be found!");
+		super((mngObj!=null ? mngObj.getClass().getSimpleName() + ":" : "") +" An object with the id \"" + id + "\" could not be found!");
 	}
 
 	public ObjectWithIdNotFoundException(final String id) {
