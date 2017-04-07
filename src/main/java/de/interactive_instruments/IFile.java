@@ -644,6 +644,7 @@ public final class IFile extends File {
 				this.expectIsReadable();
 				throw new IOException("Copying of " + this.identifier +
 						" \"" + getCanonicalOrSimplePath() +
+						" \" to \"" + destPath +
 						"\" failed: " + e.getMessage());
 			} finally {
 				if (fileInputStream != null) {
@@ -657,11 +658,44 @@ public final class IFile extends File {
 		return targetFile;
 	}
 
+	/**
+	 * Moves a file
+	 *
+	 * @param destPath destination path
+	 * @throws IOException
+	 */
 	public void moveTo(final String destPath) throws IOException {
-		final IFile targetFile = new IFile(destPath);
-		if (!targetFile.exists() || !Files.isSameFile(this.toPath(), targetFile.toPath())) {
+		moveTo(destPath, false);
+	}
+
+	/**
+	 * Moves a file
+	 *
+	 * @param destPath destination path
+	 * @param overwrite overwrite an existing file
+	 * @throws IOException
+	 */
+	public void moveTo(final String destPath, boolean overwrite) throws IOException {
+		final IFile targetFile = new IFile(destPath, "MOVE_TARGET");
+		if (targetFile.exists()) {
+			if (overwrite) {
+				targetFile.expectNotADirectory();
+				targetFile.delete();
+			} else {
+				throw new IOException("Moving of " + this.identifier +
+						" \"" + getCanonicalOrSimplePath() +
+						" \" to \"" + destPath +
+						"\" failed: destination file already exists");
+			}
+		}
+		if (!Files.isSameFile(this.toPath(), targetFile.toPath())) {
 			targetFile.expectFileIsWritable();
-			this.renameTo(new File(destPath));
+			if (!this.renameTo(targetFile)) {
+				// Renaming failed. This might happen if the file is moved
+				// from one filesystem to another. Workaround: copy and delete
+				this.copyTo(destPath);
+				this.delete();
+			}
 		}
 	}
 
