@@ -32,6 +32,8 @@ import de.interactive_instruments.MdUtils;
 public class FileHashVisitor implements FileVisitor<Path> {
 
 	private long size = 0;
+	private long emptyFiles = 0;
+	private long skippedFiles = 0;
 	private final Set<byte[]> files = new LinkedHashSet<>();
 	private long byteLength = 0;
 	private final PathFilter filter;
@@ -57,15 +59,21 @@ public class FileHashVisitor implements FileVisitor<Path> {
 	}
 
 	@Override
-	public FileVisitResult visitFile(Path file, final BasicFileAttributes attrs) throws IOException {
+	public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
 		final String mod = file.getFileName() + String.valueOf(
 				attrs.lastModifiedTime().toMillis() + attrs.size());
 		if (filter == null || filter.accept(file)) {
 			synchronized (this) {
 				files.add(mod.getBytes());
 				byteLength += mod.length();
-				size += attrs.size();
+				if (attrs.size() == 0) {
+					this.emptyFiles++;
+				} else {
+					size += attrs.size();
+				}
 			}
+		} else {
+			skippedFiles++;
 		}
 		return FileVisitResult.CONTINUE;
 	}
@@ -104,5 +112,13 @@ public class FileHashVisitor implements FileVisitor<Path> {
 
 	public long getSize() {
 		return size;
+	}
+
+	public long getEmptyFiles() {
+		return emptyFiles;
+	}
+
+	public long getSkippedFiles() {
+		return skippedFiles;
 	}
 }
