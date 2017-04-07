@@ -518,13 +518,13 @@ public final class UriUtils {
 			if (!SUtils.isNullOrEmpty(contentType)) {
 				try {
 					final String ext = MimeTypeUtils.getFileExtensionForMimeType(contentType);
-					return name + ext;
+					return IFile.sanitize(name + ext);
 				} catch (MimeTypeUtilsException ign) {
 					ExcUtils.suppress(ign);
 				}
 			}
 		}
-		return name;
+		return IFile.sanitize(name);
 	}
 
 	/**

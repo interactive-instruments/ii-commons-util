@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -161,14 +162,14 @@ public class UriUtilsTest {
 
 	@Test
 	public void testDownloadFile() throws URISyntaxException, IOException {
-		final URI url = new URI("http://jherrmann.org/ps-ro-50.zip");
+		final URI url = new URI("http://herrmann.cx/ps-ro-50.zip");
 		final IFile downloadedFile = UriUtils.download(url);
 		assertEquals(2414481L, UriUtils.getContentLength(downloadedFile.toURI()));
 	}
 
 	@Test
 	public void testDownloadFile2() throws URISyntaxException, IOException {
-		final URI url1 = new URI("http://jherrmann.org/ps-ro-50.zip");
+		final URI url1 = new URI("http://herrmann.cx/ps-ro-50.zip");
 		final IFile downloadedFile1 = UriUtils.download(url1);
 		assertEquals(2414481L, UriUtils.getContentLength(downloadedFile1.toURI()));
 
@@ -180,5 +181,16 @@ public class UriUtilsTest {
 				UriUtils.hashFromContent(downloadedFile2.toURI()));
 
 		downloadedFile2.unzipTo(new IFile("/tmp/bla"));
+	}
+
+	@Test
+	public void proposeFilenameFromConnection() throws URISyntaxException, IOException {
+		final URI url1 = new URI("http://herrmann.cx");
+		assertEquals("herrmann.cx", UriUtils.proposeFilenameFromConnection(
+				(HttpURLConnection) url1.toURL().openConnection(),true));
+
+		final URI url2 = new URI("http://herrmann.cx/index.php");
+		assertEquals("index.php", UriUtils.proposeFilenameFromConnection(
+				(HttpURLConnection) url2.toURL().openConnection(),true));
 	}
 }
