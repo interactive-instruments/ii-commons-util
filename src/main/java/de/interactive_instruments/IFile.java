@@ -678,7 +678,9 @@ public final class IFile extends File {
 	public void moveTo(final String destPath, boolean overwrite) throws IOException {
 		final IFile targetFile = new IFile(destPath, "MOVE_TARGET");
 		if (targetFile.exists()) {
-			if (overwrite) {
+			if (Files.isSameFile(this.toPath(), targetFile.toPath())) {
+				return;
+			}else if (overwrite) {
 				targetFile.expectNotADirectory();
 				targetFile.delete();
 			} else {
@@ -688,14 +690,12 @@ public final class IFile extends File {
 						"\" failed: destination file already exists");
 			}
 		}
-		if (!Files.isSameFile(this.toPath(), targetFile.toPath())) {
-			targetFile.expectFileIsWritable();
-			if (!this.renameTo(targetFile)) {
-				// Renaming failed. This might happen if the file is moved
-				// from one filesystem to another. Workaround: copy and delete
-				this.copyTo(destPath);
-				this.delete();
-			}
+		targetFile.expectFileIsWritable();
+		if (!this.renameTo(targetFile)) {
+			// Renaming failed. This might happen if the file is moved
+			// from one filesystem to another. Workaround: copy and delete
+			this.copyTo(destPath);
+			this.delete();
 		}
 	}
 
