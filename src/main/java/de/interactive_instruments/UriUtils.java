@@ -244,7 +244,7 @@ public final class UriUtils {
 		final StringBuffer urlData = new StringBuffer(1024);
 		final InputStream urlStream = connection.getInputStream();
 		if (!encodeBase64) {
-			try (BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream))) {
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(urlStream, "UTF-8"))) {
 				final char[] buf = new char[1024];
 				int numRead;
 				while ((numRead = reader.read(buf)) != -1) {
@@ -386,7 +386,9 @@ public final class UriUtils {
 				final String fileName = proposeFilenameFromConnection(connection, true);
 				final IFile tmpFile = getTempDir().expandPath(fileName);
 				if (tmpFile.exists()) {
-					tmpFile.delete();
+					if(!tmpFile.delete()) {
+						// todo: log this
+					}
 				}
 				downloadTo(connection, tmpFile);
 				return tmpFile;
@@ -546,8 +548,12 @@ public final class UriUtils {
 	}
 
 	private static Pattern privateNets = Pattern.compile(
-			"(^127\\.)|(^192\\.168\\.)|(^10\\.)|(^172\\.1[6-9]\\.)|(^172\\.2[0-9]\\.)|" +
-					"(^172\\.3[0-1]\\.)|(^::1$)|(^[fF][cCdD])");
+			"(127\\.)|"
+					+ "(^172\\.1[6-9]\\.)|(^172\\.2[0-9]\\.)|(^172\\.3[0-1]\\.)|"
+					+ "(^192\\.168\\.)|"
+					+ "(^10\\.)|"
+					+ "(^(0{0,4}:){1,7}(0{0,3}1$))"
+	);
 
 	/**
 	 * Checks if the resource points to a private net. Supports IPv6.
@@ -561,10 +567,12 @@ public final class UriUtils {
 		if (isFile(uri)) {
 			return false;
 		}
-		final InetAddress address = InetAddress.getByName(uri.toURL().getHost());
-		final String ip = address.getHostAddress();
-		Matcher m = privateNets.matcher(ip);
-		return m.find();
+		return isPrivateNet(uri.toURL().getHost());
+	}
+
+	public static boolean isPrivateNet(final String host) throws UnknownHostException {
+		final String ip = InetAddress.getByName(host).getHostAddress();
+		return privateNets.matcher(ip).find();
 	}
 
 	private static void expectAbsolute(final URI uri) throws UriNotAbsoluteException {
@@ -633,7 +641,7 @@ public final class UriUtils {
 			IFile.closeQuietly(stream);
 			IFile.closeQuietly(streamReader);
 		}
-		return new String(md.digest());
+		return new String(md.digest(), "UTF-8");
 	}
 
 	public static String hashFromContent(final Collection<URI> uris) throws IOException {
@@ -663,7 +671,7 @@ public final class UriUtils {
 			IFile.closeQuietly(urlStream);
 			IFile.closeQuietly(urlStreamReader);
 		}
-		return new String(md.digest());
+		return new String(md.digest(), "UTF-8");
 	}
 
 	private static void hashFromTimestampOrContent(final File file, final MessageDigest md) throws IOException {
@@ -691,7 +699,7 @@ public final class UriUtils {
 				IFile.closeQuietly(streamReader);
 			}
 		}
-		return new String(md.digest());
+		return new String(md.digest(), "UTF-8");
 	}
 
 	public static synchronized String hashFromTimestampOrContent(final Collection<URI> uris) throws IOException {
@@ -724,7 +732,7 @@ public final class UriUtils {
 		} finally {
 			IFile.closeQuietly(stream);
 		}
-		return new String(md.digest());
+		return new String(md.digest(), "UTF-8");
 	}
 
 	public static void disconnectQuietly(final HttpURLConnection connection) {
@@ -752,7 +760,7 @@ public final class UriUtils {
 				connection.setReadTimeout(READ_TIMEOUT);
 				connection.setRequestMethod("GET");
 				final int responseCode = connection.getResponseCode();
-				return (200 >= responseCode && responseCode < 400);
+				return 200 >= responseCode && responseCode < 400;
 			} catch (IOException | IllegalArgumentException exception) {
 				disconnectQuietly(connection);
 				// isFile() will return false if the URI scheme is null and
@@ -843,7 +851,7 @@ public final class UriUtils {
 	private static String unsafeChars = " '!?()*$,/:;@<>#%[]";
 
 	private static boolean isUnsafe(final char ch) {
-		return (ch > 128 || ch < 0) || unsafeChars.indexOf(ch) >= 0;
+		return (ch > 128 || ch == 0) || unsafeChars.indexOf(ch) >= 0;
 	}
 
 	private static boolean containsUnsafeChars(final String str) {

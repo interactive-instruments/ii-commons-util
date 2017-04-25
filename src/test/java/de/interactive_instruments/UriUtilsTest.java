@@ -19,9 +19,7 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.util.List;
 import java.util.Map;
 
@@ -187,10 +185,27 @@ public class UriUtilsTest {
 	public void proposeFilenameFromConnection() throws URISyntaxException, IOException {
 		final URI url1 = new URI("http://herrmann.cx");
 		assertEquals("herrmann.cx", UriUtils.proposeFilenameFromConnection(
-				(HttpURLConnection) url1.toURL().openConnection(),true));
+				(HttpURLConnection) url1.toURL().openConnection(), true));
 
 		final URI url2 = new URI("http://herrmann.cx/index.php");
 		assertEquals("index.php", UriUtils.proposeFilenameFromConnection(
-				(HttpURLConnection) url2.toURL().openConnection(),true));
+				(HttpURLConnection) url2.toURL().openConnection(), true));
+	}
+
+	@Test
+	public void isPrivateNet() throws UnknownHostException {
+		assertTrue(UriUtils.isPrivateNet("127.0.0.1"));
+		assertTrue(UriUtils.isPrivateNet("192.168.0.1"));
+		assertTrue(UriUtils.isPrivateNet("192.168.131.1"));
+		assertTrue(UriUtils.isPrivateNet("192.168.131.1"));
+		assertFalse(UriUtils.isPrivateNet("8.8.8.8"));
+
+		assertTrue(UriUtils.isPrivateNet("::1"));
+		assertTrue(UriUtils.isPrivateNet("0000:0000:0000:0000:0000:0000:0000:0001"));
+		assertTrue(UriUtils.isPrivateNet("0000:0000:0:0:0000:0:0000:0001"));
+		assertTrue(UriUtils.isPrivateNet("::ffff:172.16.0.8"));
+
+		assertFalse(UriUtils.isPrivateNet("0000:1:0:0:0000:0:0000:0001"));
+		assertFalse(UriUtils.isPrivateNet("::ffff:8.8.8.8"));
 	}
 }

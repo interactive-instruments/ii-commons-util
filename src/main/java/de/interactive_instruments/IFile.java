@@ -680,7 +680,7 @@ public final class IFile extends File {
 		if (targetFile.exists()) {
 			if (Files.isSameFile(this.toPath(), targetFile.toPath())) {
 				return;
-			}else if (overwrite) {
+			} else if (overwrite) {
 				targetFile.expectNotADirectory();
 				targetFile.delete();
 			} else {
