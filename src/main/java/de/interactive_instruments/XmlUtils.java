@@ -73,6 +73,22 @@ public final class XmlUtils {
 		return node.getNodeValue();
 	}
 
+	public static String getAttribute(final Node node, final String name) {
+		return getAttribute(node, null, name);
+	}
+
+	public static String getAttribute(final Node node, final String namespace, final String name) {
+		NamedNodeMap attributes = node.getAttributes();
+		if (attributes != null) {
+			final Node val = attributes.getNamedItemNS(namespace, name);
+			if (val != null) {
+				return val.getNodeValue();
+			}
+
+		}
+		return null;
+	}
+
 	public static XmlHandle newXmlHandle(final InputSource source) throws FileNotFoundException {
 		return new XmlHandle(null, source);
 	}
@@ -145,6 +161,23 @@ public final class XmlUtils {
 		}
 	}
 
+	public static Node getFirstChildNodeOfType(final Node node, final short nodeType, final String name) {
+		Node childNode = node.getFirstChild();
+		while (childNode != null && childNode.getNodeType() != nodeType
+				&& (name == null || name.equals(childNode.getNodeName()))) {
+			childNode = childNode.getNextSibling();
+		}
+		return childNode;
+	}
+
+	public static Node getNextSiblingOfType(final Node current, final short nodeType, final String name) {
+		Node sibling = current.getNextSibling();
+		while (sibling != null && sibling.getNodeType() != nodeType && (name == null || name.equals(sibling.getNodeName()))) {
+			sibling = sibling.getNextSibling();
+		}
+		return sibling;
+	}
+
 	/**
 	 * Append a text element as child to an element
 	 * @param element Element object where a child element will be appended
@@ -188,6 +221,10 @@ public final class XmlUtils {
 
 		// Not found so just append a new element
 		appendChildTextElement(element, childElementName, text);
+	}
+
+	public static boolean isXml(final String str) {
+		return str.trim().startsWith("<");
 	}
 
 	/**
