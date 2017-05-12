@@ -16,7 +16,10 @@
 package de.interactive_instruments;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
 import java.util.ArrayList;
@@ -24,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -109,11 +113,31 @@ public final class CLUtils {
 		}
 	}
 
-	public static String getImplVersionOrDefault(Class clasz, String defaultValue) {
+	public static String getImplVersionOrDefault(final Class clasz, String defaultValue) {
 		final String v = clasz.getPackage().getImplementationVersion();
 		if (!SUtils.isNullOrEmpty(v)) {
 			return v;
 		}
 		return defaultValue;
+	}
+
+	public static String getManifestAttributeValue(final Class clasz, final String value) {
+		final String className = clasz.getSimpleName() + ".class";
+		final String classPath = clasz.getResource(className).toString();
+		if (!classPath.startsWith("jar")) {
+			return "";
+		}
+		final String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) +
+				"/META-INF/MANIFEST.MF";
+		InputStream stream = null;
+		try {
+			stream = new URL(manifestPath).openStream();
+			final Manifest manifest = new Manifest(stream);
+			return manifest.getMainAttributes().getValue(value);
+		}catch (final IOException e) {
+			return "";
+		}finally {
+			IFile.closeQuietly(stream);
+		}
 	}
 }
