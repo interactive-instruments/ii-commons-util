@@ -386,7 +386,7 @@ public final class UriUtils {
 				final String fileName = proposeFilenameFromConnection(connection, true);
 				final IFile tmpFile = getTempDir().expandPath(fileName);
 				if (tmpFile.exists()) {
-					if(!tmpFile.delete()) {
+					if (!tmpFile.delete()) {
 						// todo: log this
 					}
 				}
@@ -552,8 +552,7 @@ public final class UriUtils {
 					+ "(^172\\.1[6-9]\\.)|(^172\\.2[0-9]\\.)|(^172\\.3[0-1]\\.)|"
 					+ "(^192\\.168\\.)|"
 					+ "(^10\\.)|"
-					+ "(^(0{0,4}:){1,7}(0{0,3}1$))"
-	);
+					+ "(^(0{0,4}:){1,7}(0{0,3}1$))");
 
 	/**
 	 * Checks if the resource points to a private net. Supports IPv6.
@@ -582,10 +581,15 @@ public final class UriUtils {
 	}
 
 	private static URLConnection openConnection(final URI uri, final Credentials credentials) throws IOException {
+		return openConnection(uri, credentials, READ_TIMEOUT);
+	}
+
+	private static URLConnection openConnection(final URI uri, final Credentials credentials, final int readTimeout)
+			throws IOException {
 		expectAbsolute(uri);
 		final URLConnection c = uri.toURL().openConnection();
 		c.setConnectTimeout(TIMEOUT);
-		c.setReadTimeout(READ_TIMEOUT);
+		c.setReadTimeout(readTimeout);
 		if (credentials == null || credentials.isEmpty()) {
 			return c;
 		}
@@ -601,8 +605,8 @@ public final class UriUtils {
 	 * @return
 	 * @throws IOException
 	 */
-	public static InputStream openStream(final URI uri, final Credentials cred) throws IOException {
-		final URLConnection c = openConnection(uri, cred);
+	public static InputStream openStream(final URI uri, final Credentials cred, final int timeout) throws IOException {
+		final URLConnection c = openConnection(uri, cred, timeout);
 		InputStream s = null;
 		try {
 			s = c.getInputStream();
@@ -614,7 +618,7 @@ public final class UriUtils {
 	}
 
 	public static InputStream openStream(URI uri) throws IOException {
-		return openStream(uri, null);
+		return openStream(uri, null, READ_TIMEOUT);
 	}
 
 	public static String hashFromContent(final URI uri) throws IOException {
@@ -631,7 +635,7 @@ public final class UriUtils {
 			if (isFile(uri)) {
 				stream = new FileInputStream(new File(uri));
 			} else {
-				stream = openStream(uri, cred);
+				stream = openStream(uri, cred, READ_TIMEOUT);
 			}
 			streamReader = new BufferedInputStream(stream);
 			while (streamReader.read(buffer) != -1) {
@@ -659,7 +663,7 @@ public final class UriUtils {
 		BufferedInputStream urlStreamReader = null;
 		try {
 			for (final URI uri : sortedUris) {
-				urlStream = openStream(uri, cred);
+				urlStream = openStream(uri, cred, READ_TIMEOUT);
 				urlStreamReader = new BufferedInputStream(urlStream);
 				while (urlStreamReader.read(buffer) != -1) {
 					md.update(buffer);
@@ -721,7 +725,7 @@ public final class UriUtils {
 				if (isFile(uri)) {
 					hashFromTimestampOrContent(new File(uri), md);
 				} else {
-					stream = openStream(uri, cred);
+					stream = openStream(uri, cred, READ_TIMEOUT);
 					while (stream.read(buffer) != -1) {
 						md.update(buffer);
 					}
@@ -753,6 +757,7 @@ public final class UriUtils {
 		if (isFile(uri)) {
 			return new IFile(uri).exists();
 		} else {
+
 			HttpURLConnection connection = null;
 			try {
 				connection = (HttpURLConnection) openConnection(uri, cred);
