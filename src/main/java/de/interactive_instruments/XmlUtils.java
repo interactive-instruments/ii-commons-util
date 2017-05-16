@@ -162,20 +162,24 @@ public final class XmlUtils {
 	}
 
 	public static Node getFirstChildNodeOfType(final Node node, final short nodeType, final String name) {
-		Node childNode = node.getFirstChild();
-		while (childNode != null && childNode.getNodeType() != nodeType
-				&& (name == null || name.equals(childNode.getNodeName()))) {
-			childNode = childNode.getNextSibling();
+		final Node childNode = node.getFirstChild();
+		if (childNode != null && childNode.getNodeType() != nodeType
+				&& !(name == null || name.equals(childNode.getNodeName()))) {
+			return getNextSiblingOfType(childNode, nodeType, name);
 		}
 		return childNode;
 	}
 
 	public static Node getNextSiblingOfType(final Node current, final short nodeType, final String name) {
 		Node sibling = current.getNextSibling();
-		while (sibling != null && sibling.getNodeType() != nodeType && (name == null || name.equals(sibling.getNodeName()))) {
+		while (sibling != null) {
+			if (sibling.getNodeType() == nodeType &&
+					(name == null || name.equals(sibling.getNodeName()))) {
+				return sibling;
+			}
 			sibling = sibling.getNextSibling();
 		}
-		return sibling;
+		return null;
 	}
 
 	/**
