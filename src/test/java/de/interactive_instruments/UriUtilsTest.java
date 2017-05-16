@@ -156,6 +156,8 @@ public class UriUtilsTest {
 
 		final String encoded = "http%3A%2F%2Fserver%2Fservice%3FOUTPUTFORMAT%3Dapplication%2Fgml%2Bxml%3B%20version%3D3.2&param2=bla";
 		assertEquals("service", UriUtils.lastSegment(encoded));
+
+		assertEquals("bar", UriUtils.lastSegment("/foo/bar/"));
 	}
 
 	@Test
