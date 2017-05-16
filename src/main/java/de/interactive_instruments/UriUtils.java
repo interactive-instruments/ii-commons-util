@@ -17,6 +17,7 @@ package de.interactive_instruments;
 
 import java.io.*;
 import java.net.*;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.FileVisitOption;
@@ -34,6 +35,7 @@ import org.apache.commons.io.IOUtils;
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 import de.interactive_instruments.io.FileHashVisitor;
+import sun.net.www.*;
 
 /**
  * URI Utilities
@@ -69,6 +71,40 @@ public final class UriUtils {
 
 		public URI getUri() {
 			return uri;
+		}
+	}
+
+	public static class ServerException extends IOException {
+
+		private final int code;
+		private final String responseMessage;
+
+		public ServerException(final IOException e, final URLConnection connection) {
+			super(e);
+			int codeTemp = -1;
+			String responseMessageTemp = null;
+			if(connection instanceof HttpURLConnection) {
+				try {
+					codeTemp = ((HttpURLConnection)connection).getResponseCode();
+				} catch (IOException ign) {
+					ExcUtils.suppress(ign);
+				}
+				try {
+					responseMessageTemp = ((HttpURLConnection)connection).getResponseMessage();
+				} catch (IOException ign) {
+					ExcUtils.suppress(ign);
+				}
+			}
+			code = codeTemp;
+			responseMessage = responseMessageTemp;
+		}
+
+		public int getResponseCode() {
+			return code;
+		}
+
+		public String getResponseMessage() {
+			return responseMessage;
 		}
 	}
 
@@ -541,8 +577,8 @@ public final class UriUtils {
 		final String decUrl = ensureUrlDecoded(url);
 
 		final int qPos = decUrl.indexOf('?');
-		final int end = qPos != -1 ? qPos : decUrl.length();
-		final int sPos = decUrl.lastIndexOf('/', end);
+		final int end = qPos != -1 ? qPos : SUtils.lastIndexOfNot(decUrl,decUrl.length(), '/');
+		final int sPos = decUrl.lastIndexOf('/', end-2);
 		final int beg = sPos != -1 ? sPos + 1 : 0;
 		return decUrl.substring(beg, end);
 	}
@@ -597,22 +633,20 @@ public final class UriUtils {
 		return c;
 	}
 
-	/**
-	 * Opens an URL connection optionally with user credentials. Times out after
-	 * 11 seconds.
-	 * @param uri URI
-	 * @param cred Credentials or null
-	 * @return
-	 * @throws IOException
-	 */
+
+	public static InputStream openStream(final URI uri, final Credentials cred) throws IOException {
+		return openStream(uri, cred, READ_TIMEOUT);
+	}
+
 	public static InputStream openStream(final URI uri, final Credentials cred, final int timeout) throws IOException {
 		final URLConnection c = openConnection(uri, cred, timeout);
 		InputStream s = null;
+
 		try {
 			s = c.getInputStream();
 		} catch (IOException e) {
 			IFile.closeQuietly(s);
-			throw e;
+			throw new ServerException(e, c);
 		}
 		return s;
 	}
