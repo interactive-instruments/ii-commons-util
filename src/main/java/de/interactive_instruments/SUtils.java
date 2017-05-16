@@ -197,6 +197,15 @@ final public class SUtils {
 		return min;
 	}
 
+	public static int lastIndexOfNot(final String str, final int from, final char c) {
+		for (int i = from; i > 0; i--) {
+			if (str.charAt(i - 1) != c) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	public static String toKvpStr(final String... strings) {
 		if (strings != null) {
 			if (strings.length % 2 != 0) {

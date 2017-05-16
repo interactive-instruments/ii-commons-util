@@ -32,10 +32,11 @@ import java.util.zip.InflaterInputStream;
 
 import org.apache.commons.io.IOUtils;
 
+import sun.net.www.*;
+
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 import de.interactive_instruments.io.FileHashVisitor;
-import sun.net.www.*;
 
 /**
  * URI Utilities
@@ -83,14 +84,14 @@ public final class UriUtils {
 			super(e);
 			int codeTemp = -1;
 			String responseMessageTemp = null;
-			if(connection instanceof HttpURLConnection) {
+			if (connection instanceof HttpURLConnection) {
 				try {
-					codeTemp = ((HttpURLConnection)connection).getResponseCode();
+					codeTemp = ((HttpURLConnection) connection).getResponseCode();
 				} catch (IOException ign) {
 					ExcUtils.suppress(ign);
 				}
 				try {
-					responseMessageTemp = ((HttpURLConnection)connection).getResponseMessage();
+					responseMessageTemp = ((HttpURLConnection) connection).getResponseMessage();
 				} catch (IOException ign) {
 					ExcUtils.suppress(ign);
 				}
@@ -577,8 +578,8 @@ public final class UriUtils {
 		final String decUrl = ensureUrlDecoded(url);
 
 		final int qPos = decUrl.indexOf('?');
-		final int end = qPos != -1 ? qPos : SUtils.lastIndexOfNot(decUrl,decUrl.length(), '/');
-		final int sPos = decUrl.lastIndexOf('/', end-2);
+		final int end = qPos != -1 ? qPos : SUtils.lastIndexOfNot(decUrl, decUrl.length(), '/');
+		final int sPos = decUrl.lastIndexOf('/', end - 2);
 		final int beg = sPos != -1 ? sPos + 1 : 0;
 		return decUrl.substring(beg, end);
 	}
@@ -632,7 +633,6 @@ public final class UriUtils {
 		c.setRequestProperty("Authorization", credentials.toBasicAuth());
 		return c;
 	}
-
 
 	public static InputStream openStream(final URI uri, final Credentials cred) throws IOException {
 		return openStream(uri, cred, READ_TIMEOUT);
