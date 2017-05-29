@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 /**
  * String Utility Functions
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 final public class SUtils {
 
@@ -131,16 +131,18 @@ final public class SUtils {
 	 * @param it
 	 * @return
 	 */
-	public final static String toBlankSepStr(final Iterable<String> it) {
-		String list = "";
-		Iterator<String> t = it.iterator();
-		while (t.hasNext()) {
-			list += t.next();
-			if (t.hasNext()) {
-				list += " ";
+	public final static String toBlankSepStr(final Iterable it) {
+		final StringBuilder list = new StringBuilder();
+		if (it != null) {
+			final Iterator t = it.iterator();
+			while (t.hasNext()) {
+				list.append(t.next().toString());
+				if (t.hasNext()) {
+					list.append(" ");
+				}
 			}
 		}
-		return list;
+		return list.toString();
 	}
 
 	public final static String concatStr(final String separator, final String... strings) {
@@ -258,5 +260,42 @@ final public class SUtils {
 
 	public static boolean strContainsAny(final String str, final String... items) {
 		return Arrays.stream(items).parallel().anyMatch(str::contains);
+	}
+
+	/**
+	 * A wrapper that supports symmetric String comparisons.
+	 */
+	public static class StrEqContainer implements Comparable {
+		private final String s;
+
+		public StrEqContainer(final Object key) {
+			s = (String) key;
+		}
+
+		public static Set<StrEqContainer> createSet(final Collection<?> c) {
+			final Set set = new HashSet();
+			c.forEach(e -> set.add(new StrEqContainer(e)));
+			return set;
+		}
+
+		@Override
+		public String toString() {
+			return s;
+		}
+
+		@Override
+		public int hashCode() {
+			return s.hashCode();
+		}
+
+		@Override
+		public boolean equals(final Object obj) {
+			return obj.equals(s);
+		}
+
+		@Override
+		public int compareTo(final Object o) {
+			return s.compareTo(o.toString());
+		}
 	}
 }
