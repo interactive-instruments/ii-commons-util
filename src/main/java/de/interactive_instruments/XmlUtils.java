@@ -40,7 +40,7 @@ import org.xml.sax.SAXException;
 /**
  * Very simple XML Utilities
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  * @version 1.1
  * @since 1.0
  */
@@ -78,7 +78,7 @@ public final class XmlUtils {
 	}
 
 	public static String getAttribute(final Node node, final String namespace, final String name) {
-		NamedNodeMap attributes = node.getAttributes();
+		final NamedNodeMap attributes = node.getAttributes();
 		if (attributes != null) {
 			final Node val = attributes.getNamedItemNS(namespace, name);
 			if (val != null) {
@@ -87,6 +87,19 @@ public final class XmlUtils {
 
 		}
 		return null;
+	}
+
+	public static String getAttributeOrDefault(final Node node, final String name, final String defaultVal) {
+		return getAttributeOrDefault(node, name, null, defaultVal);
+	}
+
+	public static String getAttributeOrDefault(final Node node, final String name, final String namespace,
+			final String defaultVal) {
+		final String val = getAttribute(node, namespace, name);
+		if (val == null) {
+			return defaultVal;
+		}
+		return val;
 	}
 
 	public static XmlHandle newXmlHandle(final InputSource source) throws FileNotFoundException {
