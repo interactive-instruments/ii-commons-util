@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.*;
 import java.util.List;
 import java.util.Map;
@@ -165,6 +166,18 @@ public class UriUtilsTest {
 		final URI url = new URI("http://herrmann.cx/ps-ro-50.zip");
 		final IFile downloadedFile = UriUtils.download(url);
 		assertEquals(2414481L, UriUtils.getContentLength(downloadedFile.toURI()));
+	}
+
+	@Test
+	public void testException() throws URISyntaxException, IOException {
+		final URI url = new URI("http://herrmann.cx/doesnotexist");
+		boolean exceptionThrown = false;
+		try (InputStream inputStream = UriUtils.openStream(url)) {
+		}catch (UriUtils.ServerException e) {
+			exceptionThrown = true;
+			assertEquals(404, e.getResponseCode());
+		}
+		assertTrue(exceptionThrown);
 	}
 
 	@Test
