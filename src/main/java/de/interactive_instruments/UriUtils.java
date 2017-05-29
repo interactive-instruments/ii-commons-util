@@ -41,7 +41,7 @@ import de.interactive_instruments.io.FileHashVisitor;
 /**
  * URI Utilities
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public final class UriUtils {
@@ -79,25 +79,38 @@ public final class UriUtils {
 
 		private final int code;
 		private final String responseMessage;
+		private final String errorMessage;
 
 		public ServerException(final IOException e, final URLConnection connection) {
 			super(e);
 			int codeTemp = -1;
 			String responseMessageTemp = null;
+			String errorMessageTemp = null;
 			if (connection instanceof HttpURLConnection) {
+				final HttpURLConnection c = ((HttpURLConnection) connection);
 				try {
-					codeTemp = ((HttpURLConnection) connection).getResponseCode();
+					codeTemp = c.getResponseCode();
 				} catch (IOException ign) {
 					ExcUtils.suppress(ign);
 				}
 				try {
-					responseMessageTemp = ((HttpURLConnection) connection).getResponseMessage();
+					responseMessageTemp = c.getResponseMessage();
 				} catch (IOException ign) {
 					ExcUtils.suppress(ign);
+				}
+				try {
+					if (c.getErrorStream().available() > 0) {
+						errorMessageTemp = IOUtils.toString(c.getErrorStream(), "UTF-8");
+					}
+				} catch (IOException ign) {
+					ExcUtils.suppress(ign);
+				} finally {
+					IFile.closeQuietly(c.getErrorStream());
 				}
 			}
 			code = codeTemp;
 			responseMessage = responseMessageTemp;
+			errorMessage = errorMessageTemp;
 		}
 
 		public int getResponseCode() {
@@ -107,6 +120,14 @@ public final class UriUtils {
 		public String getResponseMessage() {
 			return responseMessage;
 		}
+
+		public String getErrorMessage() {
+			return errorMessage;
+		}
+	}
+
+	public static String getParent(final String uri) {
+		return getParent(URI.create(uri)).toString();
 	}
 
 	/**
