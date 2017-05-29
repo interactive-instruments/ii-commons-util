@@ -15,13 +15,15 @@
  */
 package de.interactive_instruments.exceptions;
 
+import java.io.IOException;
+
 /**
  * This exception indicates that the an internal error occurred persisting or loading an object.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
-public class StorageException extends Exception {
+public class StorageException extends IOException {
 
 	private static final long serialVersionUID = 8918479002295277311L;
 
