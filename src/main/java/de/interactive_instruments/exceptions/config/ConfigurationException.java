@@ -18,7 +18,7 @@ package de.interactive_instruments.exceptions.config;
 /**
  * Thrown when an error occurs during the configuration phase.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public class ConfigurationException extends Exception {

@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * Interface which exposes methods from Apache Tika MediaType
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface MediaType extends Comparable<MediaType> {
 

@@ -37,7 +37,7 @@ import de.interactive_instruments.exceptions.ExcUtils;
  * Implements the Observer pattern and notifies clients about file changes.
  * Singleton. Registered listeners can be prioritized (see FileChangeListener).
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public final class DirWatcher {
 

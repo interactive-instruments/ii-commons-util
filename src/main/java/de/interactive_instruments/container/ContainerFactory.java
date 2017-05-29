@@ -26,7 +26,7 @@ import de.interactive_instruments.exceptions.ContainerFactoryException;
  *
  * The implementing factory decides how to store or reference the content.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface ContainerFactory {
 

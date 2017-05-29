@@ -27,7 +27,7 @@ import de.interactive_instruments.exceptions.config.MissingPropertyException;
 /**
  * Interface for an object that holds key value pairs
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public interface PropertyHolder extends Iterable<Entry<String, String>> {

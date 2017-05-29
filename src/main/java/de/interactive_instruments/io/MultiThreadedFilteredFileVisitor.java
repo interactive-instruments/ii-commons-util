@@ -35,7 +35,7 @@ import de.interactive_instruments.container.Pair;
 /**
  * Note only the visitFile method is proxied
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class MultiThreadedFilteredFileVisitor implements FileVisitor<Path> {
 

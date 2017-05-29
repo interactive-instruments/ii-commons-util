@@ -20,7 +20,7 @@ import de.interactive_instruments.SUtils;
 /**
  * Thrown if an object is not found by the managing object.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public class ObjectWithIdNotFoundException extends Exception {

@@ -22,7 +22,7 @@ import de.interactive_instruments.exceptions.config.ConfigurationException;
 /**
  * Interface for initializing objects
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface Initializable {
 

@@ -29,7 +29,7 @@ import de.interactive_instruments.Factory;
 import de.interactive_instruments.io.MultiFileFilter;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class ParalellSchemaValidationManager implements Factory<MultiFileFilter> {
 

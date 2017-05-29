@@ -24,7 +24,7 @@ import de.interactive_instruments.Credentials;
 import de.interactive_instruments.IFile;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public abstract class AbstractRepository implements Repository {
 

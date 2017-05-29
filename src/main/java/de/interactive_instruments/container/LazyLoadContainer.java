@@ -22,7 +22,7 @@ import java.io.OutputStream;
  * Every Container object implements the LazyLoadContainer Interface which allows
  * access of the underlying object.
  **
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public interface LazyLoadContainer {

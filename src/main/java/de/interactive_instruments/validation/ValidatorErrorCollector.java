@@ -32,7 +32,7 @@ import de.interactive_instruments.Releasable;
 /**
  * A synchronized collector for the error messages of the SchemaValidator
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 class ValidatorErrorCollector implements Releasable {
 

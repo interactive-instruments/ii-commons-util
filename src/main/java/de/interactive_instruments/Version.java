@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlValue;
  * An object for comparing version numbers with respect to the
  * major, minor and bugfix version number.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 @XmlRootElement(name = "Version", namespace = II_Constants.II_COMMON_UTILS_NS)

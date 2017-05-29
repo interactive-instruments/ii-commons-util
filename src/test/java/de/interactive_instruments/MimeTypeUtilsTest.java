@@ -25,7 +25,7 @@ import org.junit.Test;
 import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class MimeTypeUtilsTest {
 

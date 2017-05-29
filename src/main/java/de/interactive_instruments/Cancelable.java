@@ -18,7 +18,7 @@ package de.interactive_instruments;
 import de.interactive_instruments.exceptions.InvalidStateTransitionException;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 @FunctionalInterface
 public interface Cancelable {

@@ -28,7 +28,7 @@ import de.interactive_instruments.SUtils;
 import de.interactive_instruments.properties.ConfigProperties;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class AutoRepositoryFactory implements RepositoryFactory {
 

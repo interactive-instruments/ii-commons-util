@@ -27,7 +27,7 @@ import de.interactive_instruments.exceptions.ExcUtils;
  *
  * Serializable.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name = "ID", namespace = II_Constants.XML_SCHEMA_NS_URI)

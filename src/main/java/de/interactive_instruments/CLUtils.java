@@ -38,7 +38,7 @@ import de.interactive_instruments.exceptions.ExcUtils;
 /**
  * Classloader utilities
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public final class CLUtils {
@@ -134,9 +134,9 @@ public final class CLUtils {
 			stream = new URL(manifestPath).openStream();
 			final Manifest manifest = new Manifest(stream);
 			return manifest.getMainAttributes().getValue(value);
-		}catch (final IOException e) {
+		} catch (final IOException e) {
 			return "";
-		}finally {
+		} finally {
 			IFile.closeQuietly(stream);
 		}
 	}

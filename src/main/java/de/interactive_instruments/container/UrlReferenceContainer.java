@@ -31,7 +31,7 @@ import de.interactive_instruments.exceptions.ExcUtils;
 /**
  * The container references an object with an URL.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 @XmlRootElement(name = "UrlReferenceContainer")

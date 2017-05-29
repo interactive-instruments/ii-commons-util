@@ -172,8 +172,7 @@ public class UriUtilsTest {
 	public void testException() throws URISyntaxException, IOException {
 		final URI url = new URI("http://herrmann.cx/doesnotexist");
 		boolean exceptionThrown = false;
-		try (InputStream inputStream = UriUtils.openStream(url)) {
-		}catch (UriUtils.ServerException e) {
+		try (InputStream inputStream = UriUtils.openStream(url)) {} catch (UriUtils.ServerException e) {
 			exceptionThrown = true;
 			assertEquals(404, e.getResponseCode());
 		}

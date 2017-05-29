@@ -24,7 +24,7 @@ import java.util.UUID;
  * implementor decides on which type is generated, the clients of this interface obtain a uniform
  * access.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface Id extends Comparable {
 

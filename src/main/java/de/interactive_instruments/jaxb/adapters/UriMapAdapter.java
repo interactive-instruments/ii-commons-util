@@ -27,7 +27,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import de.interactive_instruments.II_Constants;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 @XmlSeeAlso({UriMapAdapter.EntryWrapper.class})
 public class UriMapAdapter extends XmlAdapter<UriMapAdapter.EntryWrapper, Map<String, URI>> {

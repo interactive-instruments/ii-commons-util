@@ -18,7 +18,7 @@ package de.interactive_instruments;
 /**
  * Utility functions for comparing Objects
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public final class CmpUtils {

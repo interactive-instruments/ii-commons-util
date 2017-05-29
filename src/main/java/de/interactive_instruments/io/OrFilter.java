@@ -20,7 +20,7 @@ import java.io.FileFilter;
 import java.util.Objects;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 class OrFilter implements MultiFileFilter {
 

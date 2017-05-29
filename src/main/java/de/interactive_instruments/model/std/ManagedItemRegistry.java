@@ -21,7 +21,7 @@ import de.interactive_instruments.Releasable;
  * An abstract class for managing objects that implement the RetrievableItem and the Releasable
  * interface.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public abstract class ManagedItemRegistry<T extends RetrievableItem & Releasable> implements Releasable {
 

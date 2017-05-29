@@ -20,7 +20,7 @@ import java.io.File;
 import de.interactive_instruments.Version;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public abstract class AbstractArtifact implements Artifact {
 

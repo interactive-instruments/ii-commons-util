@@ -37,7 +37,7 @@ import de.interactive_instruments.io.MultiFileFilter;
 /**
  * Schema validator.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class SchemaValidator implements Releasable, MultiFileFilter {
 

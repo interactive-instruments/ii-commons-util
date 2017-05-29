@@ -23,7 +23,7 @@ import de.interactive_instruments.SUtils;
  * Thrown if a object is used, that has to be configured first
  * by setting the missing property.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public class MissingPropertyException extends ConfigurationException {

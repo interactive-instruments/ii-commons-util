@@ -24,7 +24,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 /**
  * Calculate recursively the size of all (filtered) files in a directory.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class DirSizeVisitor implements FileVisitor<Path> {
 

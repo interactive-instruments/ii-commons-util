@@ -17,7 +17,7 @@ package de.interactive_instruments.exceptions;
 
 /**
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class InitializationException extends Exception {
 	public InitializationException(String msg, Throwable e) {
@@ -28,7 +28,7 @@ public class InitializationException extends Exception {
 		super("Initialization Failed. " + e.getMessage());
 	}
 
-	protected InitializationException(String msg) {
+	public InitializationException(String msg) {
 		super(msg);
 	}
 }

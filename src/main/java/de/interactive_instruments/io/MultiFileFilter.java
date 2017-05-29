@@ -22,7 +22,7 @@ import java.nio.file.Path;
 
 /**
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface MultiFileFilter extends FileFilter, FilenameFilter, PathFilter {
 

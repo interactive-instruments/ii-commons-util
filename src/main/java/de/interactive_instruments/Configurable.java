@@ -22,7 +22,7 @@ import de.interactive_instruments.properties.ConfigPropertyHolder;
  *
  * NOTE: configure the properties before calling the init() method.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface Configurable extends Initializable {
 

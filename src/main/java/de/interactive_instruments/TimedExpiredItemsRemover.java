@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import de.interactive_instruments.exceptions.ExcUtils;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class TimedExpiredItemsRemover extends TimerTask {
 

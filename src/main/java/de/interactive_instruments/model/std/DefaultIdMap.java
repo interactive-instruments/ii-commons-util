@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * An object that simplifies the mapping of Id objects to values.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public final class DefaultIdMap<V> implements IdMap<V> {
 

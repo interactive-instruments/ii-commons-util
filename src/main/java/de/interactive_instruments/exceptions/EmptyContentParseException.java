@@ -18,7 +18,7 @@ package de.interactive_instruments.exceptions;
 /**
  * Thrown if an attempt was made to read for instance an empty file
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class EmptyContentParseException extends ParseException {
 

@@ -18,7 +18,7 @@ package de.interactive_instruments.exceptions;
 import java.io.IOException;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class MimeTypeUtilsException extends Exception {
 	public MimeTypeUtilsException(Exception e) {

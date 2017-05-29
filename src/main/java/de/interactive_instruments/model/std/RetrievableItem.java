@@ -18,7 +18,7 @@ package de.interactive_instruments.model.std;
 /**
  * A domain model item that possesses an Id and a label.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface RetrievableItem {
 

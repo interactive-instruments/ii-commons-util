@@ -24,7 +24,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 /**
  * Time Utilities
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public final class TimeUtils {
 

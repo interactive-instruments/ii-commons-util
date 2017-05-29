@@ -16,7 +16,7 @@
 package de.interactive_instruments.exceptions;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class XmlParseException extends ParseException {
 

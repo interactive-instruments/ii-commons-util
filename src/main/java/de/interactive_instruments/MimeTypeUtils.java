@@ -31,7 +31,7 @@ import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 /**
  * Utility functions for detecting mime types and file extensions on basis of the Tika library.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class MimeTypeUtils {
 

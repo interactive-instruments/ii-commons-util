@@ -25,7 +25,7 @@ import javax.xml.bind.annotation.XmlValue;
 /**
  * Stores an object as simple String.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 @XmlRootElement(name = "StrContainer")

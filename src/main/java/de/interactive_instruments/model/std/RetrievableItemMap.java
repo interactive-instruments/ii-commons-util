@@ -18,7 +18,7 @@ package de.interactive_instruments.model.std;
 /**
  * An interface that simplifies the mapping of RetrievableItem objects to values.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface RetrievableItemMap<T extends RetrievableItem> extends IdMap<T> {
 

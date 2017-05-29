@@ -17,7 +17,7 @@ package de.interactive_instruments.exceptions;
 
 /**
  * Thrown if an object is in immutable/final state and an attempt is made to modify it.
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public class ImmutableLockException extends Exception {

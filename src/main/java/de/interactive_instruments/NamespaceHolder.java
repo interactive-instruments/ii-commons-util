@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * XML Namespace holder
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface NamespaceHolder {
 

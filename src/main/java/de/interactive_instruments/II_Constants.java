@@ -18,7 +18,7 @@ package de.interactive_instruments;
 /**
  * Constants for interactive instruments components
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 final public class II_Constants {

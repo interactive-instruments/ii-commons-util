@@ -18,7 +18,7 @@ package de.interactive_instruments.exceptions;
 /**
  * II specific parse exception
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class ParseException extends java.text.ParseException {
 

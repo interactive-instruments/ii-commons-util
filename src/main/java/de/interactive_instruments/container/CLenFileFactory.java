@@ -35,7 +35,7 @@ import de.interactive_instruments.properties.ConfigPropertyHolder;
 /**
  * A factory which decides which Container object to construct based on the string length.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public final class CLenFileFactory implements ContainerFactory, Configurable {

@@ -26,7 +26,7 @@ import de.interactive_instruments.exceptions.ImmutableLockException;
  *
  * TODO checkLock Annotation
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 @XmlRootElement(name = "FinalState")

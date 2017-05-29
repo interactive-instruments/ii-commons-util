@@ -22,7 +22,8 @@ import de.interactive_instruments.properties.Properties;
 import de.interactive_instruments.properties.PropertyHolder;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ *
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class Credentials {
 

@@ -48,7 +48,7 @@ import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
  * TODO:
  * use new JDK 1.7 link capabilities
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  * @version 2.1
  * @since 1.0
  * @see de.interactive_instruments.jaxb.adapters.IFileXmlAdapter

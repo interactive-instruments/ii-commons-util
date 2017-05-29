@@ -22,7 +22,7 @@ import de.interactive_instruments.exceptions.ExcUtils;
 /**
  * The default Id factory implementation for constructing DefaultId objects.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class DefaultIdFactory implements IdFactory {
 

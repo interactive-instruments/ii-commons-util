@@ -26,7 +26,7 @@ import de.interactive_instruments.SUtils;
 /**
  * Simple generic key value pair
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  * @param <ValueType>
  */

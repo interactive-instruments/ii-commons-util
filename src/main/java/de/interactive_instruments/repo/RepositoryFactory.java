@@ -25,7 +25,7 @@ import de.interactive_instruments.Initializable;
 import de.interactive_instruments.Releasable;
 
 /**
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface RepositoryFactory {
 

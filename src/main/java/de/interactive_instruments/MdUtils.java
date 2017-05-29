@@ -21,7 +21,7 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class MdUtils {
 	public static MessageDigest getMessageDigest() {

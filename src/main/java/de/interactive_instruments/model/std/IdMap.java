@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * An interface that simplifies the mapping of Id objects to values.
  *
- * @author J. Herrmann ( herrmann <aT) interactive-instruments (doT> de )
+ * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface IdMap<V> extends Map<Id, V> {
 	default Collection<V> asCollection() {
