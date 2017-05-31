@@ -161,11 +161,11 @@ final public class SUtils {
 		return null;
 	}
 
-	public final static String concatStr(final String separator, final Collection<String> strings) {
+	public final static String concatStr(final String separator, final Iterable<?> strings) {
 		if (strings != null) {
-			final StringBuilder builder = new StringBuilder(strings.size() * 6);
-			for (Iterator<String> it = strings.iterator();;) {
-				builder.append(it.next());
+			final StringBuilder builder = new StringBuilder(32);
+			for (Iterator<?> it = strings.iterator();;) {
+				builder.append(it.next().toString());
 				if (it.hasNext()) {
 					builder.append(separator);
 				} else {
@@ -177,6 +177,33 @@ final public class SUtils {
 		return null;
 	}
 
+	public final static String concatStrWithPrefixAndSuffix(final String separator, final String prefix, final String suffix,
+			final Iterable<?> strings) {
+		if (strings != null) {
+			final StringBuilder builder = new StringBuilder(32);
+			for (Iterator<?> it = strings.iterator();;) {
+				builder.append(prefix);
+				builder.append(it.next().toString());
+				builder.append(suffix);
+				if (it.hasNext()) {
+					builder.append(separator);
+				} else {
+					break;
+				}
+			}
+			return builder.toString();
+		}
+		return null;
+	}
+
+	/**
+	 * Find the min position of multiple search strings
+	 *
+	 * @param str string to use
+	 * @param from start position
+	 * @param search search strings
+	 * @return min position
+	 */
 	public static int lastMinIndexOf(final String str, final int from, final String... search) {
 		int min = -1;
 		for (int i = 0; i < search.length; i++) {
