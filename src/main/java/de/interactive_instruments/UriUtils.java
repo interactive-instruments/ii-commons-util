@@ -32,8 +32,6 @@ import java.util.zip.InflaterInputStream;
 
 import org.apache.commons.io.IOUtils;
 
-import sun.net.www.*;
-
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 import de.interactive_instruments.io.FileHashVisitor;
@@ -75,17 +73,18 @@ public final class UriUtils {
 		}
 	}
 
-	public static class ServerException extends IOException {
+	public static class ConnectionException extends IOException {
 
 		private final int code;
 		private final String responseMessage;
 		private final String errorMessage;
 
-		public ServerException(final IOException e, final URLConnection connection) {
+		public ConnectionException(final IOException e, final URLConnection connection) {
 			super(e);
 			int codeTemp = -1;
 			String responseMessageTemp = null;
 			String errorMessageTemp = null;
+
 			if (connection instanceof HttpURLConnection) {
 				final HttpURLConnection c = ((HttpURLConnection) connection);
 				try {
@@ -99,13 +98,11 @@ public final class UriUtils {
 					ExcUtils.suppress(ign);
 				}
 				try {
-					if (c.getErrorStream().available() > 0) {
+					if (c.getErrorStream()!=null && c.getErrorStream().available() > 0) {
 						errorMessageTemp = IOUtils.toString(c.getErrorStream(), "UTF-8");
 					}
 				} catch (IOException ign) {
 					ExcUtils.suppress(ign);
-				} finally {
-					IFile.closeQuietly(c.getErrorStream());
 				}
 			}
 			code = codeTemp;
@@ -118,22 +115,56 @@ public final class UriUtils {
 		}
 
 		public String getResponseMessage() {
-			return responseMessage;
+			return String.valueOf(code) +
+					(!SUtils.isNullOrEmpty(responseMessage) ? (" (" + responseMessage + ")") : "");
 		}
 
 		public String getErrorMessage() {
 			return errorMessage;
 		}
+
+		@Override
+		public String getMessage() {
+			if(code==-1) {
+				return "The server returned an unknown error. Additional information are not available.";
+			}
+			final StringBuilder sb = new StringBuilder("The server rejected the request");
+			if(!SUtils.isNullOrEmpty(errorMessage)) {
+				sb.append(": '");
+				sb.append(errorMessage);
+				sb.append("'");
+			}
+			sb.append(".");
+			if(code!=-1) {
+				sb.append(" Returned HTTP status code was: '");
+				sb.append(code);
+				sb.append("'");
+				if(!SUtils.isNullOrEmpty(responseMessage)) {
+					sb.append(" (");
+					sb.append(responseMessage);
+					sb.append(" )");
+				}
+				sb.append(".");
+			}
+			return sb.toString();
+		}
 	}
 
+	/**
+	 * Return the parent location or the current URI if applicable,
+	 * including a trailing slash
+	 *
+	 * @param uri URI
+	 * @return parent URI as string including a trailing slash
+	 */
 	public static String getParent(final String uri) {
 		return getParent(URI.create(uri)).toString();
 	}
 
 	/**
 	 * Return the parent location or the current URI if applicable
-	 * @param uri
-	 * @return
+	 * @param uri URI
+	 * @return parent URI
 	 */
 	public static URI getParent(final URI uri) {
 		return uri.getPath().endsWith("/") ? uri.resolve("..") : uri.resolve(".");
@@ -141,8 +172,8 @@ public final class UriUtils {
 
 	/**
 	 * Return the parent location or the current URI if applicable
-	 * @param uri
-	 * @return
+	 * @param uri URI
+	 * @return parent URI
 	 */
 	public static URI getParent(final URI uri, final int level) {
 		if (level <= 0) {
@@ -665,9 +696,12 @@ public final class UriUtils {
 
 		try {
 			s = c.getInputStream();
+		} catch (SocketTimeoutException e) {
+			IFile.closeQuietly(s);
+			throw e;
 		} catch (IOException e) {
 			IFile.closeQuietly(s);
-			throw new ServerException(e, c);
+			throw new ConnectionException(e, c);
 		}
 		return s;
 	}
