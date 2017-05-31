@@ -98,7 +98,7 @@ public final class UriUtils {
 					ExcUtils.suppress(ign);
 				}
 				try {
-					if (c.getErrorStream()!=null && c.getErrorStream().available() > 0) {
+					if (c.getErrorStream() != null && c.getErrorStream().available() > 0) {
 						errorMessageTemp = IOUtils.toString(c.getErrorStream(), "UTF-8");
 					}
 				} catch (IOException ign) {
@@ -125,21 +125,21 @@ public final class UriUtils {
 
 		@Override
 		public String getMessage() {
-			if(code==-1) {
+			if (code == -1) {
 				return "The server returned an unknown error. Additional information are not available.";
 			}
 			final StringBuilder sb = new StringBuilder("The server rejected the request");
-			if(!SUtils.isNullOrEmpty(errorMessage)) {
+			if (!SUtils.isNullOrEmpty(errorMessage)) {
 				sb.append(": '");
 				sb.append(errorMessage);
 				sb.append("'");
 			}
 			sb.append(".");
-			if(code!=-1) {
+			if (code != -1) {
 				sb.append(" Returned HTTP status code was: '");
 				sb.append(code);
 				sb.append("'");
-				if(!SUtils.isNullOrEmpty(responseMessage)) {
+				if (!SUtils.isNullOrEmpty(responseMessage)) {
 					sb.append(" (");
 					sb.append(responseMessage);
 					sb.append(" )");
