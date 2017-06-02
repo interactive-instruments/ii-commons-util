@@ -1,0 +1,11 @@
+de.interactive_instruments
+de.interactive_instruments.container
+de.interactive_instruments.exceptions
+de.interactive_instruments.exceptions.config
+de.interactive_instruments.io
+de.interactive_instruments.jaxb
+de.interactive_instruments.jaxb.adapters
+de.interactive_instruments.model.std
+de.interactive_instruments.properties
+de.interactive_instruments.repo
+de.interactive_instruments.validation
