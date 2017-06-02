@@ -180,8 +180,12 @@ final public class SUtils {
 	public final static String concatStrWithPrefixAndSuffix(final String separator, final String prefix, final String suffix,
 			final Iterable<?> strings) {
 		if (strings != null) {
+			final Iterator<?> it = strings.iterator();
+			if (!it.hasNext()) {
+				return "";
+			}
 			final StringBuilder builder = new StringBuilder(32);
-			for (Iterator<?> it = strings.iterator();;) {
+			for (;;) {
 				builder.append(prefix);
 				builder.append(it.next().toString());
 				builder.append(suffix);

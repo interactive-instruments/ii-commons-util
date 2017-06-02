@@ -1,6 +1,6 @@
 /**
- * Standard exceptions for interactive instruments products that
- * can be thrown in the configuration phase of an object. 
+ * Standard exceptions for applications that are thrown
+ * when the configuration of an object failed.
  * 
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
