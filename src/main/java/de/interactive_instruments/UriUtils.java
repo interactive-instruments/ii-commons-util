@@ -78,6 +78,7 @@ public final class UriUtils {
 		private final int code;
 		private final String responseMessage;
 		private final String errorMessage;
+		private final URL url;
 
 		public ConnectionException(final IOException e, final URLConnection connection) {
 			super(e);
@@ -104,6 +105,9 @@ public final class UriUtils {
 				} catch (IOException ign) {
 					ExcUtils.suppress(ign);
 				}
+				url = connection.getURL();
+			}else {
+				url = null;
 			}
 			code = codeTemp;
 			responseMessage = responseMessageTemp;
@@ -123,29 +127,31 @@ public final class UriUtils {
 			return errorMessage;
 		}
 
+		public URL getUrl() {
+			return url;
+		}
+
 		@Override
 		public String getMessage() {
 			if (code == -1) {
-				return "The server returned an unknown error. Additional information are not available.";
+				final String message = super.getMessage();
+				if(message.startsWith("java.net.UnknownHostException:")) {
+					return "Unknown host: "+message.substring(31);
+				}else if(message.contains("Connection refused")) {
+					return "Connection refused. Please check the port you are trying to connect to "
+							+ "is open or whether the port is blocked by a firewall.";
+				}
+				return super.getMessage();
 			}
-			final StringBuilder sb = new StringBuilder("The server rejected the request");
-			if (!SUtils.isNullOrEmpty(errorMessage)) {
-				sb.append(": '");
-				sb.append(errorMessage);
-				sb.append("'");
+			final StringBuilder sb = new StringBuilder("Returned HTTP status code was '");
+			sb.append(code);
+			sb.append("'");
+			if (!SUtils.isNullOrEmpty(responseMessage)) {
+				sb.append(" (");
+				sb.append(responseMessage);
+				sb.append(" )");
 			}
 			sb.append(".");
-			if (code != -1) {
-				sb.append(" Returned HTTP status code was: '");
-				sb.append(code);
-				sb.append("'");
-				if (!SUtils.isNullOrEmpty(responseMessage)) {
-					sb.append(" (");
-					sb.append(responseMessage);
-					sb.append(" )");
-				}
-				sb.append(".");
-			}
 			return sb.toString();
 		}
 	}
@@ -651,11 +657,16 @@ public final class UriUtils {
 	 * @throws MalformedURLException
 	 * @throws UnknownHostException
 	 */
-	public static boolean isPrivateNet(final URI uri) throws MalformedURLException, UnknownHostException {
+	public static boolean isPrivateNet(final URI uri) throws MalformedURLException {
 		if (isFile(uri)) {
 			return false;
 		}
-		return isPrivateNet(uri.toURL().getHost());
+		try {
+			return isPrivateNet(uri.toURL().getHost());
+		} catch (final UnknownHostException e) {
+			// otherwise names can be checked in the lan
+			return false;
+		}
 	}
 
 	public static boolean isPrivateNet(final String host) throws UnknownHostException {

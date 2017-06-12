@@ -175,6 +175,7 @@ public class UriUtilsTest {
 		try (InputStream inputStream = UriUtils.openStream(url)) {} catch (UriUtils.ConnectionException e) {
 			exceptionThrown = true;
 			assertEquals(404, e.getResponseCode());
+			assertEquals("http://herrmann.cx/doesnotexist", e.getUrl().toString());
 		}
 		assertTrue(exceptionThrown);
 	}
