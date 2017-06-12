@@ -106,7 +106,7 @@ public final class UriUtils {
 					ExcUtils.suppress(ign);
 				}
 				url = connection.getURL();
-			}else {
+			} else {
 				url = null;
 			}
 			code = codeTemp;
@@ -135,9 +135,9 @@ public final class UriUtils {
 		public String getMessage() {
 			if (code == -1) {
 				final String message = super.getMessage();
-				if(message.startsWith("java.net.UnknownHostException:")) {
-					return "Unknown host: "+message.substring(31);
-				}else if(message.contains("Connection refused")) {
+				if (message.startsWith("java.net.UnknownHostException:")) {
+					return "Unknown host: " + message.substring(31);
+				} else if (message.contains("Connection refused")) {
 					return "Connection refused. Please check the port you are trying to connect to "
 							+ "is open or whether the port is blocked by a firewall.";
 				}

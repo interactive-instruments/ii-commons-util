@@ -26,6 +26,7 @@ import org.apache.tika.mime.MediaType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 
+import de.interactive_instruments.container.Pair;
 import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 
 /**
@@ -140,6 +141,28 @@ public class MimeTypeUtils {
 
 	public static String detectFileExtension(final String str) throws MimeTypeUtilsException {
 		return getFileExtensionForMimeType(detectMimeType(str));
+	}
+
+	/**
+	 * Set the file extension based on a mime type
+	 *
+	 * @param file the file to rename
+	 * @param knownMimeType MIME type or null
+	 * @return the MIME type and the new file with the extension
+	 * @throws IOException if the file can not be read, or a file with the extension already exists
+	 * @throws MimeTypeUtilsException if an internal error occurs
+	 */
+	public static Pair<String, IFile> setFileExtension(final IFile file, final String knownMimeType)
+			throws IOException, MimeTypeUtilsException {
+		file.expectFileIsReadable();
+		final String name = file.getFilenameWithoutExt();
+		final String mimeType = knownMimeType != null ? knownMimeType : detectMimeType(file);
+		final String extension = detectFileExtension(mimeType);
+		final String newPath = file.getParent() + File.pathSeparator + name + extension;
+		if (!file.getFileExtension().equals(extension)) {
+			file.moveTo(newPath);
+		}
+		return new Pair<>(mimeType, new IFile(newPath));
 	}
 
 }

@@ -742,11 +742,27 @@ public final class IFile extends File {
 	public String getFilenameWithoutExt() throws IOException {
 		this.expectNotADirectory();
 		String fileNameWithoutExt = this.getName();
-		final int dotPos = fileNameWithoutExt.lastIndexOf(".");
+		final int dotPos = fileNameWithoutExt.lastIndexOf('.');
 		if (dotPos != -1) {
 			fileNameWithoutExt = fileNameWithoutExt.substring(0, dotPos);
 		}
 		return fileNameWithoutExt;
+	}
+
+	/**
+	 * Return the extension including a dot character
+	 *
+	 * @return The filename extension after the last dot
+	 * @throws IOException
+	 */
+	public String getFileExtension() throws IOException {
+		this.expectNotADirectory();
+		String extension = "";
+		final int dotPos = this.getName().lastIndexOf('.');
+		if (dotPos != -1) {
+			return this.getName().substring(dotPos);
+		}
+		return extension;
 	}
 
 	private static String getBasename(final String path) {
