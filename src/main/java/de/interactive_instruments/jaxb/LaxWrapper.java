@@ -19,10 +19,10 @@ package de.interactive_instruments.jaxb;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 
-import java.util.*;
-
 import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 @XmlRootElement
 public class LaxWrapper<T> {

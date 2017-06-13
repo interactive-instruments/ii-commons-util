@@ -16,7 +16,6 @@
 package de.interactive_instruments;
 
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * String Utility Functions

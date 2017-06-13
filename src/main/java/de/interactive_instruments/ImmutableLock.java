@@ -15,10 +15,10 @@
  */
 package de.interactive_instruments;
 
+import de.interactive_instruments.exceptions.ImmutableLockException;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
-
-import de.interactive_instruments.exceptions.ImmutableLockException;
 
 /**
  * With the ImmutableLock object an object can be put in a final state

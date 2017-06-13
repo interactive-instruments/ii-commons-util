@@ -15,14 +15,11 @@
  */
 package de.interactive_instruments.properties;
 
+import de.interactive_instruments.IFile;
+
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.ParseException;
-import java.util.Map;
-
-import de.interactive_instruments.IFile;
 
 public interface MutablePropertyHolder extends PropertyHolder {
 

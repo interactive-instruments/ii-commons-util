@@ -15,14 +15,6 @@
  */
 package de.interactive_instruments.container;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.UUID;
-
-import org.apache.commons.lang3.StringEscapeUtils;
-
 import de.interactive_instruments.Configurable;
 import de.interactive_instruments.IFile;
 import de.interactive_instruments.MimeTypeUtils;
@@ -31,6 +23,13 @@ import de.interactive_instruments.exceptions.*;
 import de.interactive_instruments.exceptions.config.ConfigurationException;
 import de.interactive_instruments.properties.ConfigProperties;
 import de.interactive_instruments.properties.ConfigPropertyHolder;
+import org.apache.commons.lang3.StringEscapeUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.UUID;
 
 /**
  * A factory which decides which Container object to construct based on the string length.

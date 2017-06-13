@@ -15,14 +15,9 @@
  */
 package de.interactive_instruments.properties;
 
-import java.io.File;
-import java.util.Set;
-
-import de.interactive_instruments.IFile;
-import de.interactive_instruments.exceptions.ExcUtils;
-import de.interactive_instruments.exceptions.config.ConfigurationException;
-import de.interactive_instruments.exceptions.config.InvalidPropertyException;
 import de.interactive_instruments.exceptions.config.MissingPropertyException;
+
+import java.util.Set;
 
 public interface ConfigPropertyHolder extends MutablePropertyHolder {
 

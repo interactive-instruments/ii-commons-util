@@ -15,11 +15,11 @@
  */
 package de.interactive_instruments.repo;
 
-import java.net.URI;
-
 import de.interactive_instruments.Credentials;
 import de.interactive_instruments.Initializable;
 import de.interactive_instruments.Releasable;
+
+import java.net.URI;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )

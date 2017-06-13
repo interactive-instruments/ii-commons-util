@@ -16,7 +16,6 @@
 package de.interactive_instruments;
 
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )

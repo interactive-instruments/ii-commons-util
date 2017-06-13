@@ -15,14 +15,13 @@
  */
 package de.interactive_instruments;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class IFileTest {
 

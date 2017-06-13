@@ -15,16 +15,14 @@
  */
 package de.interactive_instruments.io;
 
+import de.interactive_instruments.MimeTypeUtils;
+import de.interactive_instruments.exceptions.MimeTypeUtilsException;
+
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
-import de.interactive_instruments.IFile;
-import de.interactive_instruments.MimeTypeUtils;
-import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )

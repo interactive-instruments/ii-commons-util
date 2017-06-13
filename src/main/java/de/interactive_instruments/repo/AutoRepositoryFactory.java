@@ -15,17 +15,13 @@
  */
 package de.interactive_instruments.repo;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
-import java.util.Set;
-
 import de.interactive_instruments.Credentials;
 import de.interactive_instruments.IFile;
-import de.interactive_instruments.SUtils;
-import de.interactive_instruments.properties.ConfigProperties;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.ServiceLoader;
+import java.util.Set;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )

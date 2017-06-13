@@ -15,7 +15,6 @@
  */
 package de.interactive_instruments.properties;
 
-import java.util.List;
 import java.util.Set;
 
 /**

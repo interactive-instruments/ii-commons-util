@@ -19,8 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.util.*;
-import java.util.concurrent.ConcurrentNavigableMap;
-import java.util.stream.Collectors;
 
 /**
  * Informs the implementing client about changed files.

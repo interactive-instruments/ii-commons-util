@@ -15,12 +15,10 @@
  */
 package de.interactive_instruments.repo;
 
+import de.interactive_instruments.Version;
+
 import java.io.File;
 import java.io.IOException;
-
-import de.interactive_instruments.IFile;
-import de.interactive_instruments.Version;
-import de.interactive_instruments.exceptions.config.ConfigurationException;
 
 /**
  *

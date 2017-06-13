@@ -15,8 +15,6 @@
  */
 package de.interactive_instruments.repo;
 
-import java.io.File;
-
 import de.interactive_instruments.Version;
 
 /**

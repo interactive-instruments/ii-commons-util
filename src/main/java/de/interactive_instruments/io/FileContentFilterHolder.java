@@ -15,8 +15,6 @@
  */
 package de.interactive_instruments.io;
 
-import java.io.FileFilter;
-
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */

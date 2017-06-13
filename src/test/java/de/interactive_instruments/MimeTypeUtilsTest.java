@@ -15,14 +15,13 @@
  */
 package de.interactive_instruments;
 
-import static org.junit.Assert.*;
+import de.interactive_instruments.exceptions.MimeTypeUtilsException;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import org.junit.Test;
-
-import de.interactive_instruments.exceptions.MimeTypeUtilsException;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )

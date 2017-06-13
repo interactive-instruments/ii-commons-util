@@ -15,11 +15,10 @@
  */
 package de.interactive_instruments;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.apache.commons.lang3.time.FastDateFormat;
+
+import java.text.ParseException;
+import java.util.Date;
 
 /**
  * Time Utilities

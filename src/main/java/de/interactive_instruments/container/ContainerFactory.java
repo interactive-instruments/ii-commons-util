@@ -15,11 +15,9 @@
  */
 package de.interactive_instruments.container;
 
-import java.io.InputStream;
-import java.net.URI;
-import java.util.UUID;
-
 import de.interactive_instruments.exceptions.ContainerFactoryException;
+
+import java.net.URI;
 
 /**
  * The container factory is used to persist or reference any desired content.

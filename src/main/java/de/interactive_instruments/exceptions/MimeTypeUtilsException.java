@@ -15,8 +15,6 @@
  */
 package de.interactive_instruments.exceptions;
 
-import java.io.IOException;
-
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */

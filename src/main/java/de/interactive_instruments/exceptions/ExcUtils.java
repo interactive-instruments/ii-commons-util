@@ -15,9 +15,8 @@
  */
 package de.interactive_instruments.exceptions;
 
-import org.slf4j.LoggerFactory;
-
 import de.interactive_instruments.properties.PropertyUtils;
+import org.slf4j.LoggerFactory;
 
 public class ExcUtils {
 
