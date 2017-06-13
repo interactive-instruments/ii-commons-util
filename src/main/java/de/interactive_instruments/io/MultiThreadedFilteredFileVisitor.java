@@ -15,6 +15,10 @@
  */
 package de.interactive_instruments.io;
 
+import de.interactive_instruments.Factory;
+import de.interactive_instruments.container.Pair;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -28,11 +32,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.LoggerFactory;
-
-import de.interactive_instruments.Factory;
-import de.interactive_instruments.container.Pair;
 
 /**
  * Note only the visitFile method is proxied

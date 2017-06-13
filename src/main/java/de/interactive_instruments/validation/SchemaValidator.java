@@ -15,24 +15,22 @@
  */
 package de.interactive_instruments.validation;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Set;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.validation.Schema;
-import javax.xml.validation.ValidatorHandler;
-
+import de.interactive_instruments.IFile;
+import de.interactive_instruments.Releasable;
+import de.interactive_instruments.exceptions.ExcUtils;
+import de.interactive_instruments.io.MultiFileFilter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 
-import de.interactive_instruments.IFile;
-import de.interactive_instruments.Releasable;
-import de.interactive_instruments.exceptions.ExcUtils;
-import de.interactive_instruments.io.MultiFileFilter;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.validation.Schema;
+import javax.xml.validation.ValidatorHandler;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 /**
  * Schema validator.

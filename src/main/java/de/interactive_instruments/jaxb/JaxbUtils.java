@@ -15,22 +15,20 @@
  */
 package de.interactive_instruments.jaxb;
 
+import de.interactive_instruments.FieldType;
+import de.interactive_instruments.MutableNamespaceHolder;
+import de.interactive_instruments.SUtils;
+import org.apache.commons.lang3.ClassUtils;
+
+import javax.xml.bind.annotation.XmlNs;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchema;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.xml.bind.annotation.XmlNs;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlSchema;
-
-import org.apache.commons.lang3.ClassUtils;
-
-import de.interactive_instruments.FieldType;
-import de.interactive_instruments.MutableNamespaceHolder;
-import de.interactive_instruments.SUtils;
 
 /**
  * Created by herrmann@interactive-instruments.de.

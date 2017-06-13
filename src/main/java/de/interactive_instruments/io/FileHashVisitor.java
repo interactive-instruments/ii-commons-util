@@ -15,6 +15,8 @@
  */
 package de.interactive_instruments.io;
 
+import de.interactive_instruments.MdUtils;
+
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -23,8 +25,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.util.LinkedHashSet;
 import java.util.Set;
-
-import de.interactive_instruments.MdUtils;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )

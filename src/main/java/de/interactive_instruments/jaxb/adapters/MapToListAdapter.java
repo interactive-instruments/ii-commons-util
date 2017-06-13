@@ -15,12 +15,11 @@
  */
 package de.interactive_instruments.jaxb.adapters;
 
-import java.lang.reflect.Modifier;
-import java.util.*;
-
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 /**
  * MapToListAdapter that supports un-/marshal simple maps with <String, object>

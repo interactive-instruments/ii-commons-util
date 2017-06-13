@@ -15,6 +15,14 @@
  */
 package de.interactive_instruments;
 
+import de.interactive_instruments.container.Pair;
+import de.interactive_instruments.exceptions.ExcUtils;
+import de.interactive_instruments.io.DefaultFileIgnoreFilter;
+import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
+import org.apache.commons.lang3.SystemUtils;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.*;
 import java.net.URI;
 import java.nio.channels.FileChannel;
@@ -23,16 +31,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.*;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.apache.commons.lang3.SystemUtils;
-
-import de.interactive_instruments.container.Pair;
-import de.interactive_instruments.exceptions.ExcUtils;
-import de.interactive_instruments.io.DefaultFileIgnoreFilter;
-import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
 
 /**
  * The IFile class helps to generate "usable" error messages for file operations
