@@ -15,9 +15,9 @@
  */
 package de.interactive_instruments.properties;
 
-import de.interactive_instruments.SUtils;
-
 import java.util.Map;
+
+import de.interactive_instruments.SUtils;
 
 /**
  * Simple generic key value pair

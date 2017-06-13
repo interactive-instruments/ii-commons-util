@@ -15,10 +15,10 @@
  */
 package de.interactive_instruments.properties;
 
-import de.interactive_instruments.exceptions.config.MissingPropertyException;
-
 import java.util.*;
 import java.util.stream.Collectors;
+
+import de.interactive_instruments.exceptions.config.MissingPropertyException;
 
 public final class ConfigProperties implements ConfigPropertyHolder {
 

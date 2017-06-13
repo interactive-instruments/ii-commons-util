@@ -15,12 +15,12 @@
  */
 package de.interactive_instruments;
 
-import de.interactive_instruments.exceptions.ExcUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+
+import de.interactive_instruments.exceptions.ExcUtils;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )

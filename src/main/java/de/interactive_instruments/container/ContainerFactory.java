@@ -15,9 +15,9 @@
  */
 package de.interactive_instruments.container;
 
-import de.interactive_instruments.exceptions.ContainerFactoryException;
-
 import java.net.URI;
+
+import de.interactive_instruments.exceptions.ContainerFactoryException;
 
 /**
  * The container factory is used to persist or reference any desired content.

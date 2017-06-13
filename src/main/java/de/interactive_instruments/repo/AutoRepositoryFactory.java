@@ -15,13 +15,13 @@
  */
 package de.interactive_instruments.repo;
 
-import de.interactive_instruments.Credentials;
-import de.interactive_instruments.IFile;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.ServiceLoader;
 import java.util.Set;
+
+import de.interactive_instruments.Credentials;
+import de.interactive_instruments.IFile;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )

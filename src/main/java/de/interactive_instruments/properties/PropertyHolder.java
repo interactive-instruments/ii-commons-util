@@ -15,16 +15,16 @@
  */
 package de.interactive_instruments.properties;
 
-import de.interactive_instruments.IFile;
-import de.interactive_instruments.exceptions.ExcUtils;
-import de.interactive_instruments.exceptions.config.InvalidPropertyException;
-import de.interactive_instruments.exceptions.config.MissingPropertyException;
-
 import java.io.File;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import de.interactive_instruments.IFile;
+import de.interactive_instruments.exceptions.ExcUtils;
+import de.interactive_instruments.exceptions.config.InvalidPropertyException;
+import de.interactive_instruments.exceptions.config.MissingPropertyException;
 
 /**
  * Interface for an object that holds key value pairs

@@ -15,11 +15,11 @@
  */
 package de.interactive_instruments;
 
-import de.interactive_instruments.properties.Properties;
-import de.interactive_instruments.properties.PropertyHolder;
-
 import java.util.Map;
 import java.util.Objects;
+
+import de.interactive_instruments.properties.Properties;
+import de.interactive_instruments.properties.PropertyHolder;
 
 /**
  *

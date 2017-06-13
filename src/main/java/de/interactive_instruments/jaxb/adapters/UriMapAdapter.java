@@ -15,15 +15,16 @@
  */
 package de.interactive_instruments.jaxb.adapters;
 
-import de.interactive_instruments.II_Constants;
+import java.net.URI;
+import java.util.*;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import java.net.URI;
-import java.util.*;
+
+import de.interactive_instruments.II_Constants;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )

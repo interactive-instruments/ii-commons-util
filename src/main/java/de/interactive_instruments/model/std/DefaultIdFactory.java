@@ -15,9 +15,9 @@
  */
 package de.interactive_instruments.model.std;
 
-import de.interactive_instruments.exceptions.ExcUtils;
-
 import java.util.UUID;
+
+import de.interactive_instruments.exceptions.ExcUtils;
 
 /**
  * The default Id factory implementation for constructing DefaultId objects.

@@ -15,9 +15,9 @@
  */
 package de.interactive_instruments.exceptions.config;
 
-import de.interactive_instruments.SUtils;
-
 import java.util.Collection;
+
+import de.interactive_instruments.SUtils;
 
 /**
  * Thrown if a object is used, that has to be configured first

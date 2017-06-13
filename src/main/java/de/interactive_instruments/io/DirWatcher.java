@@ -15,10 +15,7 @@
  */
 package de.interactive_instruments.io;
 
-import de.interactive_instruments.Releasable;
-import de.interactive_instruments.exceptions.ExcUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.nio.file.StandardWatchEventKinds.*;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -30,7 +27,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import static java.nio.file.StandardWatchEventKinds.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.interactive_instruments.Releasable;
+import de.interactive_instruments.exceptions.ExcUtils;
 
 /**
  * Implements the Observer pattern and notifies clients about file changes.

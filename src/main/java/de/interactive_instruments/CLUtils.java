@@ -15,10 +15,6 @@
  */
 package de.interactive_instruments;
 
-import de.interactive_instruments.exceptions.ExcUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -31,6 +27,11 @@ import java.util.List;
 import java.util.Vector;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.interactive_instruments.exceptions.ExcUtils;
 
 /**
  * Classloader utilities

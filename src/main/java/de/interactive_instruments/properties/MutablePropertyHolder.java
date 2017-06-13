@@ -15,11 +15,11 @@
  */
 package de.interactive_instruments.properties;
 
-import de.interactive_instruments.IFile;
-
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+
+import de.interactive_instruments.IFile;
 
 public interface MutablePropertyHolder extends PropertyHolder {
 

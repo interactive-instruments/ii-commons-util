@@ -15,10 +15,11 @@
  */
 package de.interactive_instruments.jaxb.adapters;
 
-import de.interactive_instruments.IFile;
+import java.io.File;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-import java.io.File;
+
+import de.interactive_instruments.IFile;
 
 /**
  * Adapter for serializing the IFile class.

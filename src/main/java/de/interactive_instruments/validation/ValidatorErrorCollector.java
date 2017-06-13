@@ -15,11 +15,6 @@
  */
 package de.interactive_instruments.validation;
 
-import de.interactive_instruments.Releasable;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
-
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.Iterator;
@@ -27,6 +22,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+
+import de.interactive_instruments.Releasable;
 
 /**
  * A synchronized collector for the error messages of the SchemaValidator
