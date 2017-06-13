@@ -17,7 +17,6 @@ package de.interactive_instruments;
 
 import java.io.*;
 import java.net.*;
-import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.FileVisitOption;
@@ -31,12 +30,12 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 import de.interactive_instruments.io.FileHashVisitor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * URI Utilities

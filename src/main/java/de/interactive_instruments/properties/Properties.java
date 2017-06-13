@@ -15,10 +15,10 @@
  */
 package de.interactive_instruments.properties;
 
-import de.interactive_instruments.SUtils;
-
 import java.util.*;
 import java.util.Map.Entry;
+
+import de.interactive_instruments.SUtils;
 
 public class Properties implements MutablePropertyHolder, ClassifyingPropertyHolder {
 

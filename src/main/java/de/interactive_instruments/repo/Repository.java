@@ -15,12 +15,12 @@
  */
 package de.interactive_instruments.repo;
 
-import de.interactive_instruments.IFile;
-
 import java.io.IOException;
 import java.net.URI;
 import java.util.Map;
 import java.util.Set;
+
+import de.interactive_instruments.IFile;
 
 /**
  * Repository

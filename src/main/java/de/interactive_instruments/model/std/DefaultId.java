@@ -15,14 +15,15 @@
  */
 package de.interactive_instruments.model.std;
 
-import de.interactive_instruments.II_Constants;
-import de.interactive_instruments.exceptions.ExcUtils;
+import java.util.UUID;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
-import java.util.UUID;
+
+import de.interactive_instruments.II_Constants;
+import de.interactive_instruments.exceptions.ExcUtils;
 
 /**
  * The default identifier implementation for domain model items.

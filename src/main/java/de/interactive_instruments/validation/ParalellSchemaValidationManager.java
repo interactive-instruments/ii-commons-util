@@ -15,16 +15,18 @@
  */
 package de.interactive_instruments.validation;
 
-import de.interactive_instruments.Factory;
-import de.interactive_instruments.io.MultiFileFilter;
-import org.xml.sax.SAXException;
+import static javax.xml.validation.SchemaFactory.newInstance;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.validation.Schema;
 import java.io.File;
 import java.util.Set;
 
-import static javax.xml.validation.SchemaFactory.newInstance;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.validation.Schema;
+
+import org.xml.sax.SAXException;
+
+import de.interactive_instruments.Factory;
+import de.interactive_instruments.io.MultiFileFilter;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )

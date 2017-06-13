@@ -15,17 +15,18 @@
  */
 package de.interactive_instruments.container;
 
-import de.interactive_instruments.UriUtils;
-import de.interactive_instruments.exceptions.ExcUtils;
-
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
+import de.interactive_instruments.UriUtils;
+import de.interactive_instruments.exceptions.ExcUtils;
 
 /**
  * The container references an object with an URL.

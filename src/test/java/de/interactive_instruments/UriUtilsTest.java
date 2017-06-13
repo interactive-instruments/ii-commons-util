@@ -15,8 +15,7 @@
  */
 package de.interactive_instruments;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +27,8 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 public class UriUtilsTest {
 
