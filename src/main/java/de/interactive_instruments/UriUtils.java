@@ -17,6 +17,7 @@ package de.interactive_instruments;
 
 import java.io.*;
 import java.net.*;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.FileVisitOption;

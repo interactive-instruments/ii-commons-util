@@ -15,10 +15,7 @@
  */
 package de.interactive_instruments;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -161,7 +158,7 @@ public class MimeTypeUtils {
 		final String name = file.getFilenameWithoutExt();
 		final String mimeType = knownMimeType != null ? knownMimeType : detectMimeType(file);
 		final String extension = detectFileExtension(mimeType);
-		final String newPath = file.getParent() + File.separator + name + extension;
+		final String newPath = file.getParent() + File.pathSeparator + name + extension;
 		if (!file.getFileExtension().equals(extension)) {
 			file.moveTo(newPath);
 		}
