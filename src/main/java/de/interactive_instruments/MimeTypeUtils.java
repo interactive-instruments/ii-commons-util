@@ -158,7 +158,7 @@ public class MimeTypeUtils {
 		final String name = file.getFilenameWithoutExt();
 		final String mimeType = knownMimeType != null ? knownMimeType : detectMimeType(file);
 		final String extension = detectFileExtension(mimeType);
-		final String newPath = file.getParent() + File.pathSeparator + name + extension;
+		final String newPath = file.getParent() + File.separator + name + extension;
 		if (!file.getFileExtension().equals(extension)) {
 			file.moveTo(newPath);
 		}
