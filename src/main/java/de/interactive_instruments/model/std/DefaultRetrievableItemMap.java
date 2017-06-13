@@ -42,7 +42,7 @@ public final class DefaultRetrievableItemMap<T extends RetrievableItem> implemen
 	}
 
 	@Override
-	public boolean _internalContainsKey(Object key) {
+	public boolean internalContainsKey(Object key) {
 		return internalMap.containsKey(key);
 	}
 
@@ -52,7 +52,7 @@ public final class DefaultRetrievableItemMap<T extends RetrievableItem> implemen
 	}
 
 	@Override
-	public T _internalGet(Object key) {
+	public T internalGet(Object key) {
 		return internalMap.get(key);
 	}
 
@@ -67,7 +67,7 @@ public final class DefaultRetrievableItemMap<T extends RetrievableItem> implemen
 	}
 
 	@Override
-	public T _internalRemove(Object key) {
+	public T internalRemove(Object key) {
 		return internalMap.remove(key);
 	}
 

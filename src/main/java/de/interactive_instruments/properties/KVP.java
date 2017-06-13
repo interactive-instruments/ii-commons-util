@@ -20,11 +20,11 @@ package de.interactive_instruments.properties;
  *
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
- * @param <ValueType>
+ * @param <V> ValueType
  */
-public interface KVP<ValueType> {
+public interface KVP<V> {
 
 	public String getKey();
 
-	public ValueType getValue();
+	public V getValue();
 }

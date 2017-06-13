@@ -57,7 +57,7 @@ public final class DefaultIdMap<V> implements IdMap<V> {
 	}
 
 	@Override
-	public boolean _internalContainsKey(Object key) {
+	public boolean internalContainsKey(Object key) {
 		return internalMap.containsKey(key);
 	}
 
@@ -72,7 +72,7 @@ public final class DefaultIdMap<V> implements IdMap<V> {
 	}
 
 	@Override
-	public V _internalRemove(Object key) {
+	public V internalRemove(Object key) {
 		return internalMap.remove(key);
 	}
 
@@ -112,7 +112,7 @@ public final class DefaultIdMap<V> implements IdMap<V> {
 	}
 
 	@Override
-	public V _internalGet(Object key) {
+	public V internalGet(Object key) {
 		return internalMap.get(key);
 	}
 }

@@ -86,28 +86,28 @@ public interface IdMap<V> extends Map<Id, V> {
 	 */
 	default V get(final Object key) {
 		if (key instanceof String) {
-			return _internalGet(new StrEqContainer(key));
+			return internalGet(new StrEqContainer(key));
 		}
-		return _internalGet(key);
+		return internalGet(key);
 	}
 
-	V _internalGet(Object key);
+	V internalGet(Object key);
 
 	default V remove(Object key) {
 		if (key instanceof String) {
-			return _internalRemove(new StrEqContainer(key));
+			return internalRemove(new StrEqContainer(key));
 		}
-		return _internalRemove(key);
+		return internalRemove(key);
 	}
 
-	V _internalRemove(Object key);
+	V internalRemove(Object key);
 
 	default boolean containsKey(Object key) {
 		if (key instanceof String) {
-			return _internalContainsKey(new StrEqContainer(key));
+			return internalContainsKey(new StrEqContainer(key));
 		}
-		return _internalContainsKey(key);
+		return internalContainsKey(key);
 	}
 
-	boolean _internalContainsKey(Object key);
+	boolean internalContainsKey(Object key);
 }

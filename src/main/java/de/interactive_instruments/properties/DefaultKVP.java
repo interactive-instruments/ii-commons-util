@@ -17,10 +17,6 @@ package de.interactive_instruments.properties;
 
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import de.interactive_instruments.SUtils;
 
 /**
@@ -28,17 +24,17 @@ import de.interactive_instruments.SUtils;
  *
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
- * @param <ValueType>
+ * @param <V> ValueType
  */
-public class DefaultKVP<ValueType> implements KVP<ValueType>, Map.Entry<String, ValueType> {
+public class DefaultKVP<V> implements KVP<V>, Map.Entry<String, V> {
 
 	private String key;
 
-	protected ValueType value;
+	protected V value;
 
 	DefaultKVP() {}
 
-	public DefaultKVP(String key, ValueType value) {
+	public DefaultKVP(String key, V value) {
 		this.key = key;
 		this.value = value;
 	}
@@ -47,12 +43,12 @@ public class DefaultKVP<ValueType> implements KVP<ValueType>, Map.Entry<String, 
 		return key;
 	}
 
-	public ValueType getValue() {
+	public V getValue() {
 		return value;
 	}
 
-	public ValueType setValue(ValueType value) {
-		final ValueType oldValue = this.value;
+	public V setValue(V value) {
+		final V oldValue = this.value;
 		this.value = value;
 		return oldValue;
 	}

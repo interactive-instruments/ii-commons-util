@@ -35,6 +35,8 @@ import org.apache.commons.io.IOUtils;
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 import de.interactive_instruments.io.FileHashVisitor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * URI Utilities
@@ -48,6 +50,8 @@ public final class UriUtils {
 	final private static int TIMEOUT = 60000;
 	// Timeout on waiting to read data: 120 seconds
 	private final static int READ_TIMEOUT = 120000;
+
+	private final static Logger logger = LoggerFactory.getLogger(UriUtils.class);
 
 	private static IFile tmpDir;
 
@@ -483,6 +487,7 @@ public final class UriUtils {
 				if (tmpFile.exists()) {
 					if (!tmpFile.delete()) {
 						// todo: log this
+						logger.error("Could not delete temporary file {}", tmpFile.getAbsolutePath());
 					}
 				}
 				downloadTo(connection, tmpFile);
