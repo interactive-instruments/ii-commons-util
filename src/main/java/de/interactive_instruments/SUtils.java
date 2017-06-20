@@ -15,6 +15,7 @@
  */
 package de.interactive_instruments;
 
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -29,8 +30,8 @@ final public class SUtils {
 	public static final String ENDL = System.lineSeparator();
 
 	/**
-	 * Splits a String with an regex into two Strings or returns null if
-	 * regex not found.
+	 * Splits a String into two Strings or returns null if
+	 * regex not found. The matched word is not included in the result.
 	 *
 	 * @param str
 	 * @param regex
@@ -50,16 +51,16 @@ final public class SUtils {
 	 * String a = "foo.bar"
 	 * rigthOfSubStrOrNull(a, ".") == "bar"
 	 *
-	 * @param str
-	 * @param indexStr
-	 * @return
+	 * @param str input String
+	 * @param searchStr searched String
+	 * @return right substring or Null
 	 */
-	public static String rigthOfSubStrOrNull(final String str, final String indexStr) {
-		final int pos = str.indexOf(indexStr);
+	public static String rigthOfSubStrOrNull(final String str, final String searchStr) {
+		final int pos = str.indexOf(searchStr);
 		if (pos == -1) {
 			return null;
 		}
-		return str.substring(pos + indexStr.length());
+		return str.substring(pos + searchStr.length());
 	}
 
 	/**
@@ -68,12 +69,12 @@ final public class SUtils {
 	 * String a = "foo.bar"
 	 * leftOfSubStrOrNull(a, ".") == "foo"
 	 *
-	 * @param str
-	 * @param indexStr
-	 * @return
+	 * @param str input String
+	 * @param searchStr searched String
+	 * @return left substring or Null
 	 */
-	public static String leftOfSubStrOrNull(final String str, final String indexStr) {
-		final int pos = str.indexOf(indexStr);
+	public static String leftOfSubStrOrNull(final String str, final String searchStr) {
+		final int pos = str.indexOf(searchStr);
 		if (pos == -1) {
 			return null;
 		}
@@ -107,7 +108,7 @@ final public class SUtils {
 	 * @see de.interactive_instruments.CmpUtils See CmpUtils for a
 	 * comparison version which does not ignore case
 	 */
-	public static int compareNullSafeIgnoreCase(String obj, String toObj) {
+	public static int compareNullSafeIgnoreCase(final String obj, final String toObj) {
 		if (obj == null ^ toObj == null) {
 			return (obj == null) ? -1 : 1;
 		} else if (obj == null && toObj == null) {
@@ -120,8 +121,13 @@ final public class SUtils {
 		return isNullOrEmpty(str) ? def : str;
 	}
 
-	public static String calcHash(final String str) {
-		return new String(MdUtils.getMessageDigest().digest(str.getBytes()));
+	public static String calcHashAsHexStr(final String str) {
+		final byte[] bytes = calcHash(str);
+		return String.format("%0" + (bytes.length << 1) + "X", new BigInteger(1, bytes));
+	}
+
+	public static byte[] calcHash(final String str) {
+		return MdUtils.getMessageDigest().digest(str.getBytes());
 	}
 
 	/**
@@ -200,24 +206,32 @@ final public class SUtils {
 	}
 
 	/**
-	 * Find the min position of multiple search strings
+	 * Find the min position of one of the supplied search strings, beginning the search at the end
 	 *
 	 * @param str string to use
 	 * @param from start position
 	 * @param search search strings
-	 * @return min position
+	 * @return last min position
 	 */
 	public static int lastMinIndexOf(final String str, final int from, final String... search) {
 		int min = -1;
 		for (int i = 0; i < search.length; i++) {
 			int pos = str.lastIndexOf(search[i], from);
-			if (pos != -1 && (min == -1 || pos < min)) {
+			if (pos != -1 && (pos < min || min == -1)) {
 				min = pos;
 			}
 		}
 		return min;
 	}
 
+	/**
+	 * Find the min position of one of the supplied search strings
+	 *
+	 * @param str string to use
+	 * @param from start position
+	 * @param search search strings
+	 * @return min position
+	 */
 	public static int minIndexOf(final String str, final int from, final String... search) {
 		int min = -1;
 		for (int i = 0; i < search.length; i++) {
