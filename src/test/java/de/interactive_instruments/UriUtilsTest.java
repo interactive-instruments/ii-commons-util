@@ -173,12 +173,14 @@ public class UriUtilsTest {
 
 	@Test
 	public void testException() throws URISyntaxException, IOException {
-		final URI url = new URI("http://herrmann.cx/doesnotexist");
+		final URI url = new URI("http://www.interactive-instruments.de/doesnotexist");
 		boolean exceptionThrown = false;
-		try (InputStream inputStream = UriUtils.openStream(url)) {} catch (UriUtils.ConnectionException e) {
+		try (InputStream inputStream = UriUtils.openStream(url)) {
+
+		} catch (UriUtils.ConnectionException e) {
 			exceptionThrown = true;
 			assertEquals(404, e.getResponseCode());
-			assertEquals("http://herrmann.cx/doesnotexist", e.getUrl().toString());
+			assertEquals("http://www.interactive-instruments.de/doesnotexist", e.getUrl().toString());
 		}
 		assertTrue(exceptionThrown);
 	}

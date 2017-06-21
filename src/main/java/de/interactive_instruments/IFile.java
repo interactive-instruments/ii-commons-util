@@ -60,7 +60,32 @@ import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
 public final class IFile extends File {
 
 	private static final long serialVersionUID = 21L;
+
+	// identifier of the file which will be output in error messages
 	protected String identifier;
+
+	// pattern for relative file detection
+	private static final Pattern REL_PATH_REM = Pattern.compile("\\.\\.(\\\\*|/*)");
+
+	// replacements for special chars in file names
+	private static Pair<Pattern, String>[] REPLACEMENTS = new Pair[]{
+			new Pair<>(Pattern.compile("\u00C4", Pattern.LITERAL), "Ae"),
+			new Pair<>(Pattern.compile("\u00DC", Pattern.LITERAL), "Ue"),
+			new Pair<>(Pattern.compile("\u00D6", Pattern.LITERAL), "Oe"),
+			new Pair<>(Pattern.compile("\u00E4", Pattern.LITERAL), "ae"),
+			new Pair<>(Pattern.compile("\u00FC", Pattern.LITERAL), "ue"),
+			new Pair<>(Pattern.compile("\u00F6", Pattern.LITERAL), "oe"),
+			new Pair<>(Pattern.compile("\u00DF", Pattern.LITERAL), "ss"),
+
+			// LATIN SMALL LETTER E WITH GRAVE
+			new Pair<>(Pattern.compile("\u00E8", Pattern.LITERAL), "e"),
+			// LATIN SMALL LETTER E WITH ACUTE
+			new Pair<>(Pattern.compile("\u00E9", Pattern.LITERAL), "e"),
+			// LATIN SMALL LETTER E WITH CIRCUMFLEX
+			new Pair<>(Pattern.compile("\u00EA", Pattern.LITERAL), "e"),
+
+			new Pair<>(Pattern.compile(",", Pattern.LITERAL), "")
+	};
 
 	/**
 	 * Initialize file path without setting an identifier for it
@@ -133,15 +158,6 @@ public final class IFile extends File {
 		tmp.setIdentifier(this.identifier + " " + path);
 		return tmp;
 	}
-
-	/**
-	 * Returns a new IFile with the expanded path
-	 * The Path must
-	 *
-	 * @param path
-	 * @return
-	 */
-	private static final Pattern REL_PATH_REM = Pattern.compile("\\.\\.(\\\\*|/*)");
 
 	public IFile secureExpandPathDown(final String path) {
 		final IFile tmp = new IFile(this,
@@ -1137,25 +1153,6 @@ public final class IFile extends File {
 			}
 		}));
 	}
-
-	private static Pair<Pattern, String>[] REPLACEMENTS = new Pair[]{
-			new Pair<>(Pattern.compile("\u00C4", Pattern.LITERAL), "Ae"),
-			new Pair<>(Pattern.compile("\u00DC", Pattern.LITERAL), "Ue"),
-			new Pair<>(Pattern.compile("\u00D6", Pattern.LITERAL), "Oe"),
-			new Pair<>(Pattern.compile("\u00E4", Pattern.LITERAL), "ae"),
-			new Pair<>(Pattern.compile("\u00FC", Pattern.LITERAL), "ue"),
-			new Pair<>(Pattern.compile("\u00F6", Pattern.LITERAL), "oe"),
-			new Pair<>(Pattern.compile("\u00DF", Pattern.LITERAL), "ss"),
-
-			// LATIN SMALL LETTER E WITH GRAVE
-			new Pair<>(Pattern.compile("\u00E8", Pattern.LITERAL), "e"),
-			// LATIN SMALL LETTER E WITH ACUTE
-			new Pair<>(Pattern.compile("\u00E9", Pattern.LITERAL), "e"),
-			// LATIN SMALL LETTER E WITH CIRCUMFLEX
-			new Pair<>(Pattern.compile("\u00EA", Pattern.LITERAL), "e"),
-
-			new Pair<>(Pattern.compile(",", Pattern.LITERAL), "")
-	};
 
 	private static String replaceSpecialChars(String str) {
 		for (int i = 0; i < REPLACEMENTS.length; i++) {

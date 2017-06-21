@@ -56,6 +56,15 @@ public final class DirWatcher {
 
 	private final static MultiFileFilter defaultFileIgnoreFilter = new DefaultFileIgnoreFilter();
 
+	private final ListenerRegistry listenerRegistry = new ListenerRegistry();
+
+	// Events fired for a path
+	private final TreeMap<Path, List<WatchEvent<?>>> watchedEvents = new TreeMap<>();
+
+	// Non-fair locking!
+	private final Lock processEventLock = new ReentrantLock();
+	private final Lock timerLock = new ReentrantLock();
+
 	private static class WatchKeyListeners implements Releasable {
 		private final TreeSet<FileChangeListener> listeners;
 		private final WatchKey watchKey;
@@ -293,15 +302,6 @@ public final class DirWatcher {
 			return res;
 		}
 	}
-
-	private final ListenerRegistry listenerRegistry = new ListenerRegistry();
-
-	// Events fired for a path
-	private final TreeMap<Path, List<WatchEvent<?>>> watchedEvents = new TreeMap<>();
-
-	// Non-fair locking!
-	private final Lock processEventLock = new ReentrantLock();
-	private final Lock timerLock = new ReentrantLock();
 
 	private static class DelWatchEvent implements WatchEvent {
 		private final Path watchable;

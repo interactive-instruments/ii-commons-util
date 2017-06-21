@@ -55,14 +55,23 @@ public final class UriUtils {
 
 	private static IFile tmpDir;
 
+	private static final Pattern CONTENT_DISPOSITION_PATTERN = Pattern.compile("attachment;\\s*filename\\s*=\\s*\"([^\"]*)\"");
+
+	private static Pattern privateNets = Pattern.compile(
+			"(127\\.)|"
+					+ "(^172\\.1[6-9]\\.)|(^172\\.2[0-9]\\.)|(^172\\.3[0-1]\\.)|"
+					+ "(^192\\.168\\.)|"
+					+ "(^10\\.)|"
+					+ "(^(0{0,4}:){1,7}(0{0,3}1$))");
+
+	private UriUtils() {}
+
 	private static IFile getTempDir() throws IOException {
 		if (tmpDir == null) {
 			tmpDir = IFile.createTempDir("ii_" + UUID.randomUUID().toString());
 		}
 		return tmpDir;
 	}
-
-	private UriUtils() {}
 
 	public static class UriNotAbsoluteException extends IOException {
 		final URI uri;
@@ -393,7 +402,7 @@ public final class UriUtils {
 	 */
 	private static void streamFromConnection(final URLConnection connection, final boolean encodeBase64,
 			final OutputStream outputStream, final boolean decode) throws IOException {
-		try (final InputStream urlStream = decode == false ? connection.getInputStream() : decodedInputStream(connection)) {
+		try (final InputStream urlStream = (!decode ? connection.getInputStream() : decodedInputStream(connection))) {
 			if (!encodeBase64) {
 				IOUtils.copy(urlStream, outputStream);
 			} else {
@@ -484,11 +493,8 @@ public final class UriUtils {
 			if (responseCode == HttpURLConnection.HTTP_OK) {
 				final String fileName = proposeFilenameFromConnection(connection, true);
 				final IFile tmpFile = getTempDir().expandPath(fileName);
-				if (tmpFile.exists()) {
-					if (!tmpFile.delete()) {
-						// todo: log this
-						logger.error("Could not delete temporary file {}", tmpFile.getAbsolutePath());
-					}
+				if (tmpFile.exists() && !tmpFile.delete()) {
+					logger.error("Could not delete temporary file {}", tmpFile.getAbsolutePath());
 				}
 				downloadTo(connection, tmpFile);
 				return tmpFile;
@@ -567,9 +573,6 @@ public final class UriUtils {
 		}
 	}
 
-	// from
-	private static final Pattern CONTENT_DISPOSITION_PATTERN = Pattern.compile("attachment;\\s*filename\\s*=\\s*\"([^\"]*)\"");
-
 	/**
 	 * Returns the file name from the connections Content-Disposition header or from the last URL segment
 	 *
@@ -646,13 +649,6 @@ public final class UriUtils {
 		final int beg = sPos != -1 ? sPos + 1 : 0;
 		return decUrl.substring(beg, end);
 	}
-
-	private static Pattern privateNets = Pattern.compile(
-			"(127\\.)|"
-					+ "(^172\\.1[6-9]\\.)|(^172\\.2[0-9]\\.)|(^172\\.3[0-1]\\.)|"
-					+ "(^192\\.168\\.)|"
-					+ "(^10\\.)|"
-					+ "(^(0{0,4}:){1,7}(0{0,3}1$))");
 
 	/**
 	 * Checks if the resource points to a private net. Supports IPv6.

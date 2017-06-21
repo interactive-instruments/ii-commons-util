@@ -22,6 +22,13 @@ public class PropertyUtils {
 
 	private PropertyUtils() {}
 
+	/**
+	 * Get environment variable or default if environment is null or empty
+	 *
+	 * @param key environment variable key
+	 * @param def default fallback value
+	 * @return key or default value
+	 */
 	public static String getenv(final String key, final String def) {
 		final String val = System.getenv(key);
 		return (val == null) ? def : val;

@@ -45,6 +45,12 @@ public class SchemaValidator implements Releasable, MultiFileFilter {
 	private final ValidatorHandler vh;
 	private final XMLReader reader;
 
+	private static final char[] UTF32BE = {0x0000, 0xFEFF};
+	private static final char[] UTF32LE = {0xFFFE, 0x0000};
+	private static final char[] UTF16BE = {0xFEFF};
+	private static final char[] UTF16LE = {0xFFFE};
+	private static final char[] UTF8 = {0xEFBB, 0xBF};
+
 	/**
 	 * Constructor for Parallel Task Builder
 	 *
@@ -100,12 +106,6 @@ public class SchemaValidator implements Releasable, MultiFileFilter {
 		}
 		return true;
 	}
-
-	private static final char[] UTF32BE = {0x0000, 0xFEFF};
-	private static final char[] UTF32LE = {0xFFFE, 0x0000};
-	private static final char[] UTF16BE = {0xFEFF};
-	private static final char[] UTF16LE = {0xFFFE};
-	private static final char[] UTF8 = {0xEFBB, 0xBF};
 
 	/**
 	 * Removes the problematic UTF-8 byte order mark

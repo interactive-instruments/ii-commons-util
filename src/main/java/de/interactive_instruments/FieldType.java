@@ -27,7 +27,7 @@ import java.util.Map;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class FieldType {
-	final Object t;
+	private final Object t;
 
 	public FieldType(final Field field) {
 		this.t = field.getGenericType();

@@ -24,7 +24,7 @@ package de.interactive_instruments.properties;
  */
 public interface KVP<V> {
 
-	public String getKey();
+	String getKey();
 
-	public V getValue();
+	V getValue();
 }

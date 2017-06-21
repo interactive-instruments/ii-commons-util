@@ -48,7 +48,7 @@ public final class CmpUtils {
 	 */
 	public static int cmpMultipleNullSafe(Comparable... objs) {
 		if (objs.length % 2 != 0) {
-			throw new RuntimeException("Incorrect usage!");
+			throw new IllegalArgumentException("Incorrect number of arguments");
 		}
 		for (int i = 0; i < objs.length; i += 2) {
 			final int cmp = cmpNullSafe(objs[i], objs[i + 1]);

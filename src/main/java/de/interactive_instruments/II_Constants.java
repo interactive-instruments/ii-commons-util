@@ -22,11 +22,11 @@ package de.interactive_instruments;
  *
  */
 final public class II_Constants {
-	private II_Constants() {}
-
 	public final static String II_COPYRIGHT = "(c) 2011-2017 interactive instruments GmbH";
 
 	public final static String XML_SCHEMA_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
 	public final static String II_COMMON_UTILS_NS = "http://www.interactive-instruments.de/ii/1.0";
+
+	private II_Constants() {}
 }

@@ -27,10 +27,10 @@ import org.apache.commons.lang3.time.FastDateFormat;
  */
 public final class TimeUtils {
 
-	private TimeUtils() {}
-
 	// thread safe (in contrast to SimpleDateFormat)
 	public static final FastDateFormat ISO_DATETIME_TIME_ZONE_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssZZ");
+
+	private TimeUtils() {}
 
 	/**
 	 * Returns the deltaTime as formatted String with

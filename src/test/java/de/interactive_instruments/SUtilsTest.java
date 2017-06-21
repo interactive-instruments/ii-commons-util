@@ -78,8 +78,9 @@ public class SUtilsTest {
 
 	@Test
 	public void testCalcHash() {
-		assertEquals("AED80C7B410CE5E9857D384A8695A8C6071AEA2F", SUtils.calcHashAsHexStr("asdjhgjöhag"));
-		assertEquals("3998AAFB1000A0A791A5A22A52D0BA0800AB0E5D", SUtils.calcHashAsHexStr("bklösjrö"));
+		assertEquals("AE922B1FEB1997339D6994B79CB4611FC5CC9EBD7161214A65473AAD4232C7CF",
+				SUtils.calcHashAsHexStr("akjsdhflhalsg"));
+		assertEquals("18AE1FE7C3C7E6B05A282315CCB2AFD01C02525FDD06305275D240D6567769D2", SUtils.calcHashAsHexStr("asdkgha"));
 	}
 
 	@Test
@@ -118,6 +119,7 @@ public class SUtilsTest {
 	@Test
 	public void testToKvpStr() {
 		assertEquals("A=B", SUtils.toKvpStr("A", "B"));
+		assertEquals("A=B, C=D", SUtils.toKvpStr("A", "B", "C", "D"));
 
 		boolean excThrown = false;
 		try {

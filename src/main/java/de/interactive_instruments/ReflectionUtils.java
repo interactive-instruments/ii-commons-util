@@ -30,7 +30,7 @@ public class ReflectionUtils {
 
 	}
 
-	public static List<Field> getFieldsAndSuperFields(Class<?> clasz) {
+	public static List<Field> getFieldsAndSuperFields(final Class<?> clasz) {
 		final List<Field> fields = new LinkedList<>();
 		fields.addAll(Arrays.asList(clasz.getDeclaredFields()));
 		final Class<?> superClass = clasz.getSuperclass();
@@ -40,12 +40,29 @@ public class ReflectionUtils {
 		return fields;
 	}
 
-	private static List<Field> getAllFields(List<Field> fields, Class<?> clasz) {
+	private static List<Field> getAllFields(final List<Field> fields, Class<?> clasz) {
 		fields.addAll(Arrays.asList(clasz.getDeclaredFields()));
 		final Class<?> superClass = clasz.getSuperclass();
 		if (superClass != null) {
 			return getAllFields(fields, superClass);
 		}
 		return fields;
+	}
+
+	/**
+	 * Returns true if the class overrides the {@link Object#equals(Object)} and the
+	 * {@link Object#hashCode()} function
+	 *
+	 * @param clasz the Class to check
+	 *
+	 * @return true if equals and hashCode are overridden
+	 */
+	public static boolean isHashable(final Class clasz) {
+		try {
+			return Object.class == clasz.getMethod("hashCode").getDeclaringClass() &&
+					Object.class == clasz.getMethod("equals", Object.class).getDeclaringClass();
+		} catch (final NoSuchMethodException e) {
+			return false;
+		}
 	}
 }
