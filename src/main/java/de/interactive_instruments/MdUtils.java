@@ -27,12 +27,12 @@ public class MdUtils {
 	public static MessageDigest getMessageDigest() {
 		MessageDigest md;
 		try {
-			md = MessageDigest.getInstance("SHA1");
+			md = MessageDigest.getInstance("SHA-256");
 		} catch (NoSuchAlgorithmException e) {
 			try {
 				md = MessageDigest.getInstance("MD5");
 			} catch (NoSuchAlgorithmException e1) {
-				throw new InvalidParameterException("SHA-1 and MD5 are not available");
+				throw new InvalidParameterException("SHA-256 and MD5 are not available");
 			}
 		}
 		md.reset();

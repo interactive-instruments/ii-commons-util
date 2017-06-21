@@ -15,6 +15,7 @@
  */
 package de.interactive_instruments;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -25,9 +26,9 @@ import java.util.*;
  */
 final public class SUtils {
 
-	private SUtils() {}
-
 	public static final String ENDL = System.lineSeparator();
+
+	private SUtils() {}
 
 	/**
 	 * Splits a String into two Strings or returns null if
@@ -92,9 +93,7 @@ final public class SUtils {
 	}
 
 	public static String requireNonNullOrEmpty(final String str, final String message) {
-		if (str == null)
-			throw new NullPointerException(message);
-		if (str.trim().isEmpty())
+		if (str == null || str.trim().isEmpty())
 			throw new IllegalArgumentException(message);
 		return str;
 	}
@@ -123,11 +122,15 @@ final public class SUtils {
 
 	public static String calcHashAsHexStr(final String str) {
 		final byte[] bytes = calcHash(str);
-		return String.format("%0" + (bytes.length << 1) + "X", new BigInteger(1, bytes));
+		return String.format("%064X", new BigInteger(1, bytes));
 	}
 
 	public static byte[] calcHash(final String str) {
-		return MdUtils.getMessageDigest().digest(str.getBytes());
+		try {
+			return MdUtils.getMessageDigest().digest(str.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	/**
@@ -262,7 +265,7 @@ final public class SUtils {
 				builder.append(strings[i]);
 				builder.append("=");
 				builder.append(strings[i + 1]);
-				i = +2;
+				i += 2;
 				if (i < strings.length) {
 					builder.append(", ");
 				} else {

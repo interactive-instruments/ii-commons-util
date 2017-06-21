@@ -18,8 +18,6 @@ package de.interactive_instruments;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
-import de.interactive_instruments.exceptions.ExcUtils;
-
 /**
  * An interface for objects that can make copies of themselves.
  *
