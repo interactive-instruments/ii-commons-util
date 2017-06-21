@@ -15,12 +15,13 @@
  */
 package de.interactive_instruments;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+
+import de.interactive_instruments.exceptions.ExcUtils;
 
 /**
  * An interface for objects that can make copies of themselves.
- *
- * NOTE: configure the properties before calling the init() method.
  *
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
@@ -36,6 +37,9 @@ public interface Copyable<T extends Copyable> {
 	/**
 	 * Create a copy of a collection of copyable items.
 	 *
+	 * If the passed collection implements a copy Constructor Collection(Collection collection),
+	 * the returned type will match the input type. Otherwise an ArrayList is returned.
+	 *
 	 * @param collection collection to copy
 	 * @param <T> type
 	 * @return a copy of the collection of {@link Copyable} items
@@ -45,11 +49,16 @@ public interface Copyable<T extends Copyable> {
 		if (firstItem == null) {
 			return new ArrayList<>();
 		} else if (firstItem instanceof Copyable) {
-			final List list = new ArrayList<>();
-			for (final T t : collection) {
-				list.add(((Copyable) t).createCopy());
+			Collection newCollection;
+			try {
+				newCollection = collection.getClass().getConstructor().newInstance();
+			} catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+				newCollection = new ArrayList();
 			}
-			return list;
+			for (final T t : collection) {
+				newCollection.add(((Copyable) t).createCopy());
+			}
+			return newCollection;
 		} else {
 			return new ArrayList<>(collection);
 		}
@@ -58,6 +67,10 @@ public interface Copyable<T extends Copyable> {
 	/**
 	 * Create a copy of a set of copyable items.
 	 *
+	 * If the passed set implements a copy Constructor Set(Set set), the returned type will
+	 * match the input type. Otherwise a {@link LinkedHashSet} is returned, if the first item implements
+	 * the {@link Object#equals(Object)} method and {@link Comparable}, otherwise a {@link TreeSet}.
+	 *
 	 * @param set set to copy
 	 * @param <T> type
 	 * @return a copy of the collection of {@link Copyable} items
@@ -65,15 +78,38 @@ public interface Copyable<T extends Copyable> {
 	static <T> Set<T> createCopy(final Set<T> set) {
 		final T firstItem = Objects.requireNonNull(set, "Collection to copy is null").iterator().next();
 		if (firstItem == null) {
-			return new HashSet<>();
+			return new LinkedHashSet<>();
 		} else if (firstItem instanceof Copyable) {
-			final Set newSet = new LinkedHashSet<>();
+			Set newSet;
+			try {
+				newSet = set.getClass().getConstructor().newInstance();
+			} catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+				// check if the object implements Comparable and the hash code function so
+				// we can use a linked hash set
+				if (firstItem instanceof Comparable &&
+						ReflectionUtils.isHashable(firstItem.getClass())) {
+					newSet = new TreeSet<>();
+				} else {
+					newSet = new LinkedHashSet<>();
+				}
+			}
 			for (final T t : set) {
 				newSet.add(((Copyable) t).createCopy());
 			}
 			return newSet;
 		} else {
-			return new LinkedHashSet<>(set);
+			try {
+				return set.getClass().getConstructor(Map.class).newInstance(set);
+			} catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+				// check if the object implements Comparable and the hash code function so
+				// we can use a linked hash set
+				if (firstItem instanceof Comparable &&
+						ReflectionUtils.isHashable(firstItem.getClass())) {
+					return new TreeSet<>(set);
+				} else {
+					return new LinkedHashSet<>(set);
+				}
+			}
 		}
 	}
 
@@ -82,6 +118,10 @@ public interface Copyable<T extends Copyable> {
 	 *
 	 * The first item is checked, if the key and/or the value is copyable or if key and value reference
 	 * the same object.
+	 *
+	 * If the passed map implements a copy Constructor Map(Map map), the returned type will
+	 * match the input type. Otherwise a {@link LinkedHashMap} is returned, if the first item implements
+	 * the {@link Object#equals(Object)} method and {@link Comparable}, otherwise a {@link TreeMap}.
 	 *
 	 * @param map
 	 * @param <K> value
@@ -116,9 +156,32 @@ public interface Copyable<T extends Copyable> {
 			copyStrategy = 4;
 		}
 		if (copyStrategy == 0) {
-			return new LinkedHashMap<>(map);
+			try {
+				return map.getClass().getConstructor(Map.class).newInstance(map);
+			} catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+				// check if the object implements Comparable and the hash code function so
+				// we can use a linked hash map
+				if (entry.getKey() instanceof Comparable &&
+						ReflectionUtils.isHashable(entry.getKey().getClass())) {
+					return new TreeMap<>(map);
+				} else {
+					return new LinkedHashMap<>(map);
+				}
+			}
 		}
-		final LinkedHashMap newMap = new LinkedHashMap<>();
+		Map newMap;
+		try {
+			newMap = map.getClass().getConstructor().newInstance();
+		} catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+			// check if the object implements Comparable and the hash code function so
+			// we can use a linked hash map
+			if (entry.getKey() instanceof Comparable &&
+					ReflectionUtils.isHashable(entry.getKey().getClass())) {
+				newMap = new TreeMap<>();
+			} else {
+				newMap = new LinkedHashMap<>();
+			}
+		}
 		switch (copyStrategy) {
 		case 1:
 			// 1: k copyable and v not
@@ -154,8 +217,10 @@ public interface Copyable<T extends Copyable> {
 				newMap.put(o, o);
 			}
 			return newMap;
+		default:
+			// k and v are non copyable objects
+			return new LinkedHashMap<>(map);
 		}
-		return null;
 	}
 
 }
