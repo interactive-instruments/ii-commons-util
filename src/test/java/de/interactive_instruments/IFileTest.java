@@ -21,7 +21,6 @@ import static org.junit.Assert.assertFalse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class IFileTest {

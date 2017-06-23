@@ -120,14 +120,17 @@ final public class SUtils {
 		return isNullOrEmpty(str) ? def : str;
 	}
 
-	public static String calcHashAsHexStr(final String str) {
-		final byte[] bytes = calcHash(str);
-		return String.format("%064X", new BigInteger(1, bytes));
+	public static String secureCalcHashAsHexStr(final String str) {
+		try {
+			return String.format("%064X", new BigInteger(1, MdUtils.getMessageDigest().digest((str).getBytes("UTF-8"))));
+		} catch (UnsupportedEncodingException e) {
+			return String.format("%064X", new BigInteger(1, MdUtils.getMessageDigest().digest((str).getBytes())));
+		}
 	}
 
-	public static byte[] calcHash(final String str) {
+	public static String fastCalcHashAsHexStr(final String str) {
 		try {
-			return MdUtils.getMessageDigest().digest(str.getBytes("UTF-8"));
+			return MdUtils.checksumAsHexStr(str.getBytes("UTF-8"));
 		} catch (UnsupportedEncodingException e) {
 			throw new IllegalStateException(e);
 		}

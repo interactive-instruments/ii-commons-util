@@ -20,7 +20,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.MessageDigest;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -37,20 +36,20 @@ public class FileHashVisitor implements FileVisitor<Path> {
 	private final Set<byte[]> files = new LinkedHashSet<>();
 	private long byteLength = 0;
 	private final PathFilter filter;
-	private final MessageDigest md;
+	private final MdUtils.FnvChecksum checksum;
 
-	public FileHashVisitor(final PathFilter filter, final MessageDigest md) {
+	public FileHashVisitor(final PathFilter filter, final MdUtils.FnvChecksum checksum) {
 		this.filter = filter;
-		this.md = md;
+		this.checksum = checksum;
 	}
 
 	public FileHashVisitor(final PathFilter filter) {
-		this(filter, MdUtils.getMessageDigest());
+		this(filter, new MdUtils.FnvChecksum());
 
 	}
 
 	public FileHashVisitor() {
-		this(null, MdUtils.getMessageDigest());
+		this(null, new MdUtils.FnvChecksum());
 	}
 
 	@Override
@@ -97,13 +96,13 @@ public class FileHashVisitor implements FileVisitor<Path> {
 					bytes[i++] = fileBytes[j];
 				}
 			}
-			this.md.update(bytes);
+			this.checksum.update(bytes);
 		} else {
 			for (final byte[] fileBytes : files) {
-				this.md.update(fileBytes);
+				this.checksum.update(fileBytes);
 			}
 		}
-		return this.md.digest();
+		return this.checksum.getBytes();
 	}
 
 	public long getFileCount() {

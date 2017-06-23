@@ -16,10 +16,7 @@
 package de.interactive_instruments;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,8 +76,12 @@ public class SUtilsTest {
 	@Test
 	public void testCalcHash() {
 		assertEquals("AE922B1FEB1997339D6994B79CB4611FC5CC9EBD7161214A65473AAD4232C7CF",
-				SUtils.calcHashAsHexStr("akjsdhflhalsg"));
-		assertEquals("18AE1FE7C3C7E6B05A282315CCB2AFD01C02525FDD06305275D240D6567769D2", SUtils.calcHashAsHexStr("asdkgha"));
+				SUtils.secureCalcHashAsHexStr("akjsdhflhalsg"));
+		assertEquals("18AE1FE7C3C7E6B05A282315CCB2AFD01C02525FDD06305275D240D6567769D2",
+				SUtils.secureCalcHashAsHexStr("asdkgha"));
+
+		assertEquals("33FE6A4AB9C1796B", SUtils.fastCalcHashAsHexStr("akjsdhflhalsg"));
+		assertEquals("F230496A7B19B162", SUtils.fastCalcHashAsHexStr("asdkgha"));
 	}
 
 	@Test
