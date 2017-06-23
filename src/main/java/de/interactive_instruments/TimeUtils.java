@@ -40,12 +40,15 @@ public final class TimeUtils {
 	 * @return
 	 */
 	public static String milisAsHrMins(final long deltaTime) {
+		if (deltaTime == 0) {
+			return "0sec";
+		}
 		long minutes = (deltaTime / 1000) / 60;
 		final long hours = minutes / 60;
 		minutes = minutes - (hours * 60);
 
 		if (hours == 0 && minutes == 0) {
-			return ((deltaTime / 1000) % 60) + "sec";
+			return Math.max(1, (deltaTime / 1000) % 60) + "sec";
 		}
 
 		final StringBuffer duration = new StringBuffer();
