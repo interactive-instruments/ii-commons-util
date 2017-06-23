@@ -21,6 +21,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.*;
@@ -49,7 +50,7 @@ import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
  * use new JDK 1.7 link capabilities
  *
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
- * @version 2.1
+ * @version 2.2
  * @since 1.0
  * @see de.interactive_instruments.jaxb.adapters.IFileXmlAdapter
  */
@@ -57,7 +58,7 @@ import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
 @XmlJavaTypeAdapter(IFileXmlAdapter.class)
 public final class IFile extends File {
 
-	private static final long serialVersionUID = 21L;
+	private static final long serialVersionUID = 22L;
 
 	// identifier of the file which will be output in error messages
 	protected String identifier;
@@ -82,8 +83,30 @@ public final class IFile extends File {
 			// LATIN SMALL LETTER E WITH CIRCUMFLEX
 			new Pair<>(Pattern.compile("\u00EA", Pattern.LITERAL), "e"),
 
-			new Pair<>(Pattern.compile(",", Pattern.LITERAL), "")
+			new Pair<>(Pattern.compile(",", Pattern.LITERAL), ""),
+			new Pair<>(Pattern.compile("'", Pattern.LITERAL), " ")
 	};
+
+	// files that are removed on exit
+	private static final LinkedBlockingDeque<String> filesToDeleteOnExit = new LinkedBlockingDeque<>();
+
+	private static class DeleteFilesHook extends Thread {
+		@Override
+		public void run() {
+			for (final String file : filesToDeleteOnExit) {
+				try {
+					final IFile f = new IFile(file, "TMP_DELETE_HOOK");
+					if (f.isDirectory()) {
+						f.deleteDirectory();
+					} else {
+						Files.delete(f.toPath());
+					}
+				} catch (final IOException e) {
+					ExcUtils.suppress(e);
+				}
+			}
+		}
+	}
 
 	/**
 	 * Initialize file path without setting an identifier for it
@@ -1138,18 +1161,11 @@ public final class IFile extends File {
 		return dir;
 	}
 
-	public static void deleteOnExit(final IFile file) {
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			try {
-				if (file.isDirectory()) {
-					file.deleteDirectory();
-				} else {
-					Files.delete(file.toPath());
-				}
-			} catch (final IOException e) {
-				ExcUtils.suppress(e);
-			}
-		}));
+	public static void deleteOnExit(final File file) {
+		if (filesToDeleteOnExit.isEmpty()) {
+			Runtime.getRuntime().addShutdownHook(new DeleteFilesHook());
+		}
+		filesToDeleteOnExit.add(file.getAbsolutePath());
 	}
 
 	private static String replaceSpecialChars(String str) {

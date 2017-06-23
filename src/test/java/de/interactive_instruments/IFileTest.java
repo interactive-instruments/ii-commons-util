@@ -18,15 +18,13 @@ package de.interactive_instruments;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.junit.Before;
 import org.junit.Test;
 
 public class IFileTest {
-
-	@Before
-	public void setUp() throws Exception {}
 
 	@Test
 	public void testExpandPathDown() throws IOException {
@@ -57,7 +55,39 @@ public class IFileTest {
 		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1.2.jar"));
 		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1-SNAPSHOT.jar"));
 		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1-BETA-2.jar"));
+	}
 
+	@Test
+	public void testExceptions1() throws IOException {
+		IFile testFile = null;
+		try {
+			testFile = IFile.createTempDir("etf_junit");
+		} catch (IOException e) {}
+		testFile.expectDirIsWritable();
+		testFile.expectDirExists();
+		testFile.expectIsReadable();
+		testFile.expectIsReadAndWritable();
+		testFile.expectIsWritable();
+	}
+
+	@Test(expected = IOException.class)
+	public void testExceptions2() throws IOException {
+		new IFile("/foooo").expectDirIsReadable();
+	}
+
+	@Test
+	public void testSanitize() {
+		// Lorem nonsense
+		assertEquals("Uebergeordnete delivrance aehnlicher Spiessigkeit manque d air",
+				IFile.sanitize("Übergeordnete délivrance ähnlicher, Spießigkeit\\ manque d'air"));
+	}
+
+	@Test
+	public void createBackup() throws IOException {
+		final IFile tmpFile = IFile.createTempFile("etf", "junit");
+		tmpFile.write(new ByteArrayInputStream("test".getBytes("UTF-8")));
+		final IFile backupFile = IFile.createBackup(tmpFile);
+		assertEquals("test", backupFile.readContent("UTF-8").toString());
 	}
 
 }
