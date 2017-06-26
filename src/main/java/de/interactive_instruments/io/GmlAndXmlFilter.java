@@ -20,8 +20,15 @@ package de.interactive_instruments.io;
  */
 public class GmlAndXmlFilter implements FileContentFilterHolder {
 
+	private final static GmlAndXmlFilter instance = new GmlAndXmlFilter();
 	private ContentTypeFilter contentFilter = new ContentTypeFilter("application/xml", "application/gml+xml");
 	private MultiFileFilter filenameFilter = new FilenameExtensionFilter(".xml", ".gml");
+
+	private GmlAndXmlFilter() {}
+
+	public static GmlAndXmlFilter instance() {
+		return instance;
+	}
 
 	@Override
 	public ContentTypeFilter content() {

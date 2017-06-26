@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  */
 public class DefaultFileIgnoreFilter implements MultiFileFilter {
 
-	private static Pattern pattern = Pattern.compile(".*(\\.DS_Store|\\.git.*|\\.localized|desktop.ini|Thumbs.db)");
+	private static Pattern pattern = Pattern.compile(".*(\\.DS_Store|\\.git.*|\\.localized|desktop.ini|Thumbs.db|__MACOSX)");
 
 	public static boolean acceptFile(final File p) {
 		return !pattern.matcher(p.getAbsolutePath()).matches();

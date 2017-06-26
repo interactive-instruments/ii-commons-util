@@ -31,12 +31,12 @@ import java.util.zip.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import de.interactive_instruments.io.PathFilter;
 import org.apache.commons.lang3.SystemUtils;
 
 import de.interactive_instruments.container.Pair;
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.io.DefaultFileIgnoreFilter;
+import de.interactive_instruments.io.PathFilter;
 import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
 
 /**
@@ -481,10 +481,10 @@ public final class IFile extends File {
 		this.expectDirIsReadable();
 		final List<IFile> appFiles = new ArrayList<>();
 		try (final DirectoryStream<Path> stream = Files.newDirectoryStream(toPath())) {
-			for (final Path file: stream) {
+			for (final Path file : stream) {
 				if (maxDepth >= 1 && Files.isDirectory(file)) {
 					final List<IFile> subDirFiles = new IFile(file.toFile()).getFilesInDirRecursive(
-							filter,maxDepth - 1, false);
+							filter, maxDepth - 1, false);
 					if (subDirFiles != null) {
 						appFiles.addAll(subDirFiles);
 					}
@@ -864,7 +864,7 @@ public final class IFile extends File {
 			while (enu.hasMoreElements()) {
 				final ZipEntry zipEntry = enu.nextElement();
 				final IFile destFile = new IFile(destDir, zipEntry.getName());
-				if (zipEntry.isDirectory() ) {
+				if (zipEntry.isDirectory()) {
 					destFile.ensureDir();
 					continue;
 				} else {
