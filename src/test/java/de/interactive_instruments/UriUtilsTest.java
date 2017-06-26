@@ -20,20 +20,13 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class UriUtilsTest {
-
-	@Before
-	public void setUp() throws Exception {}
 
 	@Test
 	public void testGetParent() {
@@ -61,6 +54,15 @@ public class UriUtilsTest {
 			assertTrue((UriUtils.getParent(testUri3).getPath()).contains("FOO"));
 			assertFalse(UriUtils.getParent(testUri3).getPath().contains("BAR"));
 		}
+
+		{
+			assertEquals("/FOO/", UriUtils.getParent("/FOO/BAR"));
+		}
+	}
+
+	@Test
+	public void testWithoutQueryParameters() {
+		assertEquals("http://foo", UriUtils.withoutQueryParameters("http://foo?bar=barr&t=a"));
 	}
 
 	@Test
@@ -180,6 +182,8 @@ public class UriUtilsTest {
 		} catch (UriUtils.ConnectionException e) {
 			exceptionThrown = true;
 			assertEquals(404, e.getResponseCode());
+			assertNotNull(e.getErrorMessage());
+			assertEquals("Returned HTTP status code was '404' (Not Found )", e.getMessage());
 			assertEquals("http://www.interactive-instruments.de/doesnotexist", e.getUrl().toString());
 		}
 		assertTrue(exceptionThrown);
@@ -192,6 +196,8 @@ public class UriUtilsTest {
 		assertEquals(2414481L, UriUtils.getContentLength(downloadedFile1.toURI()));
 
 		final URI url2 = new URI("https://www.dropbox.com/s/uewjg48vq4owwlb/ps-ro-50.zip?dl=1");
+		assertEquals("ps-ro-50.zip", UriUtils.proposeFilename(url2, true));
+
 		final IFile downloadedFile2 = UriUtils.download(url2);
 		assertEquals(2414481L, UriUtils.getContentLength(downloadedFile2.toURI()));
 
@@ -213,7 +219,7 @@ public class UriUtilsTest {
 	}
 
 	@Test
-	public void isPrivateNet() throws UnknownHostException {
+	public void isPrivateNet() throws UnknownHostException, URISyntaxException, MalformedURLException {
 		assertTrue(UriUtils.isPrivateNet("127.0.0.1"));
 		assertTrue(UriUtils.isPrivateNet("192.168.0.1"));
 		assertTrue(UriUtils.isPrivateNet("192.168.131.1"));
@@ -227,5 +233,22 @@ public class UriUtilsTest {
 
 		assertFalse(UriUtils.isPrivateNet("0000:1:0:0:0000:0:0000:0001"));
 		assertFalse(UriUtils.isPrivateNet("::ffff:8.8.8.8"));
+
+		assertTrue(UriUtils.isPrivateNet(new URI("http://127.0.0.1")));
+		assertFalse(UriUtils.isPrivateNet(new URI("file://here")));
+	}
+
+	@Test
+	public void testHashFromContent() throws URISyntaxException, IOException {
+		final URI url = new URI("https://www.dropbox.com/s/uewjg48vq4owwlb/ps-ro-50.zip?dl=1");
+		assertTrue(UriUtils.exists(url));
+		assertEquals("795B4D3325A8D529", UriUtils.hashFromContent(url));
+	}
+
+	@Test
+	public void testModificationCheckHash() throws URISyntaxException, IOException {
+		final URI url = new URI("http://www.interactive-instruments.de");
+		final UriUtils.ModificationCheck check = new UriUtils.ModificationCheck(url, null);
+		assertNull(check.getModified());
 	}
 }
