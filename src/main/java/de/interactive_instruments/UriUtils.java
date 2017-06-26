@@ -16,12 +16,13 @@
 package de.interactive_instruments;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
-import java.security.MessageDigest;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,6 +64,9 @@ public final class UriUtils {
 					+ "(^10\\.)|"
 					+ "(^(0{0,4}:){1,7}(0{0,3}1$))");
 
+	// without +
+	private static String unsafeChars = " '!?()*$,/:;@<>#%[]";
+
 	private UriUtils() {}
 
 	private static IFile getTempDir() throws IOException {
@@ -72,8 +76,8 @@ public final class UriUtils {
 		return tmpDir;
 	}
 
-	public static class UriNotAbsoluteException extends IOException {
-		final URI uri;
+	public final static class UriNotAbsoluteException extends IOException {
+		private final URI uri;
 
 		public UriNotAbsoluteException(final String message, final URI uri) {
 			super(message);
@@ -82,6 +86,119 @@ public final class UriUtils {
 
 		public URI getUri() {
 			return uri;
+		}
+	}
+
+	public final static class ModificationCheck {
+		private final URI uri;
+		private final Credentials credentials;
+		private final boolean useHeadMethod;
+		// 1 Last-Modified, 2 ETag, 3 content hash
+		private final int type;
+		private String expected;
+
+		public ModificationCheck(final URI uri, final Credentials credentials) throws IOException {
+			this.uri = uri;
+			this.credentials = credentials;
+
+			HttpURLConnection connectionWithHead = null;
+			HttpURLConnection connectionWithGet = null;
+			try {
+				connectionWithHead = (HttpURLConnection) openConnection(uri, this.credentials);
+				connectionWithHead.setConnectTimeout(TIMEOUT);
+				connectionWithHead.setReadTimeout(READ_TIMEOUT);
+				connectionWithHead.setRequestMethod("HEAD");
+				connectionWithHead.setInstanceFollowRedirects(true);
+				final int responseCodeHead = connectionWithHead.getResponseCode();
+				if (200 >= responseCodeHead && responseCodeHead < 400) {
+					final String lastModified = connectionWithHead.getHeaderField("Last-Modified");
+					if (!SUtils.isNullOrEmpty(lastModified)) {
+						useHeadMethod = true;
+						type = 1;
+						expected = lastModified;
+						return;
+					} else {
+						final String eTag = connectionWithHead.getHeaderField("ETag");
+						if (!SUtils.isNullOrEmpty(eTag)) {
+							useHeadMethod = true;
+							type = 2;
+							expected = eTag;
+							return;
+						}
+					}
+				}
+				UriUtils.disconnectQuietly(connectionWithHead);
+				useHeadMethod = false;
+				connectionWithGet = (HttpURLConnection) openConnection(uri, this.credentials);
+				connectionWithGet.setConnectTimeout(TIMEOUT);
+				connectionWithGet.setReadTimeout(READ_TIMEOUT);
+				connectionWithGet.setRequestMethod("GET");
+				connectionWithGet.setInstanceFollowRedirects(true);
+				final int responseCodeGet = connectionWithHead.getResponseCode();
+				if (200 >= responseCodeGet && responseCodeGet < 400) {
+					final String lastModified = connectionWithGet.getHeaderField("Last-Modified");
+					if (!SUtils.isNullOrEmpty(lastModified)) {
+						type = 1;
+						expected = lastModified;
+						return;
+					} else {
+						final String eTag = connectionWithGet.getHeaderField("ETag");
+						if (!SUtils.isNullOrEmpty(eTag)) {
+							type = 2;
+							expected = eTag;
+							return;
+						}
+					}
+				}
+				type = 3;
+				final byte[] bytes = toByteArray(uri, credentials);
+				expected = MdUtils.checksumAsHexStr(bytes);
+			} catch (ProtocolException e) {
+				UriUtils.disconnectQuietly(connectionWithHead);
+				UriUtils.disconnectQuietly(connectionWithGet);
+				throw new IOException(e);
+			}
+		}
+
+		public synchronized byte[] getModified() throws IOException {
+			if (type == 3) {
+				final byte[] bytes = toByteArray(uri, credentials);
+				final String actual = MdUtils.checksumAsHexStr(bytes);
+				if (actual.equals(expected)) {
+					return null;
+				}
+				return bytes;
+			} else {
+				final HttpURLConnection connection = (HttpURLConnection) openConnection(uri, this.credentials);
+				connection.setConnectTimeout(TIMEOUT);
+				connection.setReadTimeout(READ_TIMEOUT);
+				if (useHeadMethod) {
+					connection.setRequestMethod("HEAD");
+				} else {
+					connection.setRequestMethod("GET");
+				}
+				if (type == 1) {
+					connection.setRequestProperty("If-Unmodified-Since", expected);
+				} else {
+					// type 2
+					connection.setRequestProperty("If-None-Match", expected);
+				}
+				final int responseCode = connection.getResponseCode();
+				if (responseCode == 304) {
+					// not modified
+					return null;
+				} else if (responseCode == 200) {
+					if (type == 1) {
+						expected = connection.getHeaderField("Last-Modified");
+					} else {
+						// type 2
+						expected = connection.getHeaderField("ETag");
+					}
+					return toByteArray(connection);
+				} else {
+					throw new IOException("Server returned HTTP response code '" + responseCode + "'");
+				}
+			}
 		}
 	}
 
@@ -163,7 +280,6 @@ public final class UriUtils {
 				sb.append(responseMessage);
 				sb.append(" )");
 			}
-			sb.append(".");
 			return sb.toString();
 		}
 	}
@@ -697,28 +813,91 @@ public final class UriUtils {
 		return c;
 	}
 
+	public static class HttpInputStream extends InputStream {
+
+		private final URLConnection connection;
+		private InputStream inputStream;
+
+		private HttpInputStream(final URLConnection c) throws ConnectionException, SocketTimeoutException {
+			this.connection = c;
+			try {
+				inputStream = c.getInputStream();
+			} catch (SocketTimeoutException e) {
+				IFile.closeQuietly(inputStream);
+				throw e;
+			} catch (IOException e) {
+				IFile.closeQuietly(inputStream);
+				throw new ConnectionException(e, c);
+			}
+		}
+
+		@Override
+		public int read() throws IOException {
+			return inputStream.read();
+		}
+
+		public String getMimeType() {
+			return this.connection.getContentType();
+		}
+	}
+
 	public static InputStream openStream(final URI uri, final Credentials cred) throws IOException {
 		return openStream(uri, cred, READ_TIMEOUT);
 	}
 
 	public static InputStream openStream(final URI uri, final Credentials cred, final int timeout) throws IOException {
-		final URLConnection c = openConnection(uri, cred, timeout);
-		InputStream s = null;
-
-		try {
-			s = c.getInputStream();
-		} catch (SocketTimeoutException e) {
-			IFile.closeQuietly(s);
-			throw e;
-		} catch (IOException e) {
-			IFile.closeQuietly(s);
-			throw new ConnectionException(e, c);
+		if (isFile(uri)) {
+			return new FileInputStream(new IFile(uri));
 		}
-		return s;
+		return new HttpInputStream(openConnection(uri, cred, timeout));
 	}
 
 	public static InputStream openStream(URI uri) throws IOException {
 		return openStream(uri, null, READ_TIMEOUT);
+	}
+
+	/**
+	 * Optimized version if the server sets the "Content-Length" header
+	 *
+	 * @param uri request URI
+	 * @param cred optional credentials
+	 * @return byte array
+	 * @throws IOException if internal error occurs
+	 */
+	public static byte[] toByteArray(final URI uri, final Credentials cred) throws IOException {
+		return toByteArray(uri, cred, READ_TIMEOUT);
+	}
+
+	/**
+	 * Optimized version if the server sets the "Content-Length" header
+	 *
+	 * @param uri request URI
+	 * @param cred optional credentials
+	 * @param timeout optional timeout
+	 * @return byte array
+	 * @throws IOException if internal error occurs
+	 */
+	public static byte[] toByteArray(final URI uri, final Credentials cred, final int timeout) throws IOException {
+		if (isFile(uri)) {
+			Files.readAllBytes(Paths.get(uri));
+		}
+		final URLConnection c = openConnection(uri, cred, timeout);
+		return toByteArray(c);
+	}
+
+	private static byte[] toByteArray(final URLConnection c) throws IOException {
+		final long length = c.getContentLengthLong();
+		try (InputStream inputStream = c.getInputStream()) {
+			if (length > 0) {
+				return IOUtils.toByteArray(inputStream, length);
+			} else {
+				return IOUtils.toByteArray(inputStream);
+			}
+		}
+	}
+
+	private static String digestToHexStr(final byte[] digest) {
+		return String.format("%064X", new BigInteger(1, digest));
 	}
 
 	public static String hashFromContent(final URI uri) throws IOException {
@@ -726,7 +905,7 @@ public final class UriUtils {
 	}
 
 	public static String hashFromContent(final URI uri, final Credentials cred) throws IOException {
-		final MessageDigest md = MdUtils.getMessageDigest();
+		final MdUtils.FnvChecksum checksum = new MdUtils.FnvChecksum();
 		final byte[] buffer = new byte[4096];
 		InputStream stream = null;
 		BufferedInputStream streamReader = null;
@@ -739,13 +918,13 @@ public final class UriUtils {
 			}
 			streamReader = new BufferedInputStream(stream);
 			while (streamReader.read(buffer) != -1) {
-				md.update(buffer);
+				checksum.update(buffer);
 			}
 		} finally {
 			IFile.closeQuietly(stream);
 			IFile.closeQuietly(streamReader);
 		}
-		return new String(md.digest(), "UTF-8");
+		return checksum.toString();
 	}
 
 	public static String hashFromContent(final Collection<URI> uris) throws IOException {
@@ -753,9 +932,7 @@ public final class UriUtils {
 	}
 
 	public static String hashFromContent(final Collection<URI> uris, final Credentials cred) throws IOException {
-
-		final MessageDigest md = MdUtils.getMessageDigest();
-
+		final MdUtils.FnvChecksum checksum = new MdUtils.FnvChecksum();
 		final byte[] buffer = new byte[4096];
 		final List<URI> sortedUris = new ArrayList<>();
 		Collections.sort(sortedUris);
@@ -766,7 +943,7 @@ public final class UriUtils {
 				urlStream = openStream(uri, cred, READ_TIMEOUT);
 				urlStreamReader = new BufferedInputStream(urlStream);
 				while (urlStreamReader.read(buffer) != -1) {
-					md.update(buffer);
+					checksum.update(buffer);
 				}
 				urlStream.close();
 				urlStream = null;
@@ -775,35 +952,28 @@ public final class UriUtils {
 			IFile.closeQuietly(urlStream);
 			IFile.closeQuietly(urlStreamReader);
 		}
-		return new String(md.digest(), "UTF-8");
+		return checksum.toString();
 	}
 
-	private static void hashFromTimestampOrContent(final File file, final MessageDigest md) throws IOException {
+	private static void hashFromTimestampOrContent(final File file, final MdUtils.FnvChecksum checksum) throws IOException {
 		Files.walkFileTree(file.toPath(),
-				EnumSet.of(FileVisitOption.FOLLOW_LINKS), 5, new FileHashVisitor(null, md));
+				EnumSet.of(FileVisitOption.FOLLOW_LINKS), 5, new FileHashVisitor(null, checksum));
 	}
 
 	public static String hashFromTimestampOrContent(final URI uri) throws IOException {
-		final MessageDigest md = MdUtils.getMessageDigest();
-
+		final MdUtils.FnvChecksum checksum = new MdUtils.FnvChecksum();
 		if (isFile(uri)) {
-			hashFromTimestampOrContent(new File(uri), md);
+			hashFromTimestampOrContent(new File(uri), checksum);
 		} else {
 			final byte[] buffer = new byte[4096];
-			InputStream stream = null;
-			BufferedInputStream streamReader = null;
-			try {
-				stream = openStream(uri);
-				streamReader = new BufferedInputStream(stream);
+			try (final InputStream stream = openStream(uri);
+					final BufferedInputStream streamReader = new BufferedInputStream(stream)) {
 				while (streamReader.read(buffer) != -1) {
-					md.update(buffer);
+					checksum.update(buffer);
 				}
-			} finally {
-				IFile.closeQuietly(stream);
-				IFile.closeQuietly(streamReader);
 			}
 		}
-		return new String(md.digest(), "UTF-8");
+		return checksum.toString();
 	}
 
 	public static synchronized String hashFromTimestampOrContent(final Collection<URI> uris) throws IOException {
@@ -813,8 +983,7 @@ public final class UriUtils {
 	public static synchronized String hashFromTimestampOrContent(final Collection<URI> uris, Credentials cred)
 			throws IOException {
 
-		final MessageDigest md = MdUtils.getMessageDigest();
-
+		final MdUtils.FnvChecksum checksum = new MdUtils.FnvChecksum();
 		final byte[] buffer = new byte[4096];
 		final List<URI> sortedUris = new ArrayList<>();
 		sortedUris.addAll(uris);
@@ -823,11 +992,11 @@ public final class UriUtils {
 		try {
 			for (final URI uri : sortedUris) {
 				if (isFile(uri)) {
-					hashFromTimestampOrContent(new File(uri), md);
+					hashFromTimestampOrContent(new File(uri), checksum);
 				} else {
 					stream = openStream(uri, cred, READ_TIMEOUT);
 					while (stream.read(buffer) != -1) {
-						md.update(buffer);
+						checksum.update(buffer);
 					}
 					stream.close();
 					stream = null;
@@ -836,7 +1005,7 @@ public final class UriUtils {
 		} finally {
 			IFile.closeQuietly(stream);
 		}
-		return new String(md.digest(), "UTF-8");
+		return checksum.toString();
 	}
 
 	public static void disconnectQuietly(final HttpURLConnection connection) {
@@ -857,7 +1026,6 @@ public final class UriUtils {
 		if (isFile(uri)) {
 			return new IFile(uri).exists();
 		} else {
-
 			HttpURLConnection connection = null;
 			try {
 				connection = (HttpURLConnection) openConnection(uri, cred);
@@ -934,7 +1102,7 @@ public final class UriUtils {
 			}
 			return url;
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("UTF-8 not supported: " + e);
+			throw new IllegalStateException(e);
 		}
 	}
 
@@ -948,12 +1116,9 @@ public final class UriUtils {
 		try {
 			return URLEncoder.encode(ensureUrlDecoded(url), "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("UTF-8 not supported: " + e);
+			throw new IllegalStateException(e);
 		}
 	}
-
-	// does not contain +
-	private static String unsafeChars = " '!?()*$,/:;@<>#%[]";
 
 	private static boolean isUnsafe(final char ch) {
 		return (ch > 128 || ch == 0) || unsafeChars.indexOf(ch) >= 0;
@@ -985,7 +1150,7 @@ public final class UriUtils {
 			}
 			return decoded;
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("UTF-8 not supported: " + e);
+			throw new IllegalStateException(e);
 		}
 	}
 }
