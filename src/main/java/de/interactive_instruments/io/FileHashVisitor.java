@@ -87,7 +87,7 @@ public class FileHashVisitor implements FileVisitor<Path> {
 		return FileVisitResult.CONTINUE;
 	}
 
-	public byte[] getHash() {
+	public String getHash() {
 		if (this.byteLength < Integer.MAX_VALUE) {
 			final byte[] bytes = new byte[(int) this.byteLength];
 			int i = 0;
@@ -102,7 +102,7 @@ public class FileHashVisitor implements FileVisitor<Path> {
 				this.checksum.update(fileBytes);
 			}
 		}
-		return this.checksum.getBytes();
+		return this.checksum.toString();
 	}
 
 	public long getFileCount() {
