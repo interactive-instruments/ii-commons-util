@@ -33,6 +33,7 @@ import de.interactive_instruments.IFile;
 import de.interactive_instruments.Releasable;
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.io.MultiFileFilter;
+import de.interactive_instruments.io.RemoveBomReader;
 
 /**
  * Schema validator.
@@ -44,12 +45,6 @@ public class SchemaValidator implements Releasable, MultiFileFilter {
 	private final ValidatorErrorCollector collHandler;
 	private final ValidatorHandler vh;
 	private final XMLReader reader;
-
-	private static final char[] UTF32BE = {0x0000, 0xFEFF};
-	private static final char[] UTF32LE = {0xFFFE, 0x0000};
-	private static final char[] UTF16BE = {0xFEFF};
-	private static final char[] UTF16LE = {0xFFFE};
-	private static final char[] UTF8 = {0xEFBB, 0xBF};
 
 	/**
 	 * Constructor for Parallel Task Builder
@@ -84,57 +79,6 @@ public class SchemaValidator implements Releasable, MultiFileFilter {
 	}
 
 	/**
-	 * Removes the problematic UTF-8 byte order mark
-	 *
-	 * @param reader Reader
-	 * @param bom    bom sequence
-	 *
-	 * @return true if bom has been removed
-	 *
-	 * @throws IOException reader error
-	 */
-	private static boolean removeBOM(Reader reader, char[] bom) throws IOException {
-		int bomLength = bom.length;
-		reader.mark(bomLength);
-		char[] possibleBOM = new char[bomLength];
-		reader.read(possibleBOM);
-		for (int x = 0; x < bomLength; x++) {
-			if ((int) bom[x] != (int) possibleBOM[x]) {
-				reader.reset();
-				return false;
-			}
-		}
-		return true;
-	}
-
-	/**
-	 * Removes the problematic UTF-8 byte order mark
-	 *
-	 * @param reader Reader
-	 *
-	 * @return true if bom has been removed
-	 *
-	 * @throws IOException reader error
-	 */
-	private static void removeBOM(Reader reader) throws IOException {
-		if (removeBOM(reader, UTF32BE)) {
-			return;
-		}
-		if (removeBOM(reader, UTF32LE)) {
-			return;
-		}
-		if (removeBOM(reader, UTF16BE)) {
-			return;
-		}
-		if (removeBOM(reader, UTF16LE)) {
-			return;
-		}
-		if (removeBOM(reader, UTF8)) {
-			return;
-		}
-	}
-
-	/**
 	 * New reader from a file without BOM
 	 *
 	 * @param file file to read
@@ -144,10 +88,7 @@ public class SchemaValidator implements Releasable, MultiFileFilter {
 	 * @throws IOException Reader error
 	 */
 	private BufferedReader getRemovedBomReader(final File file) throws IOException {
-		final InputStream inputStream = new FileInputStream(file);
-		final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-		removeBOM(bufferedReader);
-		return bufferedReader;
+		return RemoveBomReader.getRemovedBomReader(new FileInputStream(file));
 	}
 
 	/**
