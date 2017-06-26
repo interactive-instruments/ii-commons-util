@@ -18,7 +18,9 @@ package de.interactive_instruments;
 import java.io.*;
 import java.net.URI;
 import java.nio.channels.FileChannel;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -29,6 +31,7 @@ import java.util.zip.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import de.interactive_instruments.io.PathFilter;
 import org.apache.commons.lang3.SystemUtils;
 
 import de.interactive_instruments.container.Pair;
@@ -86,6 +89,10 @@ public final class IFile extends File {
 			new Pair<>(Pattern.compile(",", Pattern.LITERAL), ""),
 			new Pair<>(Pattern.compile("'", Pattern.LITERAL), " ")
 	};
+
+	// removes all version information in a basename beginning with a number, followed by a dot
+	private final static Pattern pattern = Pattern.compile(
+			"-(?:0|(?:[1-9]\\d*))(?:-|(?:\\.(?:0|(?:[1-9]\\d*)))).*|\\.(?:.(?!\\.))+$");
 
 	// files that are removed on exit
 	private static final LinkedBlockingDeque<String> filesToDeleteOnExit = new LinkedBlockingDeque<>();
@@ -463,24 +470,26 @@ public final class IFile extends File {
 
 	public List<IFile> getFilesInDirRecursive()
 			throws IOException {
-		return getFilesInDirRecursive(15, true);
+		return getFilesInDirRecursive(5, true);
 	}
 
 	public List<IFile> getFilesInDirRecursive(final int maxDepth, final boolean sort) throws IOException {
+		return getFilesInDirRecursive(DefaultFileIgnoreFilter.getInstance(), maxDepth, sort);
+	}
+
+	public List<IFile> getFilesInDirRecursive(final PathFilter filter, int maxDepth, final boolean sort) throws IOException {
 		this.expectDirIsReadable();
 		final List<IFile> appFiles = new ArrayList<>();
-		final File[] filesInDir = this.listFiles();
-		if (filesInDir != null) {
-			for (final File file : filesInDir) {
-				if (DefaultFileIgnoreFilter.acceptFile(file)) {
-					if (file.isFile()) {
-						appFiles.add(new IFile(file));
-					} else if (maxDepth >= 1 && file.isDirectory()) {
-						final List<IFile> subDirFiles = new IFile(file).getFilesInDirRecursive(maxDepth - 1, false);
-						if (subDirFiles != null) {
-							appFiles.addAll(subDirFiles);
-						}
+		try (final DirectoryStream<Path> stream = Files.newDirectoryStream(toPath())) {
+			for (final Path file: stream) {
+				if (maxDepth >= 1 && Files.isDirectory(file)) {
+					final List<IFile> subDirFiles = new IFile(file.toFile()).getFilesInDirRecursive(
+							filter,maxDepth - 1, false);
+					if (subDirFiles != null) {
+						appFiles.addAll(subDirFiles);
 					}
+				} else if (filter.accept(file)) {
+					appFiles.add(new IFile(file.toFile()));
 				}
 			}
 		}
@@ -817,10 +826,6 @@ public final class IFile extends File {
 		return path.substring(lastSlashPos + 1);
 	}
 
-	// removes all version information in a basename beginning with a number, followed by a dot
-	private final static Pattern pattern = Pattern.compile(
-			"-(?:0|(?:[1-9]\\d*))(?:-|(?:\\.(?:0|(?:[1-9]\\d*)))).*|\\.(?:.(?!\\.))+$");
-
 	/**
 	 * Return the name of the file without the extension
 	 *
@@ -838,7 +843,7 @@ public final class IFile extends File {
 	 * @throws IOException
 	 */
 	public void unzipTo(final IFile destDir) throws IOException {
-		unzipTo(destDir, null);
+		unzipTo(destDir, DefaultFileIgnoreFilter.getInstance());
 	}
 
 	/**
@@ -859,11 +864,12 @@ public final class IFile extends File {
 			while (enu.hasMoreElements()) {
 				final ZipEntry zipEntry = enu.nextElement();
 				final IFile destFile = new IFile(destDir, zipEntry.getName());
-				if (zipEntry.isDirectory()) {
+				if (zipEntry.isDirectory() ) {
 					destFile.ensureDir();
 					continue;
 				} else {
-					if (filter == null || !filter.accept(destFile)) {
+					if (filter != null && (!filter.accept(destFile) ||
+							!filter.accept(destFile.getParentFile()))) {
 						continue;
 					}
 					new IFile(destFile.getParent()).ensureDir();
