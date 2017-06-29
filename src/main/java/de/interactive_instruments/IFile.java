@@ -1190,7 +1190,7 @@ public final class IFile extends File {
 			return "";
 		}
 
-		if (SystemUtils.IS_OS_LINUX) {
+		if (SystemUtils.IS_OS_UNIX) {
 			return replaceSpecialChars(name.replaceAll("/+", ""));
 		}
 

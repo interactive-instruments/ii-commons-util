@@ -242,7 +242,7 @@ public class UriUtilsTest {
 	public void testHashFromContent() throws URISyntaxException, IOException {
 		final URI url = new URI("https://www.dropbox.com/s/uewjg48vq4owwlb/ps-ro-50.zip?dl=1");
 		assertTrue(UriUtils.exists(url));
-		assertEquals("795B4D3325A8D529", UriUtils.hashFromContent(url));
+		assertEquals("CAD2E06CB685872D", UriUtils.hashFromContent(url));
 	}
 
 	@Test

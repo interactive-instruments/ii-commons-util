@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
 
 public class IFileTest {
@@ -76,9 +77,14 @@ public class IFileTest {
 
 	@Test
 	public void testSanitize() {
-		// Lorem nonsense
-		assertEquals("Uebergeordnete delivrance aehnlicher Spiessigkeit manque d air",
-				IFile.sanitize("Übergeordnete délivrance ähnlicher, Spießigkeit\\ manque d'air"));
+		if (SystemUtils.IS_OS_UNIX) {
+			// Lorem nonsense
+			assertEquals("Uebergeordnete delivrance aehnlicher Spiessigkeit\\ manque d air",
+					IFile.sanitize("Übergeordnete délivrance ähnlicher, Spießigkeit\\ manque d'air"));
+		}else{
+			assertEquals("Uebergeordnete delivrance aehnlicher Spiessigkeit manque d air",
+					IFile.sanitize("Übergeordnete délivrance ähnlicher, Spießigkeit\\ manque d'air"));
+		}
 	}
 
 	@Test
