@@ -57,7 +57,7 @@ public class JarUtils {
 				}
 			}
 		} finally {
-			IFile.closeQuietly(zip);
+			IoUtils.closeQuietly(zip);
 		}
 		return classNames;
 	}

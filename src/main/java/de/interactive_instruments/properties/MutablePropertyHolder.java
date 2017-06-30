@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import de.interactive_instruments.IFile;
+import de.interactive_instruments.IoUtils;
 
 public interface MutablePropertyHolder extends PropertyHolder {
 
@@ -60,7 +61,7 @@ public interface MutablePropertyHolder extends PropertyHolder {
 			stream = new BufferedInputStream(new FileInputStream(propertyFile));
 			properties.load(stream);
 		} finally {
-			IFile.closeQuietly(stream);
+			IoUtils.closeQuietly(stream);
 		}
 		setPropertiesFrom(properties, overwrite);
 	}

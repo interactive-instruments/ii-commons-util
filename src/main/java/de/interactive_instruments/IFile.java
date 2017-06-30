@@ -15,6 +15,9 @@
  */
 package de.interactive_instruments;
 
+import static de.interactive_instruments.IoUtils.copy;
+import static de.interactive_instruments.IoUtils.copySecure;
+
 import java.io.*;
 import java.net.URI;
 import java.nio.channels.FileChannel;
@@ -35,9 +38,11 @@ import org.apache.commons.lang3.SystemUtils;
 
 import de.interactive_instruments.container.Pair;
 import de.interactive_instruments.exceptions.ExcUtils;
+import de.interactive_instruments.exceptions.IOsizeLimitExceededException;
 import de.interactive_instruments.io.DefaultFileIgnoreFilter;
 import de.interactive_instruments.io.PathFilter;
 import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
+import de.interactive_instruments.properties.PropertyUtils;
 
 /**
  * The IFile class helps to generate "usable" error messages for file operations
@@ -96,6 +101,9 @@ public final class IFile extends File {
 
 	// files that are removed on exit
 	private static final LinkedBlockingDeque<String> filesToDeleteOnExit = new LinkedBlockingDeque<>();
+
+	// Default 10 GB
+	private static final long defaultMaxUnzipSize = PropertyUtils.getenvOrProperty("ii.file.max.unzip.size", 10737418240L);
 
 	private static class DeleteFilesHook extends Thread {
 		@Override
@@ -570,14 +578,9 @@ public final class IFile extends File {
 	 * Unconditionally close a closeable object and ignore errors.
 	 * ! Use with care !
 	 */
+	@Deprecated
 	public static void closeQuietly(final Closeable closeable) {
-		try {
-			if (closeable != null) {
-				closeable.close();
-			}
-		} catch (final Exception e) {
-			ExcUtils.suppress(e);
-		}
+		IoUtils.closeQuietly(closeable);
 	}
 
 	/**
@@ -593,10 +596,7 @@ public final class IFile extends File {
 			targetFile.expectFileIsWritable();
 			ostream = new GZIPOutputStream(new FileOutputStream(targetFile));
 			istream = new FileInputStream(this);
-			final byte[] buffer = new byte[8192];
-			for (int length; (length = istream.read(buffer)) != -1;) {
-				ostream.write(buffer, 0, length);
-			}
+			copy(istream, ostream, 8192);
 		} catch (final IOException e) {
 			this.expectIsReadable();
 			throw new IOException("Compression of " + this.identifier +
@@ -604,8 +604,8 @@ public final class IFile extends File {
 					"\" failed: " + e.getMessage());
 		} finally {
 			// Close opened streams and ignore errors
-			closeQuietly(istream);
-			closeQuietly(ostream);
+			IoUtils.closeQuietly(istream);
+			IoUtils.closeQuietly(ostream);
 		}
 	}
 
@@ -617,7 +617,6 @@ public final class IFile extends File {
 	public void compressTo(final OutputStream outputStream) throws IOException {
 		final ZipOutputStream wrappedOut = new ZipOutputStream(outputStream);
 		final byte[] buffer = new byte[8192];
-		int bytes_read;
 
 		final List<IFile> files;
 		if (this.isDirectory()) {
@@ -633,7 +632,7 @@ public final class IFile extends File {
 					" \"" + getCanonicalOrSimplePath() +
 					"\" failed: " + e.getMessage());
 		} finally {
-			closeQuietly(wrappedOut);
+			IoUtils.closeQuietly(wrappedOut);
 		}
 	}
 
@@ -655,19 +654,17 @@ public final class IFile extends File {
 		} catch (final IOException e) {
 			throw new IOException("Compression failed: " + e.getMessage());
 		} finally {
-			closeQuietly(wrappedOut);
+			IoUtils.closeQuietly(wrappedOut);
 		}
 	}
 
 	private static void compressAndStream(final ZipOutputStream wrappedOut, final byte[] buffer, final Collection<IFile> files)
 			throws IOException {
-		int bytes_read;
 		for (final IFile file : files) {
 			final FileInputStream in = new FileInputStream(file);
 			final ZipEntry entry = new ZipEntry(file.getPath());
 			wrappedOut.putNextEntry(entry);
-			while ((bytes_read = in.read(buffer)) != -1)
-				wrappedOut.write(buffer, 0, bytes_read);
+			copy(in, wrappedOut, buffer);
 			in.close();
 		}
 	}
@@ -843,7 +840,11 @@ public final class IFile extends File {
 	 * @throws IOException
 	 */
 	public void unzipTo(final IFile destDir) throws IOException {
-		unzipTo(destDir, DefaultFileIgnoreFilter.getInstance());
+		unzipTo(destDir, DefaultFileIgnoreFilter.getInstance(), defaultMaxUnzipSize);
+	}
+
+	public void unzipTo(final IFile destDir, final FileFilter filter) throws IOException {
+		unzipTo(destDir, filter, defaultMaxUnzipSize);
 	}
 
 	/**
@@ -853,7 +854,7 @@ public final class IFile extends File {
 	 * @param filter
 	 * @throws IOException
 	 */
-	public void unzipTo(final IFile destDir, final FileFilter filter) throws IOException {
+	public void unzipTo(final IFile destDir, final FileFilter filter, final long maxSize) throws IOException {
 		// Unzip
 		ZipFile zipFile = null;
 		InputStream is = null;
@@ -868,46 +869,41 @@ public final class IFile extends File {
 					destFile.ensureDir();
 					continue;
 				} else {
-					if (filter != null && (!filter.accept(destFile) ||
-							!filter.accept(destFile.getParentFile()))) {
+					if (filter != null && !(filter.accept(destFile) ||
+							filter.accept(destFile.getParentFile()))) {
 						continue;
 					}
 					new IFile(destFile.getParent()).ensureDir();
 				}
 				is = zipFile.getInputStream(zipEntry);
 				fos = new FileOutputStream(destFile);
-				final byte[] buffer = new byte[2048];
-				int length;
-				while ((length = is.read(buffer)) >= 0) {
-					fos.write(buffer, 0, length);
-				}
+				copySecure(is, fos, 4096, maxSize);
 			}
 		} finally {
-			IFile.closeQuietly(fos);
-			IFile.closeQuietly(is);
-			IFile.closeQuietly(zipFile);
+			IoUtils.closeQuietly(fos);
+			IoUtils.closeQuietly(is);
+			IoUtils.closeQuietly(zipFile);
 		}
 	}
 
 	public void gunzipTo(final IFile destFile) throws IOException {
 		destFile.expectFileIsWritable();
-		final byte[] buffer = new byte[2048];
 		final FileOutputStream fos = new FileOutputStream(destFile);
-		gunzipTo(fos);
+		gunzipTo(fos, defaultMaxUnzipSize);
 	}
 
 	public void gunzipTo(final OutputStream outputStream) throws IOException {
-		final byte[] buffer = new byte[4096];
+		gunzipTo(outputStream, defaultMaxUnzipSize);
+	}
+
+	public void gunzipTo(final OutputStream outputStream, final long maxSize) throws IOException {
 		GZIPInputStream gzis = null;
 		try {
 			gzis = new GZIPInputStream(new FileInputStream(this), 1024);
-			int len;
-			while ((len = gzis.read(buffer)) > 0) {
-				outputStream.write(buffer, 0, len);
-			}
+			copySecure(gzis, outputStream, 4096, maxSize);
 		} finally {
-			IFile.closeQuietly(outputStream);
-			IFile.closeQuietly(gzis);
+			IoUtils.closeQuietly(outputStream);
+			IoUtils.closeQuietly(gzis);
 		}
 	}
 
@@ -920,7 +916,7 @@ public final class IFile extends File {
 		} catch (IOException e) {
 			ExcUtils.suppress(e);
 		} finally {
-			IFile.closeQuietly(raf);
+			IoUtils.closeQuietly(raf);
 		}
 		return magic == GZIPInputStream.GZIP_MAGIC;
 	}
@@ -1047,7 +1043,7 @@ public final class IFile extends File {
 					this.identifier + " \""
 					+ this.getCanonicalOrSimplePath() + "\" failed ", e);
 		} finally {
-			closeQuietly(writer);
+			IoUtils.closeQuietly(writer);
 		}
 	}
 
@@ -1083,8 +1079,53 @@ public final class IFile extends File {
 					this.identifier + " \""
 					+ this.getCanonicalOrSimplePath() + "\" failed", e);
 		} finally {
-			closeQuietly(inputStream);
-			closeQuietly(reader);
+			IoUtils.closeQuietly(inputStream);
+			IoUtils.closeQuietly(reader);
+		}
+	}
+
+	/**
+	 * Write from an inputStream to a File in a specific charset
+	 *
+	 * Note: Will close the inputStream afterwards!
+	 *
+	 * @param inputStream
+	 * @param inputCharset
+	 * @throws IOException
+	 */
+	public void writeContentSecure(final InputStream inputStream, final String inputCharset, final long maxSize)
+			throws IOException {
+		BufferedWriter writer;
+		Reader reader = null;
+		try {
+			final FileOutputStream fOutput = new FileOutputStream(this);
+			writer = new BufferedWriter(new OutputStreamWriter(fOutput, "UTF-8"));
+			if (inputCharset == null) {
+				reader = new InputStreamReader(inputStream, inputCharset);
+			} else {
+				reader = new InputStreamReader(inputStream, "UTF-8");
+			}
+
+			int read;
+			long charsRead = 0;
+			// char = 2 bytes
+			long max = maxSize / 2;
+			final char[] buffer = new char[1024];
+			while ((read = reader.read(buffer)) != -1) {
+				writer.write(buffer, 0, read);
+				charsRead += read;
+				if (charsRead > max) {
+					throw new IOsizeLimitExceededException(maxSize);
+				}
+			}
+			writer.flush();
+		} catch (IOException e) {
+			throw new IOException("Writing file content to " +
+					this.identifier + " \""
+					+ this.getCanonicalOrSimplePath() + "\" failed", e);
+		} finally {
+			IoUtils.closeQuietly(inputStream);
+			IoUtils.closeQuietly(reader);
 		}
 	}
 
@@ -1098,17 +1139,33 @@ public final class IFile extends File {
 	 */
 	public void write(final InputStream inputStream) throws IOException {
 		try (final FileOutputStream fOutput = new FileOutputStream(this)) {
-			final byte[] bytes = new byte[1024];
-			int read;
-			while ((read = inputStream.read(bytes)) != -1) {
-				fOutput.write(bytes, 0, read);
-			}
+			copy(inputStream, fOutput, 2048);
 		} catch (IOException e) {
 			throw new IOException("Writing file content to " +
 					this.identifier + " \""
 					+ this.getCanonicalOrSimplePath() + "\" failed", e);
 		} finally {
-			closeQuietly(inputStream);
+			IoUtils.closeQuietly(inputStream);
+		}
+	}
+
+	/**
+	 * Write from an inputStream to a File
+	 *
+	 * Note: Will close the inputStream afterwards!
+	 *
+	 * @param inputStream
+	 * @throws IOException
+	 */
+	public void writeSecure(final InputStream inputStream, final long maxSize) throws IOException {
+		try (final FileOutputStream fOutput = new FileOutputStream(this)) {
+			copySecure(inputStream, fOutput, 2048, maxSize);
+		} catch (IOException e) {
+			throw new IOException("Writing file content to " +
+					this.identifier + " \""
+					+ this.getCanonicalOrSimplePath() + "\" failed", e);
+		} finally {
+			IoUtils.closeQuietly(inputStream);
 		}
 	}
 

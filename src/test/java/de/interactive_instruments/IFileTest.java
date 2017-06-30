@@ -81,7 +81,7 @@ public class IFileTest {
 			// Lorem nonsense
 			assertEquals("Uebergeordnete delivrance aehnlicher Spiessigkeit\\ manque d air",
 					IFile.sanitize("Übergeordnete délivrance ähnlicher, Spießigkeit\\ manque d'air"));
-		}else{
+		} else {
 			assertEquals("Uebergeordnete delivrance aehnlicher Spiessigkeit manque d air",
 					IFile.sanitize("Übergeordnete délivrance ähnlicher, Spießigkeit\\ manque d'air"));
 		}

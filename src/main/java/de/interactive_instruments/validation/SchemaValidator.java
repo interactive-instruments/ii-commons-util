@@ -15,8 +15,10 @@
  */
 package de.interactive_instruments.validation;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,7 +31,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 
-import de.interactive_instruments.IFile;
+import de.interactive_instruments.IoUtils;
 import de.interactive_instruments.Releasable;
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.io.MultiFileFilter;
@@ -121,7 +123,7 @@ public class SchemaValidator implements Releasable, MultiFileFilter {
 		} finally {
 			eh.release();
 			if (bufferedReader != null) {
-				IFile.closeQuietly(bufferedReader);
+				IoUtils.closeQuietly(bufferedReader);
 			}
 		}
 		return false;

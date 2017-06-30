@@ -135,7 +135,7 @@ public final class CLUtils {
 		} catch (final IOException e) {
 			return "";
 		} finally {
-			IFile.closeQuietly(stream);
+			IoUtils.closeQuietly(stream);
 		}
 	}
 }

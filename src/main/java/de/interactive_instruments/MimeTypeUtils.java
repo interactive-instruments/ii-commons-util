@@ -130,7 +130,7 @@ public class MimeTypeUtils {
 		} catch (IOException e) {
 			throw new MimeTypeUtilsException(e);
 		} finally {
-			IFile.closeQuietly(stream);
+			IoUtils.closeQuietly(stream);
 		}
 	}
 

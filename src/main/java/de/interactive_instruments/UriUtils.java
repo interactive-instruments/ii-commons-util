@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.MimeTypeUtilsException;
 import de.interactive_instruments.io.FileHashVisitor;
+import de.interactive_instruments.properties.PropertyUtils;
 
 /**
  * URI Utilities
@@ -66,6 +67,9 @@ public final class UriUtils {
 
 	// without +
 	private static String unsafeChars = " '!?()*$,/:;@<>#%[]";
+
+	// Default 2 GB
+	private static final long defaultMaxDownloadSize = PropertyUtils.getenvOrProperty("ii.max.download.size", 2147483648L);
 
 	private UriUtils() {}
 
@@ -474,7 +478,7 @@ public final class UriUtils {
 					urlData.append(buf, 0, numRead);
 				}
 			} finally {
-				IFile.closeQuietly(urlStream);
+				IoUtils.closeQuietly(urlStream);
 			}
 			return urlData.toString();
 		} else {
@@ -611,7 +615,7 @@ public final class UriUtils {
 				if (tmpFile.exists() && !tmpFile.delete()) {
 					logger.error("Could not delete temporary file {}", tmpFile.getAbsolutePath());
 				}
-				downloadTo(connection, tmpFile);
+				downloadTo(connection, tmpFile, defaultMaxDownloadSize);
 				return tmpFile;
 			} else {
 				throw new IOException("Could not download file. Server response code: " + responseCode);
@@ -622,10 +626,15 @@ public final class UriUtils {
 	}
 
 	public static IFile downloadTo(final URI uri, final IFile destination) throws IOException {
-		return downloadTo(uri, destination, null);
+		return downloadTo(uri, destination, null, defaultMaxDownloadSize);
 	}
 
 	public static IFile downloadTo(final URI uri, final IFile destination, final Credentials credentials) throws IOException {
+		return downloadTo(uri, destination, credentials, defaultMaxDownloadSize);
+	}
+
+	public static IFile downloadTo(final URI uri, final IFile destination, final Credentials credentials, final long maxSize)
+			throws IOException {
 		if (!destination.isDirectory()) {
 			if (destination.exists()) {
 				throw new IOException("Cannot download file form " + uri.toString() + " as destination file "
@@ -641,13 +650,14 @@ public final class UriUtils {
 		HttpURLConnection connection = null;
 		try {
 			connection = (HttpURLConnection) openConnection(uri, credentials);
-			return downloadTo(connection, destination);
+			return downloadTo(connection, destination, maxSize);
 		} finally {
 			disconnectQuietly(connection);
 		}
 	}
 
-	private static IFile downloadTo(final HttpURLConnection connection, final IFile destination) throws IOException {
+	private static IFile downloadTo(final HttpURLConnection connection, final IFile destination, final long maxSize)
+			throws IOException {
 		final int responseCode = connection.getResponseCode();
 		if (responseCode == HttpURLConnection.HTTP_OK) {
 			final IFile destinationFile;
@@ -665,21 +675,21 @@ public final class UriUtils {
 
 			final String contentTypeEncoding = connection.getContentEncoding();
 			if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("gzip")) {
-				destinationFile.write(new GZIPInputStream(connection.getInputStream()));
+				destinationFile.writeSecure(new GZIPInputStream(connection.getInputStream()), maxSize);
 
 			} else if (contentTypeEncoding != null && contentTypeEncoding.equalsIgnoreCase("deflate")) {
-				destinationFile.write(new InflaterInputStream(connection.getInputStream(), new Inflater(true)));
+				destinationFile.writeSecure(new InflaterInputStream(connection.getInputStream(), new Inflater(true)), maxSize);
 			} else {
 				if (contentTypeEncoding != null) {
 					try {
 						Charset.forName(contentTypeEncoding);
-						destinationFile.writeContent(connection.getInputStream(), contentTypeEncoding);
+						destinationFile.writeContentSecure(connection.getInputStream(), contentTypeEncoding, maxSize);
 					} catch (UnsupportedCharsetException ign) {
 						ExcUtils.suppress(ign);
-						destinationFile.write(connection.getInputStream());
+						destinationFile.writeSecure(connection.getInputStream(), maxSize);
 					}
 				} else {
-					destinationFile.write(connection.getInputStream());
+					destinationFile.writeSecure(connection.getInputStream(), maxSize);
 				}
 			}
 			return destinationFile;
@@ -823,10 +833,10 @@ public final class UriUtils {
 			try {
 				inputStream = c.getInputStream();
 			} catch (SocketTimeoutException e) {
-				IFile.closeQuietly(inputStream);
+				IoUtils.closeQuietly(inputStream);
 				throw e;
 			} catch (IOException e) {
-				IFile.closeQuietly(inputStream);
+				IoUtils.closeQuietly(inputStream);
 				throw new ConnectionException(e, c);
 			}
 		}
@@ -921,8 +931,8 @@ public final class UriUtils {
 				checksum.update(buffer);
 			}
 		} finally {
-			IFile.closeQuietly(stream);
-			IFile.closeQuietly(streamReader);
+			IoUtils.closeQuietly(stream);
+			IoUtils.closeQuietly(streamReader);
 		}
 		return checksum.toString();
 	}
@@ -949,8 +959,8 @@ public final class UriUtils {
 				urlStream = null;
 			}
 		} finally {
-			IFile.closeQuietly(urlStream);
-			IFile.closeQuietly(urlStreamReader);
+			IoUtils.closeQuietly(urlStream);
+			IoUtils.closeQuietly(urlStreamReader);
 		}
 		return checksum.toString();
 	}
@@ -1003,7 +1013,7 @@ public final class UriUtils {
 				}
 			}
 		} finally {
-			IFile.closeQuietly(stream);
+			IoUtils.closeQuietly(stream);
 		}
 		return checksum.toString();
 	}
