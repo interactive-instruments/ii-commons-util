@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.interactive_instruments.exceptions.ExcUtils;
 
 /**
@@ -27,14 +30,15 @@ import de.interactive_instruments.exceptions.ExcUtils;
  */
 public class TimedExpiredItemsRemover extends TimerTask {
 
-	private List<ExpItemHldRemTimes> holders = new ArrayList<>();
+	private final List<ExpItemHldRemTimes> holders = new ArrayList<>();
+	private static final Logger logger = LoggerFactory.getLogger(TimedExpiredItemsRemover.class);
 
 	private static class ExpItemHldRemTimes {
 		private final ExpirationItemHolder holder;
 		private final long maxTime;
 		private final TimeUnit timeUnit;
 
-		public ExpItemHldRemTimes(ExpirationItemHolder holder, long maxTime, TimeUnit timeUnit) {
+		public ExpItemHldRemTimes(final ExpirationItemHolder holder, final long maxTime, final TimeUnit timeUnit) {
 			this.holder = holder;
 			this.maxTime = maxTime;
 			this.timeUnit = timeUnit;
@@ -44,9 +48,11 @@ public class TimedExpiredItemsRemover extends TimerTask {
 	@Override
 	public void run() {
 		try {
-			holders.forEach(e -> e.holder.removeExpiredItems(e.maxTime, e.timeUnit));
-		} catch (Exception e) {
-			ExcUtils.suppress(e);
+			for (final ExpItemHldRemTimes e : holders) {
+				e.holder.removeExpiredItems(e.maxTime, e.timeUnit);
+			}
+		} catch (final Exception e) {
+			logger.error("Expiration Item Holder threw exception: ", e);
 		}
 	}
 
