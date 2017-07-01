@@ -15,14 +15,9 @@
  */
 package de.interactive_instruments;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.*;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -34,8 +29,7 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.w3c.dom.*;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 /**
  * Very simple XML Utilities
@@ -244,6 +238,46 @@ public final class XmlUtils {
 		return str.trim().startsWith("<");
 	}
 
+	private static class SimpleErrorHandler implements ErrorHandler {
+		public void warning(final SAXParseException e) throws SAXException {
+			// ignore
+		}
+
+		public void error(SAXParseException e) throws SAXException {
+			throw (e);
+		}
+
+		public void fatalError(SAXParseException e) throws SAXException {
+			throw (e);
+		}
+	}
+
+	public static boolean isWellFormed(final String str) {
+		if(SUtils.isNullOrEmpty(str) || !isXml(str)) {
+			return false;
+		}
+		final SAXParserFactory factory = SAXParserFactory.newInstance();
+		factory.setValidating(false);
+		factory.setNamespaceAware(true);
+
+		final XMLReader reader;
+		try {
+			final SAXParser parser = factory.newSAXParser();
+			reader = parser.getXMLReader();
+		} catch (ParserConfigurationException | SAXException e) {
+			throw new IllegalStateException(e);
+		}
+		reader.setErrorHandler(new SimpleErrorHandler());
+		try {
+			reader.parse(new InputSource(new StringReader(str)));
+		} catch (IOException e) {
+			throw new IllegalArgumentException(e);
+		} catch (SAXException e) {
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * Parse a XML file and return the content as DOM Document.
 	 * @return Document
@@ -256,8 +290,8 @@ public final class XmlUtils {
 		file.expectFileIsReadable();
 		Document doc = null;
 		try {
-			final DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-			final DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+
+			final DocumentBuilder docBuilder = newDocumentBuilderFactoryInstance().newDocumentBuilder();
 			doc = docBuilder.parse(file);
 		} catch (SAXException e) {
 			throw new SAXException("Reading XML-File " +
@@ -271,6 +305,14 @@ public final class XmlUtils {
 					e.getMessage());
 		}
 		return doc;
+	}
+
+	public static DocumentBuilderFactory newDocumentBuilderFactoryInstance() throws ParserConfigurationException {
+		final DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+		docBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+		docBuilderFactory.setXIncludeAware(false);
+		docBuilderFactory.setExpandEntityReferences(false);
+		return docBuilderFactory;
 	}
 
 	/**
