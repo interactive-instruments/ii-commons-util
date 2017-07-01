@@ -195,10 +195,27 @@ public final class IFile extends File {
 		return tmp;
 	}
 
+	/**
+	 * Ensures that a path inside this directory is
+	 * returned.
+	 *
+	 * If the path is an absolute path, it must start
+	 * with this directory as parent.
+	 *
+	 * @param path relative path in this directory or
+	 *             an absolute path starting with this
+	 *             directory.
+	 * @return
+	 */
 	public IFile secureExpandPathDown(final String path) {
-		final IFile tmp = new IFile(this,
+		final Path p = Paths.get(
 				// \.\.(\\*|\/*)
-				REL_PATH_REM.matcher(path).replaceAll(""));
+				REL_PATH_REM.matcher(path).replaceAll(""))
+				.normalize();
+		if (p.isAbsolute() && p.startsWith(this.toPath())) {
+			return new IFile(p.toFile());
+		}
+		final IFile tmp = new IFile(this, p.toString());
 		tmp.setIdentifier(this.identifier + path);
 		return tmp;
 	}

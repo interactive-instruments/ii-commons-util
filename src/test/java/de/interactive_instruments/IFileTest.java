@@ -28,18 +28,39 @@ public class IFileTest {
 
 	@Test
 	public void testExpandPathDown() throws IOException {
-		IFile reportDir = new IFile("/bla");
+		IFile reportDir = new IFile("/bla/bar");
 
 		IFile malFile1 = reportDir.secureExpandPathDown("..\\bli");
 		IFile malFile2 = reportDir.secureExpandPathDown("..//bli");
 		IFile malFile3 = reportDir.secureExpandPathDown("..\\\\bli");
 		IFile malFile4 = reportDir.secureExpandPathDown("..////bli");
+		IFile malFile5 = reportDir.secureExpandPathDown("/bla/bar/bli");
+		IFile malFile6 = reportDir.secureExpandPathDown("/bla/../bar/bli");
+		IFile malFile7 = reportDir.secureExpandPathDown("/bla/bar/..//bli");
+		IFile malFile8 = reportDir.secureExpandPathDown("/foo/bli");
+		IFile malFile9 = reportDir.secureExpandPathDown("/foo/../bli");
 
 		assertFalse(malFile1.toPath().toAbsolutePath().toString().contains(".."));
 		assertFalse(malFile2.toPath().toAbsolutePath().toString().contains(".."));
 		assertFalse(malFile3.toPath().toAbsolutePath().toString().contains(".."));
 		assertFalse(malFile4.toPath().toAbsolutePath().toString().contains(".."));
+		assertFalse(malFile5.toPath().toAbsolutePath().toString().contains(".."));
+		assertFalse(malFile6.toPath().toAbsolutePath().toString().contains(".."));
+		assertFalse(malFile7.toPath().toAbsolutePath().toString().contains(".."));
+		assertFalse(malFile8.toPath().toAbsolutePath().toString().contains(".."));
+		assertFalse(malFile9.toPath().toAbsolutePath().toString().contains(".."));
 
+		if (SystemUtils.IS_OS_UNIX) {
+			assertEquals(malFile1.getAbsolutePath(), "/bla/bar/bli");
+			assertEquals(malFile2.getAbsolutePath(), "/bla/bar/bli");
+			assertEquals(malFile3.getAbsolutePath(), "/bla/bar/bli");
+			assertEquals(malFile4.getAbsolutePath(), "/bla/bar/bli");
+			assertEquals(malFile5.getAbsolutePath(), "/bla/bar/bli");
+			assertEquals(malFile6.getAbsolutePath(), "/bla/bar/bli");
+			assertEquals(malFile7.getAbsolutePath(), "/bla/bar/bli");
+			assertEquals(malFile8.getAbsolutePath(), "/bla/bar/foo/bli");
+			assertEquals(malFile9.getAbsolutePath(), "/bla/bar/foo/bli");
+		}
 	}
 
 	@Test
