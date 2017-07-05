@@ -16,6 +16,10 @@
 package de.interactive_instruments;
 
 import java.text.ParseException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -115,5 +119,24 @@ public final class TimeUtils {
 		} catch (ParseException e) {
 			throw new IllegalArgumentException(e);
 		}
+	}
+
+	/**
+	 * Calculate the initial delay for a target time. Returns the delay in
+	 * seconds, use <code>TimeUnit.SECONDS.toMillis()</code> to convert it
+	 * to milliseconds.
+	 *
+	 * @param targetHour target hour
+	 * @param targetMin target minutes
+	 * @param targetSec target seconds
+	 *
+	 * @return target delay in seconds
+	 */
+	public static long calcDelay(final int targetHour, final int targetMin, final int targetSec) {
+		final ZonedDateTime zonedNow = ZonedDateTime.of(LocalDateTime.now(), ZoneId.systemDefault());
+		ZonedDateTime zonedNextTarget = zonedNow.withHour(targetHour).withMinute(targetMin).withSecond(targetSec);
+		if (zonedNow.compareTo(zonedNextTarget) > 0)
+			zonedNextTarget = zonedNextTarget.plusDays(1);
+		return Duration.between(zonedNow, zonedNextTarget).getSeconds();
 	}
 }
