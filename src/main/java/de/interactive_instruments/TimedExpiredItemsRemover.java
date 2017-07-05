@@ -23,8 +23,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.interactive_instruments.exceptions.ExcUtils;
-
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */

@@ -253,7 +253,7 @@ public final class XmlUtils {
 	}
 
 	public static boolean isWellFormed(final String str) {
-		if(SUtils.isNullOrEmpty(str) || !isXml(str)) {
+		if (SUtils.isNullOrEmpty(str) || !isXml(str)) {
 			return false;
 		}
 		final SAXParserFactory factory = SAXParserFactory.newInstance();
