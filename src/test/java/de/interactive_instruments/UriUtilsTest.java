@@ -15,12 +15,16 @@
  */
 package de.interactive_instruments;
 
+import static de.interactive_instruments.UriUtils.hashFromContent;
+import static de.interactive_instruments.UriUtils.hashFromTimestampOrContent;
 import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -201,8 +205,8 @@ public class UriUtilsTest {
 		final IFile downloadedFile2 = UriUtils.download(url2);
 		assertEquals(2414481L, UriUtils.getContentLength(downloadedFile2.toURI()));
 
-		assertEquals(UriUtils.hashFromContent(downloadedFile1.toURI()),
-				UriUtils.hashFromContent(downloadedFile2.toURI()));
+		assertEquals(hashFromContent(downloadedFile1.toURI()),
+				hashFromContent(downloadedFile2.toURI()));
 
 		downloadedFile2.unzipTo(new IFile("/tmp/bla"));
 	}
@@ -242,7 +246,43 @@ public class UriUtilsTest {
 	public void testHashFromContent() throws URISyntaxException, IOException {
 		final URI url = new URI("https://www.dropbox.com/s/uewjg48vq4owwlb/ps-ro-50.zip?dl=1");
 		assertTrue(UriUtils.exists(url));
-		assertEquals("CAD2E06CB685872D", UriUtils.hashFromContent(url));
+		assertEquals("CAD2E06CB685872D", hashFromContent(url));
+	}
+
+	@Test
+	public void testHashFromMultipleContent() throws URISyntaxException, IOException {
+		final String expectedHash = "A502B1FBCA10DCD6";
+
+		final Collection<URI> uris1 = new ArrayList<>();
+		uris1.add(new URI("https://www.dropbox.com/s/uewjg48vq4owwlb/ps-ro-50.zip?dl=1"));
+		uris1.add(new URI("https://www.dropbox.com/s/m4z4s25jerfcajx/hy-test-0.zip?dl=1"));
+		assertEquals(expectedHash, hashFromContent(uris1));
+
+		final Collection<URI> uris2 = new ArrayList<>();
+		uris2.add(new URI("https://www.dropbox.com/s/m4z4s25jerfcajx/hy-test-0.zip?dl=1"));
+		uris2.add(new URI("https://www.dropbox.com/s/uewjg48vq4owwlb/ps-ro-50.zip?dl=1"));
+		assertEquals(expectedHash, hashFromContent(uris2));
+	}
+
+	@Test
+	public void testHashFromMultipleTimeOrContent() throws URISyntaxException, IOException {
+		final String expectedHash = "A502B1FBCA10DCD6";
+
+		final Collection<URI> uris1 = new ArrayList<>();
+		uris1.add(new URI("https://www.dropbox.com/s/uewjg48vq4owwlb/ps-ro-50.zip?dl=1"));
+		uris1.add(new URI("https://www.dropbox.com/s/m4z4s25jerfcajx/hy-test-0.zip?dl=1"));
+		assertEquals(expectedHash, hashFromTimestampOrContent(uris1));
+
+		final Collection<URI> uris2 = new ArrayList<>();
+		uris2.add(new URI("https://www.dropbox.com/s/m4z4s25jerfcajx/hy-test-0.zip?dl=1"));
+		uris2.add(new URI("https://www.dropbox.com/s/uewjg48vq4owwlb/ps-ro-50.zip?dl=1"));
+		assertEquals(expectedHash, hashFromTimestampOrContent(uris2));
+	}
+
+	@Test
+	public void testContentLength() throws URISyntaxException, IOException {
+		final URI url = new URI("https://www.dropbox.com/s/uewjg48vq4owwlb/ps-ro-50.zip?dl=1");
+		assertEquals(2414481, UriUtils.getContentLength(url));
 	}
 
 	@Test
@@ -250,5 +290,27 @@ public class UriUtilsTest {
 		final URI url = new URI("http://www.interactive-instruments.de");
 		final UriUtils.ModificationCheck check = new UriUtils.ModificationCheck(url, null);
 		assertNull(check.getModified());
+	}
+
+	@Test
+	public void testHttpExists() throws URISyntaxException, IOException {
+		assertTrue(UriUtils.httpExists(new URI(
+				"https://www.dropbox.com/s/m4z4s25jerfcajx/hy-test-0.zip?dl=1"), null));
+	}
+
+	@Test(expected = UriUtils.UriNotAnHttpAddressException.class)
+	public void testHttpExistsException1() throws URISyntaxException, IOException {
+		UriUtils.httpExists(new URI("/filepath"), null);
+	}
+
+	@Test(expected = UriUtils.UriNotAnHttpAddressException.class)
+	public void testHttpExistsException2() throws URISyntaxException, IOException {
+		UriUtils.httpExists(new URI("ftp://path"), null);
+	}
+
+	@Test
+	public void testExists() throws URISyntaxException, IOException {
+		assertTrue(UriUtils.exists(new URI(
+				"https://www.dropbox.com/s/m4z4s25jerfcajx/hy-test-0.zip?dl=1"), null));
 	}
 }
