@@ -80,10 +80,23 @@ public final class UriUtils {
 		return tmpDir;
 	}
 
-	public final static class UriNotAbsoluteException extends IOException {
+	public final static class UriNotAbsoluteException extends IllegalArgumentException {
 		private final URI uri;
 
 		public UriNotAbsoluteException(final String message, final URI uri) {
+			super(message);
+			this.uri = uri;
+		}
+
+		public URI getUri() {
+			return uri;
+		}
+	}
+
+	public final static class UriNotAnHttpAddressException extends IllegalArgumentException {
+		private final URI uri;
+
+		public UriNotAnHttpAddressException(final String message, final URI uri) {
 			super(message);
 			this.uri = uri;
 		}
@@ -800,7 +813,12 @@ public final class UriUtils {
 		return privateNets.matcher(ip).find();
 	}
 
-	private static void expectAbsolute(final URI uri) throws UriNotAbsoluteException {
+	/**
+	 * Absolute means that a schema is set
+	 * @param uri uri to check
+	 * @throws UriNotAbsoluteException if the URI has no schema set
+	 */
+	private static void expectAbsolute(final URI uri) {
 		if (!uri.isAbsolute()) {
 			throw new UriNotAbsoluteException("URI '" + uri.toString() + "' is not absolute", uri);
 		}
@@ -944,7 +962,7 @@ public final class UriUtils {
 	public static String hashFromContent(final Collection<URI> uris, final Credentials cred) throws IOException {
 		final MdUtils.FnvChecksum checksum = new MdUtils.FnvChecksum();
 		final byte[] buffer = new byte[4096];
-		final List<URI> sortedUris = new ArrayList<>();
+		final List<URI> sortedUris = new ArrayList<>(uris);
 		Collections.sort(sortedUris);
 		InputStream urlStream = null;
 		BufferedInputStream urlStreamReader = null;
@@ -995,8 +1013,7 @@ public final class UriUtils {
 
 		final MdUtils.FnvChecksum checksum = new MdUtils.FnvChecksum();
 		final byte[] buffer = new byte[4096];
-		final List<URI> sortedUris = new ArrayList<>();
-		sortedUris.addAll(uris);
+		final List<URI> sortedUris = new ArrayList<>(uris);
 		Collections.sort(sortedUris);
 		InputStream stream = null;
 		try {
@@ -1036,25 +1053,29 @@ public final class UriUtils {
 		if (isFile(uri)) {
 			return new IFile(uri).exists();
 		} else {
-			HttpURLConnection connection = null;
-			try {
-				connection = (HttpURLConnection) openConnection(uri, cred);
-				connection.setConnectTimeout(TIMEOUT);
-				connection.setReadTimeout(READ_TIMEOUT);
-				connection.setRequestMethod("GET");
-				final int responseCode = connection.getResponseCode();
-				return 200 >= responseCode && responseCode < 400;
-			} catch (IOException | IllegalArgumentException exception) {
-				disconnectQuietly(connection);
-				// isFile() will return false if the URI scheme is null and
-				// opening a connection will also fail: check if the scheme is null
-				// here and return an exception in this case
-				if (uri.getScheme() == null) {
-					ExcUtils.suppress(exception);
-					throw new IllegalArgumentException("URI scheme is null");
-				}
-				return false;
+			return httpExists(uri, cred);
+		}
+	}
+
+	public static boolean httpExists(final URI uri, final Credentials cred) {
+		HttpURLConnection connection = null;
+		try {
+			final URLConnection c = openConnection(uri, cred);
+			if (!(c instanceof HttpURLConnection)) {
+				throw new UriNotAnHttpAddressException("Cannot open a HTTP connection", uri);
 			}
+			connection = (HttpURLConnection) c;
+			connection.setConnectTimeout(TIMEOUT);
+			connection.setReadTimeout(READ_TIMEOUT);
+			connection.setRequestMethod("GET");
+			final int responseCode = connection.getResponseCode();
+			return 200 >= responseCode && responseCode < 400;
+		} catch (final UriNotAbsoluteException exception) {
+			throw new UriNotAnHttpAddressException("Cannot open a HTTP connection", uri);
+		} catch (final IOException exception) {
+			return false;
+		} finally {
+			disconnectQuietly(connection);
 		}
 	}
 
