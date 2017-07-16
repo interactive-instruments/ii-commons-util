@@ -100,11 +100,11 @@ public class IFileTest {
 	public void testSanitize() {
 		if (SystemUtils.IS_OS_UNIX) {
 			// Lorem nonsense
-			assertEquals("Uebergeordnete delivrance aehnlicher Spiessigkeit\\ manque d air",
-					IFile.sanitize("Übergeordnete délivrance ähnlicher, Spießigkeit\\ manque d'air"));
+			assertEquals("Uebergeordnete: delivrance aehnlicher Spiessigkeit\\ manque d air",
+					IFile.sanitize("Übergeordnete: délivrance ähnlicher, Spießigkeit\\ manque d'air"));
 		} else {
 			assertEquals("Uebergeordnete delivrance aehnlicher Spiessigkeit manque d air",
-					IFile.sanitize("Übergeordnete délivrance ähnlicher, Spießigkeit\\ manque d'air"));
+					IFile.sanitize("Übergeordnete: délivrance ähnlicher, Spießigkeit\\ manque d'air"));
 		}
 	}
 
