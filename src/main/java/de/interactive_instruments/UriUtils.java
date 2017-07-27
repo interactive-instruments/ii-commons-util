@@ -205,13 +205,19 @@ public final class UriUtils {
 					// not modified
 					return null;
 				} else if (responseCode == 200) {
+					final String actual;
 					if (type == 1) {
-						expected = connection.getHeaderField("Last-Modified");
+						actual = connection.getHeaderField("Last-Modified");
 					} else {
 						// type 2
-						expected = connection.getHeaderField("ETag");
+						actual = connection.getHeaderField("ETag");
 					}
-					return toByteArray(connection);
+					if (!SUtils.isNullOrEmpty(actual) && actual.equals(expected)) {
+						return null;
+					}
+					final byte[] bytes = toByteArray(connection);
+					expected = actual;
+					return bytes;
 				} else {
 					throw new IOException("Server returned HTTP response code '" + responseCode + "'");
 				}
