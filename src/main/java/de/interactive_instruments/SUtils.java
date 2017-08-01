@@ -249,6 +249,25 @@ final public class SUtils {
 		return min;
 	}
 
+	/**
+	 * Find the min position of one of the supplied search strings
+	 *
+	 * @param str string to use
+	 * @param from start position
+	 * @param search search chars
+	 * @return min position
+	 */
+	public static int minIndexOf(final String str, final int from, final char... search) {
+		int min = -1;
+		for (int i = 0; i < search.length; i++) {
+			int pos = str.indexOf(search[i], from);
+			if (pos != -1 && (min == -1 || pos < min)) {
+				min = pos;
+			}
+		}
+		return min;
+	}
+
 	public static int lastIndexOfNot(final String str, final int from, final char c) {
 		for (int i = from; i > 0; i--) {
 			if (str.charAt(i - 1) != c) {
