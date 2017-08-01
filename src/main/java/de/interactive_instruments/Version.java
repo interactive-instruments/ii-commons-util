@@ -15,6 +15,9 @@
  */
 package de.interactive_instruments;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
@@ -26,11 +29,16 @@ import javax.xml.bind.annotation.XmlValue;
  *
  */
 @XmlRootElement(name = "Version", namespace = II_Constants.II_COMMON_UTILS_NS)
-public class Version implements ImmutableVersion, Comparable<ImmutableVersion> {
+public class Version implements ImmutableVersion {
 
 	private int major;
 	private int minor;
 	private int bugfix;
+	private boolean snapshot;
+	/**
+	 * MAJRO.MINOR(.optional BUGFIX)(.optional build)(optional -SNAPSHOT)
+	 */
+	private final static Pattern versionPattern = Pattern.compile("(\\d+)\\.(\\d+)(\\.\\d+)?(\\.\\d+)?(-SNAPSHOT)?");
 
 	public Version() {
 		minor = 1;
@@ -42,10 +50,18 @@ public class Version implements ImmutableVersion, Comparable<ImmutableVersion> {
 		this.bugfix = bugfix;
 	}
 
+	public Version(int major, int minor, int bugfix, boolean snapshot) {
+		this.major = major;
+		this.minor = minor;
+		this.bugfix = bugfix;
+		this.snapshot = snapshot;
+	}
+
 	public Version(final Version version) {
 		this.major = version.major;
 		this.minor = version.minor;
 		this.bugfix = version.bugfix;
+		this.snapshot = version.snapshot;
 	}
 
 	/**
@@ -77,49 +93,25 @@ public class Version implements ImmutableVersion, Comparable<ImmutableVersion> {
 	 * @throws IllegalArgumentException
 	 */
 	public void set(String version) throws IllegalArgumentException {
-		// Split into x.x.x.x and ignore the last .
-		final String[] splittedVersion = version.split("\\.", 4);
-		if (splittedVersion.length >= 2) {
-			int failPos = 0;
-			try {
-				failPos = splittedVersion[0].length();
-				major = Integer.parseInt(splittedVersion[0]);
-				failPos += splittedVersion[1].length();
-				minor = Integer.parseInt(splittedVersion[1]);
-				if (splittedVersion.length == 3) {
-					// x.x.x
-					failPos += splittedVersion[2].length();
-					bugfix = Integer.parseInt(splittedVersion[2]);
-				}
-			} catch (NumberFormatException e) {
-				throw new IllegalArgumentException("Unparseable Version: \"" + version + "\" Pos:" + failPos);
+		final Matcher versionMatcher = versionPattern.matcher(version);
+		if (!versionMatcher.matches()) {
+			throw new IllegalArgumentException(
+					"A version in the format MAJOR.MINOR or MAJOR.MINOR.PATCH is required: \"" + version + "\"");
+		}
+		try {
+			major = Integer.parseInt(versionMatcher.group(1));
+			minor = Integer.parseInt(versionMatcher.group(2));
+			final String bugfixStr = versionMatcher.group(3);
+			if (!SUtils.isNullOrEmpty(bugfixStr)) {
+				bugfix = Integer.parseInt(bugfixStr.substring(1));
 			}
-		} else {
-			throw new IllegalArgumentException("Unparseable Version: \"" + version + "\"");
+		} catch (final NumberFormatException e) {
+			throw new IllegalArgumentException(
+					"A version in the format MAJOR.MINOR or MAJOR.MINOR.PATCH is required: \"" + version + "\"");
 		}
-	}
-
-	/**
-	 * Compare a version
-	 * @param version the version to be compared
-	 * @return a negative integer, zero, or a positive integer as this
-	 * object is less than, equal to, or greater than the specified version.
-	 */
-	@Override
-	public int compareTo(ImmutableVersion version) {
-		if (version == null) {
-			throw new IllegalArgumentException("Version is null!");
+		if (versionMatcher.group(5) != null) {
+			snapshot = true;
 		}
-		if (this.major < version.getMajorVersion() ||
-				this.minor < version.getMinorVersion() ||
-				this.bugfix < version.getBugfixVersion()) {
-			return -1;
-		} else if (this.major > version.getMajorVersion() ||
-				this.minor > version.getMinorVersion() ||
-				this.bugfix > version.getBugfixVersion()) {
-			return 1;
-		}
-		return 0;
 	}
 
 	/**
@@ -138,7 +130,8 @@ public class Version implements ImmutableVersion, Comparable<ImmutableVersion> {
 		final Version v = (Version) version;
 		return this.major == v.major &&
 				this.minor == v.minor &&
-				this.bugfix == v.bugfix;
+				this.bugfix == v.bugfix &&
+				this.snapshot == v.snapshot;
 	}
 
 	@XmlValue
@@ -160,6 +153,11 @@ public class Version implements ImmutableVersion, Comparable<ImmutableVersion> {
 	@Override
 	public int getBugfixVersion() {
 		return this.bugfix;
+	}
+
+	@Override
+	public boolean isSnapshot() {
+		return snapshot;
 	}
 
 	void setString(String ver) throws IllegalArgumentException {
