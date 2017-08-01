@@ -15,8 +15,7 @@
  */
 package de.interactive_instruments;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -74,6 +73,7 @@ public class IFileTest {
 		assertEquals("libraryX-1", IFile.getFilenameWithoutExtAndVersion("libraryX-1"));
 		assertEquals("libraryX-1", IFile.getFilenameWithoutExtAndVersion("libraryX-1.jar"));
 		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1.2.jar"));
+		// reject non SEMVER-versioned libraries
 		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1-SNAPSHOT.jar"));
 		assertEquals("libraryX", IFile.getFilenameWithoutExtAndVersion("libraryX-1-BETA-2.jar"));
 	}
@@ -114,6 +114,59 @@ public class IFileTest {
 		tmpFile.write(new ByteArrayInputStream("test".getBytes("UTF-8")));
 		final IFile backupFile = IFile.createBackup(tmpFile);
 		assertEquals("test", backupFile.readContent("UTF-8").toString());
+	}
+
+	@Test
+	public void testGetVersionedFilesInDir() throws IOException {
+		final IFile tmpDir = IFile.createTempDir("ii_commons_versioned_files_junit_test");
+
+		// Latest: lib1-1.0.1-SNAPSHOT.jar
+		new IFile(tmpDir, "lib1-1.0.0.jar").createNewFile();
+		new IFile(tmpDir, "lib1-1.0.1.jar").createNewFile();
+		new IFile(tmpDir, "lib1-1.0.1-SNAPSHOT.jar").createNewFile();
+
+		// Latest: lib2-2.0.1-SNAPSHOT
+		new IFile(tmpDir, "lib2-1.0.0").createNewFile();
+		new IFile(tmpDir, "lib2-1.0.1").createNewFile();
+		new IFile(tmpDir, "lib2-2.0.1-SNAPSHOT").createNewFile();
+
+		// Latest: lib3-3.0.1
+		new IFile(tmpDir, "lib3-3.0.0").createNewFile();
+		new IFile(tmpDir, "lib3-3.0.0-SNAPSHOT").createNewFile();
+		new IFile(tmpDir, "lib3-3.0.1").createNewFile();
+
+		final IFile.VersionedFileList versionedFileList = tmpDir.getVersionedFilesInDir();
+		assertNotNull(versionedFileList);
+
+		// Check latest versions
+		assertNotNull(versionedFileList.latest());
+		assertEquals(3, versionedFileList.latest().size());
+		assertEquals("lib1-1.0.1.jar", versionedFileList.latest().get(0).getName());
+		assertEquals("lib2-2.0.1-SNAPSHOT", versionedFileList.latest().get(1).getName());
+		assertEquals("lib3-3.0.1", versionedFileList.latest().get(2).getName());
+
+		// unknown
+		assertTrue(versionedFileList.isNewer("unknown"));
+		assertTrue(versionedFileList.isNewer("unknown.jar"));
+		assertTrue(versionedFileList.isNewer("unknown-1.0.0"));
+		assertTrue(versionedFileList.isNewer("unknown-1.0.0.jar"));
+
+		// lib 1
+		assertFalse(versionedFileList.isNewer("lib1.jar"));
+		assertFalse(versionedFileList.isNewer("lib1-1.0.1-SNAPSHOT.jar"));
+		assertFalse(versionedFileList.isNewer("lib1-1.0.1.jar"));
+		assertTrue(versionedFileList.isNewer("lib1-1.0.2-SNAPSHOT.jar"));
+		assertTrue(versionedFileList.isNewer("lib1-1.0.2.jar"));
+
+		// lib2
+		assertFalse(versionedFileList.isNewer("lib2-2.0.1-SNAPSHOT"));
+		assertTrue(versionedFileList.isNewer("lib2-2.0.2-SNAPSHOT"));
+		assertFalse(versionedFileList.isNewer("lib2"));
+
+		// lib3
+		assertFalse(versionedFileList.isNewer("lib3-3.0.1"));
+		assertFalse(versionedFileList.isNewer("lib3-3.0.1-SNAPSHOT"));
+		assertTrue(versionedFileList.isNewer("lib3-3.0.2"));
 	}
 
 }

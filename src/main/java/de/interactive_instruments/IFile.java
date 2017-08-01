@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.*;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -40,6 +41,7 @@ import de.interactive_instruments.container.Pair;
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.IOsizeLimitExceededException;
 import de.interactive_instruments.io.DefaultFileIgnoreFilter;
+import de.interactive_instruments.io.MultiFileFilter;
 import de.interactive_instruments.io.PathFilter;
 import de.interactive_instruments.jaxb.adapters.IFileXmlAdapter;
 import de.interactive_instruments.properties.PropertyUtils;
@@ -71,7 +73,7 @@ public final class IFile extends File {
 	// identifier of the file which will be output in error messages
 	protected String identifier;
 
-	// pattern for relative file detection
+	// versionRemovePattern for relative file detection
 	private static final Pattern REL_PATH_REM = Pattern.compile("\\.\\.(\\\\*|/*)");
 
 	// replacements for special chars in file names
@@ -96,7 +98,11 @@ public final class IFile extends File {
 	};
 
 	// removes all version information in a basename beginning with a number, followed by a dot
-	private final static Pattern pattern = Pattern.compile(
+	private final static Pattern versionRemovePattern = Pattern.compile(
+			"-(?:0|(?:[1-9]\\d*))(?:-|(?:\\.(?:0|(?:[1-9]\\d*)))).*|\\.(?:.(?!\\.))+$");
+
+	// gets a major.minor and optional bugfix and snapshot version from a filename
+	private final static Pattern versionPattern = Pattern.compile(
 			"-(?:0|(?:[1-9]\\d*))(?:-|(?:\\.(?:0|(?:[1-9]\\d*)))).*|\\.(?:.(?!\\.))+$");
 
 	// files that are removed on exit
@@ -397,7 +403,11 @@ public final class IFile extends File {
 	}
 
 	public IFile[] listIFiles() {
-		final String[] ss = list(DefaultFileIgnoreFilter.getInstance());
+		return listIFiles(DefaultFileIgnoreFilter.getInstance());
+	}
+
+	public IFile[] listIFiles(final MultiFileFilter filter) {
+		final String[] ss = list(filter);
 		if (ss == null)
 			return null;
 		final int n = ss.length;
@@ -405,6 +415,7 @@ public final class IFile extends File {
 		for (int i = 0; i < n; i++) {
 			fs[i] = new IFile(this, ss[i]);
 		}
+		Arrays.sort(fs);
 		return fs;
 	}
 
@@ -444,7 +455,7 @@ public final class IFile extends File {
 	/**
 	 * Return all files in this directory recursively that match the
 	 * regular expression or null if no matched files are found.
-	 * @param regExp Compiled pattern
+	 * @param regExp Compiled versionRemovePattern
 	 * @return Selected files or null
 	 * @throws IOException
 	 */
@@ -456,7 +467,7 @@ public final class IFile extends File {
 	/**
 	 * Return all files in this directory recursively that match the
 	 * regular expression or null if no matched files are found.
-	 * @param regExp Compiled pattern
+	 * @param regExp Compiled versionRemovePattern
 	 * @param maxDepth Max depth for subdirs
 	 * @param sort The output is unsorted in Unix OS! Force sorting.
 	 * @return Selected files or null
@@ -841,13 +852,113 @@ public final class IFile extends File {
 	}
 
 	/**
-	 * Return the name of the file without the extension
+	 * Return the name of the file without the extension and version
 	 *
 	 * @return The filename without extension after the last dot
 	 * @throws IOException
 	 */
 	public static String getFilenameWithoutExtAndVersion(final String path) {
-		return pattern.matcher(getBasename(path)).replaceAll("");
+		return versionRemovePattern.matcher(getBasename(path)).replaceAll("");
+	}
+
+	public static class VersionedFileList extends ArrayList<IFile> {
+
+		private static Pattern fileNameVersionExt = Pattern.compile(
+				"(.*)-((\\d+)\\.(\\d+)(\\.\\d+)?(\\.\\d+)?(-\\w+)?)(\\.\\w+)?");
+
+		private final Map<String, Pair<Version, IFile>> latestVersionedFiles = new LinkedHashMap<>();
+
+		public VersionedFileList(final IFile[] files) {
+			super(Arrays.asList(files));
+			for (final IFile file : files) {
+				final Matcher matcher = fileNameVersionExt.matcher(file.getName());
+				if (matcher.matches()) {
+					final String ext = matcher.group(8);
+					final String basename = matcher.group(1) + (ext != null ? ext : "");
+					final Version version = new Version(matcher.group(2));
+					final Pair<Version, IFile> existing = this.latestVersionedFiles.get(basename);
+					if (existing != null && existing.getKey().compareTo(version) > 0) {
+						continue;
+					}
+					this.latestVersionedFiles.put(basename, new Pair<>(version, file));
+				} else {
+					this.latestVersionedFiles.put(file.getName(), new Pair<>(null, file));
+				}
+			}
+		}
+
+		/**
+		 * If multiple file with different versions exist,
+		 * only the latest version is returned
+		 *
+		 * @return latest versions
+		 */
+		public List<IFile> latest() {
+			return latestVersionedFiles.values().stream().map(Pair::getValue).collect(Collectors.toList());
+		}
+
+		/**
+		 * Returns true if the file is newer than the file in the versioned list
+		 * or if the file does not exist in the list
+		 *
+		 * @param fileName file
+		 * @return true if the file is newer or does not exist in list, false otherwise
+		 */
+		public boolean isNewer(final String fileName) {
+			final String basename = getBasename(fileName);
+			final Matcher matcher = fileNameVersionExt.matcher(basename);
+			if (matcher.matches()) {
+				final Version version = new Version(matcher.group(2));
+				final String ext = matcher.group(8);
+				final Pair<Version, IFile> existing = this.latestVersionedFiles.get(
+						matcher.group(1) + (ext != null ? ext : ""));
+				if (existing != null) {
+					return existing.getKey().compareTo(version) < 0;
+				} else {
+					return true;
+				}
+			} else {
+				return !this.latestVersionedFiles.containsKey(basename);
+			}
+		}
+
+		/**
+		 * Returns true if the file is newer than the file in the versioned list
+		 * or if the file does not exist in the list
+		 *
+		 * @param file file
+		 * @return true if the file is newer or does not exist in list, false otherwise
+		 */
+		public boolean isNewer(final IFile file) {
+			return isNewer(file.getPath());
+		}
+	}
+
+	/**
+	 * Returns all files in a directory with respect to its versions
+	 *
+	 * The key of the Map is the basename of the files.
+	 *
+	 * @see #getFilenameWithoutExt()
+	 * @throws IOException if this is not a directory or does not exist
+	 * @return VersionedFileList
+	 */
+	public VersionedFileList getVersionedFilesInDir(final MultiFileFilter filter) throws IOException {
+		expectDirExists();
+		return new VersionedFileList(this.listIFiles(filter));
+	}
+
+	/**
+	 * Returns all files in a directory with respect to its versions
+	 *
+	 * The key of the Map is the basename of the files.
+	 *
+	 * @see #getFilenameWithoutExt()
+	 * @throws IOException if this is not a directory or does not exist
+	 * @return VersionedFileList
+	 */
+	public VersionedFileList getVersionedFilesInDir() throws IOException {
+		return getVersionedFilesInDir(DefaultFileIgnoreFilter.getInstance());
 	}
 
 	/**
