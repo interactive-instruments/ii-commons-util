@@ -147,9 +147,15 @@ public class IFileTest {
 
 		// unknown
 		assertTrue(versionedFileList.isNewer("unknown"));
+		assertFalse(versionedFileList.anyVersionExists("unknown"));
 		assertTrue(versionedFileList.isNewer("unknown.jar"));
+		assertFalse(versionedFileList.anyVersionExists("unknown.jar"));
+		assertTrue(versionedFileList.isNewer("unknown-1.jar"));
+		assertFalse(versionedFileList.anyVersionExists("unknown-1.jar"));
 		assertTrue(versionedFileList.isNewer("unknown-1.0.0"));
+		assertFalse(versionedFileList.anyVersionExists("unknown-1.0.0"));
 		assertTrue(versionedFileList.isNewer("unknown-1.0.0.jar"));
+		assertFalse(versionedFileList.anyVersionExists("unknown-1.0.0.jar"));
 
 		// lib 1
 		assertFalse(versionedFileList.isNewer("lib1.jar"));
@@ -157,6 +163,14 @@ public class IFileTest {
 		assertFalse(versionedFileList.isNewer("lib1-1.0.1.jar"));
 		assertTrue(versionedFileList.isNewer("lib1-1.0.2-SNAPSHOT.jar"));
 		assertTrue(versionedFileList.isNewer("lib1-1.0.2.jar"));
+
+		// lib 1 exists
+		assertFalse(versionedFileList.anyVersionExists("lib1"));
+		assertTrue(versionedFileList.anyVersionExists("lib1.jar"));
+		assertTrue(versionedFileList.anyVersionExists("lib1-1.0.1-SNAPSHOT.jar"));
+		assertTrue(versionedFileList.anyVersionExists("lib1-1.0.1.jar"));
+		assertTrue(versionedFileList.anyVersionExists("lib1-1.0.2-SNAPSHOT.jar"));
+		assertTrue(versionedFileList.anyVersionExists("lib1-1.0.2.jar"));
 
 		// lib2
 		assertFalse(versionedFileList.isNewer("lib2-2.0.1-SNAPSHOT"));

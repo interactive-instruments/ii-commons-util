@@ -875,7 +875,13 @@ public final class IFile extends File {
 				if (matcher.matches()) {
 					final String ext = matcher.group(8);
 					final String basename = matcher.group(1) + (ext != null ? ext : "");
-					final Version version = new Version(matcher.group(2));
+					final Version version;
+					try {
+						version = new Version(matcher.group(2));
+					} catch (IllegalArgumentException e) {
+						ExcUtils.suppress(e);
+						continue;
+					}
 					final Pair<Version, IFile> existing = this.latestVersionedFiles.get(basename);
 					if (existing != null && existing.getKey().compareTo(version) > 0) {
 						continue;
@@ -899,7 +905,7 @@ public final class IFile extends File {
 
 		/**
 		 * Returns true if the file is newer than the file in the versioned list
-		 * or if the file does not exist in the list
+		 * or if the file does not exist in the list, false otherwise
 		 *
 		 * @param fileName file
 		 * @return true if the file is newer or does not exist in list, false otherwise
@@ -908,18 +914,39 @@ public final class IFile extends File {
 			final String basename = getBasename(fileName);
 			final Matcher matcher = fileNameVersionExt.matcher(basename);
 			if (matcher.matches()) {
-				final Version version = new Version(matcher.group(2));
+				final Version version;
+				try {
+					version = new Version(matcher.group(2));
+				} catch (IllegalArgumentException e) {
+					return !this.latestVersionedFiles.containsKey(basename);
+				}
 				final String ext = matcher.group(8);
 				final Pair<Version, IFile> existing = this.latestVersionedFiles.get(
 						matcher.group(1) + (ext != null ? ext : ""));
-				if (existing != null) {
+				if (existing != null && existing.getKey() != null) {
 					return existing.getKey().compareTo(version) < 0;
 				} else {
 					return true;
 				}
-			} else {
-				return !this.latestVersionedFiles.containsKey(basename);
 			}
+			return !this.latestVersionedFiles.containsKey(basename);
+		}
+
+		/**
+		 * Returns true if the file with or without a version exists
+		 *
+		 * @param fileName
+		 * @return
+		 */
+		public boolean anyVersionExists(final String fileName) {
+			final String basename = getBasename(fileName);
+			final Matcher matcher = fileNameVersionExt.matcher(basename);
+			if (matcher.matches()) {
+				final String ext = matcher.group(8);
+				return this.latestVersionedFiles.containsKey(
+						matcher.group(1) + (ext != null ? ext : ""));
+			}
+			return this.latestVersionedFiles.containsKey(basename);
 		}
 
 		/**
