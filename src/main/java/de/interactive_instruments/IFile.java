@@ -35,6 +35,7 @@ import java.util.zip.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import de.interactive_instruments.container.Pair;
@@ -110,6 +111,25 @@ public final class IFile extends File {
 
 	// Default 10 GB
 	private static final long defaultMaxUnzipSize = PropertyUtils.getenvOrProperty("ii.file.max.unzip.size", 10737418240L);
+
+	public long size() throws IOException {
+		if (isDirectory()) {
+			long size = 0;
+			for (final IFile file : getFilesInDirRecursive(null, 15, false)) {
+				try {
+					if (!FileUtils.isSymlink(file)) {
+						size += file.length();
+					}
+				} catch (final IOException ign) {
+					// Ignore exceptions caught when asking if a File is a symlink.
+				}
+			}
+			return size;
+		} else {
+			expectFileIsReadable();
+			return this.length();
+		}
+	}
 
 	private static class DeleteFilesHook extends Thread {
 		@Override
@@ -524,7 +544,7 @@ public final class IFile extends File {
 					if (subDirFiles != null) {
 						appFiles.addAll(subDirFiles);
 					}
-				} else if (filter.accept(file)) {
+				} else if (filter == null || filter.accept(file)) {
 					appFiles.add(new IFile(file.toFile()));
 				}
 			}

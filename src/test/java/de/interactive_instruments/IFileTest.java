@@ -118,6 +118,16 @@ public class IFileTest {
 
 	@Test
 	public void testGetVersionedFilesInDir() throws IOException {
+		// test empty dir
+		final IFile tmpEmptyDir = IFile.createTempDir("ii_commons_versioned_files_junit_test");
+		final IFile.VersionedFileList emptyList = tmpEmptyDir.getVersionedFilesInDir();
+		assertNotNull(emptyList);
+		assertNotNull(emptyList.latest());
+		assertTrue(emptyList.latest().isEmpty());
+		assertTrue(emptyList.isEmpty());
+		assertFalse(emptyList.anyVersionExists("bla"));
+		assertTrue(emptyList.isNewer("bla"));
+
 		final IFile tmpDir = IFile.createTempDir("ii_commons_versioned_files_junit_test");
 
 		// Latest: lib1-1.0.1-SNAPSHOT.jar
