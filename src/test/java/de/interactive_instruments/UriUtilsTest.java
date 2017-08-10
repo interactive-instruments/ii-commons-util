@@ -23,10 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.junit.Test;
 
@@ -161,6 +158,45 @@ public class UriUtilsTest {
 	}
 
 	@Test
+	public void testSortQueryParameters() throws URISyntaxException, IOException {
+		final URI url1 = new URI("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2"
+				+ "&param3=bla3&param1=bla1&param2=bla2");
+		// as URI
+		assertEquals("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2"
+				+ "&param1=bla1&param2=bla2&param3=bla3",
+				UriUtils.sortQueryParameters(url1, false).toString());
+		// as String
+		assertEquals("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2"
+				+ "&param1=bla1&param2=bla2&param3=bla3",
+				UriUtils.sortQueryParameters(url1.toString(), false));
+	}
+
+	@Test
+	public void testSetQueryParameters() throws URISyntaxException, IOException {
+		final URI url1 = new URI("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2&param3=bla");
+		final Map<String, String> params = new HashMap<>();
+		params.put("outputformat", "application/gml+xml; version=3.1");
+		params.put("param2", "bli");
+
+		// with uppercase
+		assertEquals("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.1&PARAM2=bli&PARAM3=bla",
+				UriUtils.setQueryParameters(url1.toString(), params, true));
+
+		assertEquals("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.1&param2=bli&param3=bla",
+				UriUtils.setQueryParameters(url1.toString(), params, false));
+	}
+
+	@Test
+	public void testWithQueryParameters() throws URISyntaxException, IOException {
+		final URI url1 = new URI("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2&param3=bla");
+		final Map<String, String> params = new HashMap<>();
+		params.put("outputformat", "application/gml+xml; version=3.1");
+		params.put("aparam2", "bli");
+		assertEquals("http://server/service?aparam2=bli&outputformat=application%2Fgml%2Bxml%3B+version%3D3.1",
+				UriUtils.withQueryParameters(url1.toString(), params, false));
+	}
+
+	@Test
 	public void testLastSegment() {
 		assertEquals("file.txt", UriUtils.lastSegment("https://server/file.txt"));
 
@@ -283,13 +319,6 @@ public class UriUtilsTest {
 	public void testContentLength() throws URISyntaxException, IOException {
 		final URI url = new URI("https://www.dropbox.com/s/uewjg48vq4owwlb/ps-ro-50.zip?dl=1");
 		assertEquals(2414481, UriUtils.getContentLength(url));
-	}
-
-	@Test
-	public void testModificationCheckHash() throws URISyntaxException, IOException {
-		final URI url = new URI("http://www.interactive-instruments.de");
-		final UriUtils.ModificationCheck check = new UriUtils.ModificationCheck(url, null);
-		assertNull(check.getModified());
 	}
 
 	@Test

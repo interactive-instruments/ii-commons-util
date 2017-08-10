@@ -106,125 +106,6 @@ public final class UriUtils {
 		}
 	}
 
-	public final static class ModificationCheck {
-		private final URI uri;
-		private final Credentials credentials;
-		private final boolean useHeadMethod;
-		// 1 Last-Modified, 2 ETag, 3 content hash
-		private final int type;
-		private String expected;
-
-		public ModificationCheck(final URI uri, final Credentials credentials) throws IOException {
-			this.uri = uri;
-			this.credentials = credentials;
-
-			HttpURLConnection connectionWithHead = null;
-			HttpURLConnection connectionWithGet = null;
-			try {
-				connectionWithHead = (HttpURLConnection) openConnection(uri, this.credentials);
-				connectionWithHead.setConnectTimeout(TIMEOUT);
-				connectionWithHead.setReadTimeout(READ_TIMEOUT);
-				connectionWithHead.setRequestMethod("HEAD");
-				connectionWithHead.setInstanceFollowRedirects(true);
-				final int responseCodeHead = connectionWithHead.getResponseCode();
-				if (200 >= responseCodeHead && responseCodeHead < 400) {
-					final String lastModified = connectionWithHead.getHeaderField("Last-Modified");
-					if (!SUtils.isNullOrEmpty(lastModified)) {
-						useHeadMethod = true;
-						type = 1;
-						expected = lastModified;
-						return;
-					} else {
-						final String eTag = connectionWithHead.getHeaderField("ETag");
-						if (!SUtils.isNullOrEmpty(eTag)) {
-							useHeadMethod = true;
-							type = 2;
-							expected = eTag;
-							return;
-						}
-					}
-				}
-				UriUtils.disconnectQuietly(connectionWithHead);
-				useHeadMethod = false;
-				connectionWithGet = (HttpURLConnection) openConnection(uri, this.credentials);
-				connectionWithGet.setConnectTimeout(TIMEOUT);
-				connectionWithGet.setReadTimeout(READ_TIMEOUT);
-				connectionWithGet.setRequestMethod("GET");
-				connectionWithGet.setInstanceFollowRedirects(true);
-				final int responseCodeGet = connectionWithHead.getResponseCode();
-				if (200 >= responseCodeGet && responseCodeGet < 400) {
-					final String lastModified = connectionWithGet.getHeaderField("Last-Modified");
-					if (!SUtils.isNullOrEmpty(lastModified)) {
-						type = 1;
-						expected = lastModified;
-						return;
-					} else {
-						final String eTag = connectionWithGet.getHeaderField("ETag");
-						if (!SUtils.isNullOrEmpty(eTag)) {
-							type = 2;
-							expected = eTag;
-							return;
-						}
-					}
-				}
-				type = 3;
-				final byte[] bytes = toByteArray(uri, credentials);
-				expected = MdUtils.checksumAsHexStr(bytes);
-			} catch (ProtocolException e) {
-				UriUtils.disconnectQuietly(connectionWithHead);
-				UriUtils.disconnectQuietly(connectionWithGet);
-				throw new IOException(e);
-			}
-		}
-
-		public synchronized byte[] getModified() throws IOException {
-			if (type == 3) {
-				final byte[] bytes = toByteArray(uri, credentials);
-				final String actual = MdUtils.checksumAsHexStr(bytes);
-				if (actual.equals(expected)) {
-					return null;
-				}
-				return bytes;
-			} else {
-				final HttpURLConnection connection = (HttpURLConnection) openConnection(uri, this.credentials);
-				connection.setConnectTimeout(TIMEOUT);
-				connection.setReadTimeout(READ_TIMEOUT);
-				if (useHeadMethod) {
-					connection.setRequestMethod("HEAD");
-				} else {
-					connection.setRequestMethod("GET");
-				}
-				if (type == 1) {
-					connection.setRequestProperty("If-Unmodified-Since", expected);
-				} else {
-					// type 2
-					connection.setRequestProperty("If-None-Match", expected);
-				}
-				final int responseCode = connection.getResponseCode();
-				if (responseCode == 304) {
-					// not modified
-					return null;
-				} else if (responseCode == 200) {
-					final String actual;
-					if (type == 1) {
-						actual = connection.getHeaderField("Last-Modified");
-					} else {
-						// type 2
-						actual = connection.getHeaderField("ETag");
-					}
-					if (!SUtils.isNullOrEmpty(actual) && actual.equals(expected)) {
-						return null;
-					}
-					final byte[] bytes = toByteArray(connection);
-					expected = actual;
-					return bytes;
-				} else {
-					throw new IOException("Server returned HTTP response code '" + responseCode + "'");
-				}
-			}
-		}
-	}
-
 	public static class ConnectionException extends IOException {
 
 		private final int code;
@@ -359,12 +240,46 @@ public final class UriUtils {
 	}
 
 	/**
+	 * Returns a Sorted Map with CASE INSENSITIVE Keys!
+	 *
+	 * @param kmvp Key multi value pairs
+	 * @return sorted map with case insensitive keys
+	 */
+	public static SortedMap<String, String> toSingleQueryParameterValues(final Map<String, List<String>> kmvp) {
+		final SortedMap<String, String> out = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		for (final Map.Entry<String, List<String>> kmvpEntry : kmvp.entrySet()) {
+			if (kmvpEntry.getValue() != null) {
+				out.put(kmvpEntry.getKey(), kmvpEntry.getValue().iterator().next());
+			}
+		}
+		return out;
+	}
+
+	/**
+	 * Returns a Sorted Map with CASE INSENSITIVE Keys!
+	 *
+	 * @param kvp Key value pairs
+	 * @return sorted map with case insensitive keys
+	 */
+	public static SortedMap<String, List<String>> toMultiQueryParameterValues(final Map<String, String> kvp) {
+		final SortedMap<String, List<String>> out = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		for (final Map.Entry<String, String> kvpEntry : kvp.entrySet()) {
+			out.put(kvpEntry.getKey(), new LinkedList<String>() {
+				{
+					add(kvpEntry.getValue());
+				}
+			});
+		}
+		return out;
+	}
+
+	/**
 	 * Keys can be transformed to upper-case
 	 *
 	 * @param uri
 	 * @return
 	 */
-	public static Map<String, List<String>> getQueryParameters(final URI uri, final boolean keysUpperCase) {
+	public static SortedMap<String, List<String>> getQueryParameters(final URI uri, final boolean keysUpperCase) {
 		return getQueryParameters(uri.toString(), keysUpperCase);
 	}
 
@@ -374,7 +289,7 @@ public final class UriUtils {
 	 * @param uri
 	 * @return
 	 */
-	public static Map<String, List<String>> getQueryParameters(final URI uri) {
+	public static SortedMap<String, List<String>> getQueryParameters(final URI uri) {
 		return getQueryParameters(uri.toString(), true);
 	}
 
@@ -384,12 +299,12 @@ public final class UriUtils {
 	 * @param url
 	 * @return
 	 */
-	public static Map<String, List<String>> getQueryParameters(final String url, final boolean keysUpperCase) {
+	public static SortedMap<String, List<String>> getQueryParameters(final String url, final boolean keysUpperCase) {
 		final String[] urlParts = ensureUrlDecoded(url).split("\\?", 2);
 		if (urlParts.length > 1) {
 			final String query = urlParts[1];
 			final String[] split = query.split("&amp;|&");
-			final Map<String, List<String>> params = new HashMap<>();
+			final SortedMap<String, List<String>> params = new TreeMap<>();
 			for (int i = 0, splitLength = split.length; i < splitLength; i++) {
 				final String param = split[i];
 				final String[] pair = param.split("=", 2);
@@ -419,7 +334,7 @@ public final class UriUtils {
 			}
 			return params;
 		} else {
-			return Collections.emptyMap();
+			return Collections.emptySortedMap();
 		}
 	}
 
@@ -453,19 +368,38 @@ public final class UriUtils {
 		return withQueryParameters(url, parameters, false);
 	}
 
+	/**
+	 * Returns an URL only containing the passed parameters
+	 *
+	 * @param url URL to replace
+	 * @param parameters query parameters
+	 * @param keysUpperCase if set to true the query parameter names are returned upper case
+	 * @return
+	 */
 	public static String withQueryParameters(final String url, final Map<String, String> parameters,
 			final boolean keysUpperCase) {
 		final String urlWithoutParams = withoutQueryParameters(url);
 		if (parameters != null && !parameters.isEmpty()) {
+			final Map<String, String> sortedParameters = parameters instanceof SortedMap ? parameters
+					: new TreeMap<>(parameters);
 			final StringBuilder urlWithParams = new StringBuilder(urlWithoutParams + "?");
-			final Iterator<Map.Entry<String, String>> it = parameters.entrySet().iterator();
+			final Iterator<Map.Entry<String, String>> it = sortedParameters.entrySet().iterator();
 			for (Map.Entry<String, String> param = it.next();;) {
 				if (keysUpperCase) {
 					urlWithParams.append(param.getKey().toUpperCase(Locale.ENGLISH));
 				} else {
 					urlWithParams.append(param.getKey());
 				}
-				urlWithParams.append("=").append(param.getValue());
+				urlWithParams.append("=");
+				if (containsUnsafeChars(param.getValue())) {
+					try {
+						urlWithParams.append(URLEncoder.encode(param.getValue(), "UTF-8"));
+					} catch (final UnsupportedEncodingException ign) {
+						throw new IllegalStateException(ign);
+					}
+				} else {
+					urlWithParams.append(param.getValue());
+				}
 				if (it.hasNext()) {
 					urlWithParams.append("&");
 					param = it.next();
@@ -476,6 +410,44 @@ public final class UriUtils {
 			return urlWithParams.toString();
 		}
 		return urlWithoutParams;
+	}
+
+	/**
+	 * Returns the passed URL, with overridden query parameters.
+	 *
+	 * Note: lower case keys are replaced, even if the keysUpperCase parameter is set to false!
+	 *
+	 * @param url URL to replace
+	 * @param parameters query parameters
+	 * @param keysUpperCase if set to true the query parameter names are returned upper case
+	 * @return
+	 */
+	public static String setQueryParameters(final String url, final Map<String, String> parameters,
+			final boolean keysUpperCase) {
+		if (parameters != null && !parameters.isEmpty()) {
+			final SortedMap<String, String> sortedQueryParams = toSingleQueryParameterValues(
+					getQueryParameters(url, keysUpperCase));
+			sortedQueryParams.putAll(parameters);
+			return withQueryParameters(url, sortedQueryParams, keysUpperCase);
+		}
+		return url;
+	}
+
+	public static String sortQueryParameters(final String url) {
+		return sortQueryParameters(url, false);
+	}
+
+	public static String sortQueryParameters(final String url, final boolean keysUpperCase) {
+		return withQueryParameters(url, toSingleQueryParameterValues(getQueryParameters(url, keysUpperCase)), keysUpperCase);
+	}
+
+	public static URI sortQueryParameters(final URI url) {
+		return sortQueryParameters(url, false);
+	}
+
+	public static URI sortQueryParameters(final URI uri, final boolean keysUpperCase) {
+		return URI.create(withQueryParameters(uri.toString(),
+				toSingleQueryParameterValues(getQueryParameters(uri, keysUpperCase)), keysUpperCase));
 	}
 
 	public static boolean isFile(final URI uri) {
@@ -834,7 +806,7 @@ public final class UriUtils {
 		return openConnection(uri, credentials, READ_TIMEOUT);
 	}
 
-	private static URLConnection openConnection(final URI uri, final Credentials credentials, final int readTimeout)
+	static URLConnection openConnection(final URI uri, final Credentials credentials, final int readTimeout)
 			throws IOException {
 		expectAbsolute(uri);
 		final URLConnection c = uri.toURL().openConnection();
@@ -919,7 +891,7 @@ public final class UriUtils {
 		return toByteArray(c);
 	}
 
-	private static byte[] toByteArray(final URLConnection c) throws IOException {
+	static byte[] toByteArray(final URLConnection c) throws IOException {
 		final long length = c.getContentLengthLong();
 		try (InputStream inputStream = c.getInputStream()) {
 			if (length > 0) {
@@ -1051,10 +1023,23 @@ public final class UriUtils {
 		}
 	}
 
+	/**
+	 * Checks if the file or URL exists
+	 *
+	 * @param uri file or URL as URI
+	 * @return true if the resource exists, false otherwise
+	 */
 	public static boolean exists(final URI uri) {
 		return exists(uri, null);
 	}
 
+	/**
+	 * Checks if the file or URL exists
+	 *
+	 * @param uri file or URL as URI
+	 * @param cred URL credentials
+	 * @return true if the resource exists, false otherwise
+	 */
 	public static boolean exists(final URI uri, final Credentials cred) {
 		if (isFile(uri)) {
 			return new IFile(uri).exists();
@@ -1063,6 +1048,15 @@ public final class UriUtils {
 		}
 	}
 
+	/**
+	 * Opens a connection to the server with the HTTP GET method and checks
+	 * if the resource exists.
+	 *
+	 * @param uri URL to check
+	 * @param cred URL credentials
+	 * @throws UriNotAbsoluteException if the URL is not absolute
+	 * @return true if the resource exists, false otherwise
+	 */
 	public static boolean httpExists(final URI uri, final Credentials cred) {
 		HttpURLConnection connection = null;
 		try {
@@ -1091,7 +1085,7 @@ public final class UriUtils {
 
 	public static long getContentLength(final URI uri, final Credentials credentials) throws IOException {
 		if (isFile(uri)) {
-			return new RandomAccessFile(uri.getPath(), "r").length();
+			return new IFile(uri).size();
 		}
 		final URLConnection connection = openConnection(uri, credentials);
 		return connection.getContentLength();
