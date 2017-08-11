@@ -120,7 +120,7 @@ public class MdUtils {
 			try {
 				md = MessageDigest.getInstance("SHA-1");
 			} catch (NoSuchAlgorithmException e1) {
-				throw new InvalidParameterException("SHA-256 and MD5 are not available");
+				throw new InvalidParameterException("SHA-256 and SHA-1 are not available");
 			}
 		}
 		md.reset();
