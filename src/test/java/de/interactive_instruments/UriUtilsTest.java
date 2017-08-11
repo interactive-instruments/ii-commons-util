@@ -169,6 +169,11 @@ public class UriUtilsTest {
 		assertEquals("http://server/service?OUTPUTFORMAT=application%2Fgml%2Bxml%3B+version%3D3.2"
 				+ "&param1=bla1&param2=bla2&param3=bla3",
 				UriUtils.sortQueryParameters(url1.toString(), false));
+
+		final URI url2 = new URI("http://server/service?");
+		assertEquals("http://server/service",
+				UriUtils.sortQueryParameters(url2, false).toString());
+
 	}
 
 	@Test

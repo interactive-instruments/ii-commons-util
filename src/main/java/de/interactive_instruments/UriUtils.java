@@ -304,38 +304,39 @@ public final class UriUtils {
 		if (urlParts.length > 1) {
 			final String query = urlParts[1];
 			final String[] split = query.split("&amp;|&");
-			final SortedMap<String, List<String>> params = new TreeMap<>();
-			for (int i = 0, splitLength = split.length; i < splitLength; i++) {
-				final String param = split[i];
-				final String[] pair = param.split("=", 2);
-				final String key;
-				if (keysUpperCase) {
-					key = pair[0].toUpperCase(Locale.ENGLISH);
-				} else {
-					key = pair[0];
-				}
-				final String value;
-				if (pair.length > 1) {
-					value = pair[1];
-				} else {
-					value = "";
-				}
-				final List<String> values = params.get(key);
-				if (values == null) {
-					params.put(key, new ArrayList<String>() {
-						{
-							add(value);
-						}
-					});
-				} else {
-					values.add(value);
-				}
+			if (!(split.length == 1 && SUtils.isNullOrEmpty(split[0]))) {
+				final SortedMap<String, List<String>> params = new TreeMap<>();
+				for (int i = 0, splitLength = split.length; i < splitLength; i++) {
+					final String param = split[i];
+					final String[] pair = param.split("=", 2);
+					final String key;
+					if (keysUpperCase) {
+						key = pair[0].toUpperCase(Locale.ENGLISH);
+					} else {
+						key = pair[0];
+					}
+					final String value;
+					if (pair.length > 1) {
+						value = pair[1];
+					} else {
+						value = "";
+					}
+					final List<String> values = params.get(key);
+					if (values == null) {
+						params.put(key, new ArrayList<String>() {
+							{
+								add(value);
+							}
+						});
+					} else {
+						values.add(value);
+					}
 
+				}
+				return params;
 			}
-			return params;
-		} else {
-			return Collections.emptySortedMap();
 		}
+		return Collections.emptySortedMap();
 	}
 
 	/**
