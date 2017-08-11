@@ -813,8 +813,8 @@ public final class UriUtils {
 		if (connection instanceof HttpURLConnection) {
 			return (HttpURLConnection) connection;
 		}
-		throw new IllegalArgumentException("A HTTP connection to the server can not be established "
-				+ "because the specified URL can not be used with the HTTP protocol.");
+		throw new UriNotAnHttpAddressException("A HTTP connection to the server can not be established "
+				+ "because the specified URL can not be used with the HTTP protocol.", uri);
 	}
 
 	private static URLConnection openConnection(final URI uri, final Credentials credentials) throws IOException {
