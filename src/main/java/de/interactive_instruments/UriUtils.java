@@ -599,7 +599,7 @@ public final class UriUtils {
 		}
 		HttpURLConnection connection = null;
 		try {
-			connection = (HttpURLConnection) openConnection(uri, credentials);
+			connection = openHttpConnection(uri, credentials);
 			final int responseCode = connection.getResponseCode();
 			if (responseCode == HttpURLConnection.HTTP_OK) {
 				final String fileName = proposeFilenameFromConnection(connection, true);
@@ -641,7 +641,7 @@ public final class UriUtils {
 
 		HttpURLConnection connection = null;
 		try {
-			connection = (HttpURLConnection) openConnection(uri, credentials);
+			connection = openHttpConnection(uri, credentials);
 			return downloadTo(connection, destination, maxSize);
 		} finally {
 			disconnectQuietly(connection);
@@ -696,7 +696,7 @@ public final class UriUtils {
 	 * @return
 	 */
 	public static String proposeFilename(final URI uri, boolean proposeFileExtension) throws IOException {
-		return proposeFilenameFromConnection((HttpURLConnection) openConnection(uri, null), proposeFileExtension);
+		return proposeFilenameFromConnection(openHttpConnection(uri, null), proposeFileExtension);
 	}
 
 	/**
@@ -706,7 +706,7 @@ public final class UriUtils {
 	 */
 	public static String proposeFilename(final URI uri, final Credentials credentials, boolean proposeFileExtension)
 			throws IOException {
-		return proposeFilenameFromConnection((HttpURLConnection) openConnection(uri, credentials), proposeFileExtension);
+		return proposeFilenameFromConnection(openHttpConnection(uri, credentials), proposeFileExtension);
 	}
 
 	/**
@@ -801,6 +801,20 @@ public final class UriUtils {
 		if (!uri.isAbsolute()) {
 			throw new UriNotAbsoluteException("URI '" + uri.toString() + "' is not absolute", uri);
 		}
+	}
+
+	private static HttpURLConnection openHttpConnection(final URI uri, final Credentials credentials) throws IOException {
+		return openHttpConnection(uri, credentials, READ_TIMEOUT);
+	}
+
+	private static HttpURLConnection openHttpConnection(final URI uri, final Credentials credentials, final int readTimeout)
+			throws IOException {
+		final URLConnection connection = openConnection(uri, credentials, READ_TIMEOUT);
+		if (connection instanceof HttpURLConnection) {
+			return (HttpURLConnection) connection;
+		}
+		throw new IllegalArgumentException("A HTTP connection to the server can not be established "
+				+ "because the specified URL can not be used with the HTTP protocol.");
 	}
 
 	private static URLConnection openConnection(final URI uri, final Credentials credentials) throws IOException {
@@ -1061,11 +1075,7 @@ public final class UriUtils {
 	public static boolean httpExists(final URI uri, final Credentials cred) {
 		HttpURLConnection connection = null;
 		try {
-			final URLConnection c = openConnection(uri, cred);
-			if (!(c instanceof HttpURLConnection)) {
-				throw new UriNotAnHttpAddressException("Cannot open a HTTP connection", uri);
-			}
-			connection = (HttpURLConnection) c;
+			connection = openHttpConnection(uri, cred);
 			connection.setConnectTimeout(TIMEOUT);
 			connection.setReadTimeout(READ_TIMEOUT);
 			connection.setRequestMethod("GET");
