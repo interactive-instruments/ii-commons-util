@@ -112,25 +112,6 @@ public final class IFile extends File {
 	// Default 10 GB
 	private static final long defaultMaxUnzipSize = PropertyUtils.getenvOrProperty("ii.file.max.unzip.size", 10737418240L);
 
-	public long size() throws IOException {
-		if (isDirectory()) {
-			long size = 0;
-			for (final IFile file : getFilesInDirRecursive(null, 15, false)) {
-				try {
-					if (!FileUtils.isSymlink(file)) {
-						size += file.length();
-					}
-				} catch (final IOException ign) {
-					// Ignore exceptions caught when asking if a File is a symlink.
-				}
-			}
-			return size;
-		} else {
-			expectFileIsReadable();
-			return this.length();
-		}
-	}
-
 	private static class DeleteFilesHook extends Thread {
 		@Override
 		public void run() {
@@ -255,6 +236,34 @@ public final class IFile extends File {
 	 */
 	public void setIdentifier(final String identifier) {
 		this.identifier = identifier;
+	}
+
+	/**
+	 * Return file or directory size
+	 *
+	 * @return file size, 0 may indicate a failure
+	 */
+	@Override
+	public long length() {
+		if (isDirectory()) {
+			long size = 0;
+			try {
+				for (final IFile file : getFilesInDirRecursive(null, 15, false)) {
+					try {
+						if (!FileUtils.isSymlink(file)) {
+							size += file.length();
+						}
+					} catch (final IOException ign) {
+						// Ignore exceptions caught when asking if a File is a symlink.
+					}
+				}
+			}catch (IOException e) {
+				return 0L;
+			}
+			return size;
+		} else {
+			return super.length();
+		}
 	}
 
 	/**
