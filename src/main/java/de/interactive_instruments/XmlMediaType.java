@@ -17,13 +17,31 @@
  * European Public Administrations Programme (http://ec.europa.eu/isa)
  * through Action 1.17: A Reusable INSPIRE Reference Platform (ARE3NA).
  */
-package de.interactive_instruments.exceptions;
+package de.interactive_instruments;
+
+import java.util.Map;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
-public class MimeTypeUtilsException extends Exception {
-	public MimeTypeUtilsException(Exception e) {
-		super(e);
+public class XmlMediaType implements MediaType {
+	@Override
+	public MediaType getBaseType() {
+		return null;
+	}
+
+	@Override
+	public String getType() {
+		return null;
+	}
+
+	@Override
+	public String getSubtype() {
+		return null;
+	}
+
+	@Override
+	public Map<String, String> getParameters() {
+		return null;
 	}
 }

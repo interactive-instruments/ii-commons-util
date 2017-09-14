@@ -17,13 +17,30 @@
  * European Public Administrations Programme (http://ec.europa.eu/isa)
  * through Action 1.17: A Reusable INSPIRE Reference Platform (ARE3NA).
  */
-package de.interactive_instruments.exceptions;
+package de.interactive_instruments.validation;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
-public class MimeTypeUtilsException extends Exception {
-	public MimeTypeUtilsException(Exception e) {
-		super(e);
+public class SchemaCache {
+
+	/*
+	private final LoadingCache<Key, Graph> cache;
+
+	private SchemaCache() {
+		cache = Caffeine.newBuilder()
+				.maximumSize(100)
+				.build(key -> loadFromDiskOrParse(key));
 	}
+	*/
+
+	// 2 keys (url, schema hash), die nach schema gemappt sind.
+
+	// cache: step 1: check if full url matches
+
+	// Load with custom grammer pool
+	// https://xerces.apache.org/xerces2-j/faq-grammars.html
+
+	// https://santhosh-tekuri.github.io/jlibs/xml/crawler/XMLCrawler.html
+
 }
