@@ -65,6 +65,20 @@ public final class IoUtils {
 		}
 	}
 
+	public static void copyResourceToFile(final Object ctxObj, final String resourcePath, final IFile destFile)
+			throws IOException {
+		destFile.getParentFile().mkdirs();
+		destFile.expectFileIsWritable();
+		destFile.write(IoUtils.requireNonNullIO(
+				ctxObj.getClass().getResourceAsStream(resourcePath), "Resource " + resourcePath + " not found"));
+	}
+
+	public static <T> T requireNonNullIO(T obj, String message) throws IOException {
+		if (obj == null)
+			throw new IOException(message);
+		return obj;
+	}
+
 	/**
 	 * Unconditionally close a closeable object and ignore errors.
 	 * ! Use with care !
