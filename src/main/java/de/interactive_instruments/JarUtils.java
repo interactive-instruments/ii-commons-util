@@ -21,9 +21,12 @@ package de.interactive_instruments;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -36,7 +39,7 @@ public class JarUtils {
 	/**
 	 * Returns a list of all class names in a jar
 	 */
-	public static List<String> scanForClassNames(File jar) throws IOException {
+	public static List<String> scanForClassNames(final File jar) throws IOException {
 		// The trick is here to not load the Jar with the class loader but to extract it as ZIP
 		final List<String> classNames = new ArrayList<String>();
 		ZipInputStream zip = null;
@@ -64,6 +67,12 @@ public class JarUtils {
 			IoUtils.closeQuietly(zip);
 		}
 		return classNames;
+	}
+
+	public static Manifest getManifest(final File jar) throws IOException {
+		try (final JarInputStream jarStream = new JarInputStream(new FileInputStream(jar))) {
+			return jarStream.getManifest();
+		}
 	}
 
 }
