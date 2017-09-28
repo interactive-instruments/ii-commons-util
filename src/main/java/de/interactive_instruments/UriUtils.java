@@ -831,6 +831,7 @@ public final class UriUtils {
 		final URLConnection c = uri.toURL().openConnection();
 		c.setConnectTimeout(TIMEOUT);
 		c.setReadTimeout(readTimeout);
+		c.setRequestProperty("User-Agent", System.getProperty("http.ii.agent", "ii agent"));
 		if (credentials == null || credentials.isEmpty()) {
 			return c;
 		}
