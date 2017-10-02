@@ -351,4 +351,22 @@ public class UriUtilsTest {
 		assertTrue(UriUtils.exists(new URI(
 				"https://www.dropbox.com/s/m4z4s25jerfcajx/hy-test-0.zip?dl=1"), null));
 	}
+
+	@Test
+	public void testHttpExistsIgnoreErrorCodes1() throws URISyntaxException, IOException {
+		assertTrue(UriUtils.httpExistsIgnoreErrorCodes(new URI(
+				"https://www.dropbox.com/s/m4z4s25jerfcajx/hy-test-0.zip?dl=1"), null, 0));
+	}
+
+	@Test
+	public void testHttpExistsIgnoreErrorCodes2() throws URISyntaxException, IOException {
+		assertTrue(UriUtils.httpExistsIgnoreErrorCodes(new URI(
+				"http://www.interactive-instruments.de/doesnotexist"), null, 404));
+	}
+
+	@Test
+	public void testHttpExistsIgnoreErrorCodes3() throws URISyntaxException, IOException {
+		assertFalse(UriUtils.httpExistsIgnoreErrorCodes(new URI(
+				"http://www.interactive-instruments.de/doesnotexist"), null, 500));
+	}
 }

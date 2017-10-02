@@ -1070,7 +1070,8 @@ public final class UriUtils {
 
 	/**
 	 * Opens a connection to the server with the HTTP GET method and checks
-	 * if the resource exists.
+	 * if the resource exists. If the server responds with 4XX or higher response
+	 * codes, the method returns false.
 	 *
 	 * @param uri URL to check
 	 * @param cred URL credentials
@@ -1081,8 +1082,6 @@ public final class UriUtils {
 		HttpURLConnection connection = null;
 		try {
 			connection = openHttpConnection(uri, cred);
-			connection.setConnectTimeout(TIMEOUT);
-			connection.setReadTimeout(READ_TIMEOUT);
 			connection.setRequestMethod("GET");
 			final int responseCode = connection.getResponseCode();
 			return 200 >= responseCode && responseCode < 400;
@@ -1094,6 +1093,41 @@ public final class UriUtils {
 			disconnectQuietly(connection);
 		}
 	}
+
+	/**
+	 * Opens a connection to the server with the HTTP GET method and checks
+	 * if the resource exists. If the response code matches the acceptedHttpErrorCodes
+	 * it returns true, otherwise if the server responds with 4XX or higher response
+	 * codes, the method returns false.
+	 *
+	 * @param uri URL to check
+	 * @param cred URL credentials
+	 * @param acceptedHttpErrorCodes HTTP error codes that are accepted.
+	 * @throws UriNotAbsoluteException if the URL is not absolute
+	 * @return true if the resource exists, false otherwise
+	 */
+	public static boolean httpExistsIgnoreErrorCodes(final URI uri, final Credentials cred, final int...acceptedHttpErrorCodes) {
+		HttpURLConnection connection = null;
+		try {
+			connection = openHttpConnection(uri, cred);
+			connection.setRequestMethod("GET");
+			final int responseCode = connection.getResponseCode();
+			for (final int acceptedHttpErrorCode : acceptedHttpErrorCodes) {
+				if(responseCode==acceptedHttpErrorCode) {
+					return true;
+				}
+			}
+			return 200 >= responseCode && responseCode < 400;
+		} catch (final UriNotAbsoluteException exception) {
+			throw new UriNotAnHttpAddressException("Cannot open a HTTP connection", uri);
+		} catch (final IOException exception) {
+			return false;
+		} finally {
+			disconnectQuietly(connection);
+		}
+	}
+
+
 
 	public static long getContentLength(final URI uri) throws IOException {
 		return getContentLength(uri, null);
