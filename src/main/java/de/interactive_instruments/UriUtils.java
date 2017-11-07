@@ -56,6 +56,8 @@ public final class UriUtils {
 	// Timeout on waiting to read data: 120 seconds
 	private final static int READ_TIMEOUT = 120000;
 
+	private final static int MAX_REDIRECTS = 6;
+
 	private final static Logger logger = LoggerFactory.getLogger(UriUtils.class);
 
 	private static IFile tmpDir;
@@ -603,7 +605,7 @@ public final class UriUtils {
 		}
 		HttpURLConnection connection = null;
 		try {
-			connection = openHttpConnection(uri, credentials);
+			connection = openHttpGetConnection(uri, credentials);
 			final int responseCode = connection.getResponseCode();
 			if (responseCode == HttpURLConnection.HTTP_OK) {
 				final String fileName = proposeFilenameFromConnection(connection, true);
@@ -645,7 +647,7 @@ public final class UriUtils {
 
 		HttpURLConnection connection = null;
 		try {
-			connection = openHttpConnection(uri, credentials);
+			connection = openHttpGetConnection(uri, credentials);
 			return downloadTo(connection, destination, maxSize);
 		} finally {
 			disconnectQuietly(connection);
@@ -700,7 +702,7 @@ public final class UriUtils {
 	 * @return
 	 */
 	public static String proposeFilename(final URI uri, boolean proposeFileExtension) throws IOException {
-		return proposeFilenameFromConnection(openHttpConnection(uri, null), proposeFileExtension);
+		return proposeFilenameFromConnection(openHttpGetConnection(uri, null), proposeFileExtension);
 	}
 
 	/**
@@ -710,7 +712,7 @@ public final class UriUtils {
 	 */
 	public static String proposeFilename(final URI uri, final Credentials credentials, boolean proposeFileExtension)
 			throws IOException {
-		return proposeFilenameFromConnection(openHttpConnection(uri, credentials), proposeFileExtension);
+		return proposeFilenameFromConnection(openHttpGetConnection(uri, credentials), proposeFileExtension);
 	}
 
 	/**
@@ -807,18 +809,76 @@ public final class UriUtils {
 		}
 	}
 
+	private static HttpURLConnection openHttpGetConnection(final URI uri, final Credentials credentials) throws IOException {
+		// setRequestMethod not allowed afterwards
+		return followRedirects(openHttpConnection(uri, credentials, READ_TIMEOUT), credentials);
+	}
+
+	private static HttpURLConnection openHttpGetConnection(final URI uri, final Credentials credentials, final int readTimeout)
+			throws IOException {
+		// setRequestMethod not allowed afterwards
+		return followRedirects(openHttpConnection(uri, credentials, readTimeout), credentials);
+	}
+
 	private static HttpURLConnection openHttpConnection(final URI uri, final Credentials credentials) throws IOException {
 		return openHttpConnection(uri, credentials, READ_TIMEOUT);
 	}
 
 	private static HttpURLConnection openHttpConnection(final URI uri, final Credentials credentials, final int readTimeout)
 			throws IOException {
-		final URLConnection connection = openConnection(uri, credentials, READ_TIMEOUT);
+		final URLConnection connection = openConnection(uri, credentials, readTimeout);
 		if (connection instanceof HttpURLConnection) {
 			return (HttpURLConnection) connection;
 		}
 		throw new UriNotAnHttpAddressException("A HTTP connection to the server can not be established "
 				+ "because the specified URL can not be used with the HTTP protocol.", uri);
+	}
+
+	private static HttpURLConnection followRedirects(final HttpURLConnection connection, Credentials credentials)
+			throws IOException {
+		// Check for redirects
+		int status = connection.getResponseCode();
+		if (status != HttpURLConnection.HTTP_OK) {
+			if (status == HttpURLConnection.HTTP_MOVED_TEMP
+					|| status == HttpURLConnection.HTTP_MOVED_PERM
+					|| status == HttpURLConnection.HTTP_SEE_OTHER) {
+				return followRedirects(connection, credentials, MAX_REDIRECTS);
+			}
+		}
+		return connection;
+	}
+
+	private static HttpURLConnection followRedirects(final HttpURLConnection connection, final Credentials credentials,
+			final int remainingRedirects)
+			throws IOException {
+		if (remainingRedirects < 0) {
+			throw new IOException("Too many redirects for URL '" + connection.getURL() + "'");
+		}
+		// get new URL
+		final String redirectUrl = connection.getHeaderField("Location");
+		final URI newUrl;
+		try {
+			newUrl = new URI(redirectUrl);
+		} catch (final URISyntaxException e) {
+			throw new IOException("The redirect '" + redirectUrl + "' sent by the server is not an URL.");
+		}
+		// get Cookie that may be required for login
+		final String cookies = connection.getHeaderField("Set-Cookie");
+		final URLConnection newConnection = openConnection(newUrl, credentials, READ_TIMEOUT);
+		if (newConnection instanceof HttpURLConnection) {
+			newConnection.setRequestProperty("Cookie", cookies);
+			int status = ((HttpURLConnection) newConnection).getResponseCode();
+			if (status != HttpURLConnection.HTTP_OK) {
+				if (status == HttpURLConnection.HTTP_MOVED_TEMP
+						|| status == HttpURLConnection.HTTP_MOVED_PERM
+						|| status == HttpURLConnection.HTTP_SEE_OTHER) {
+					return followRedirects((HttpURLConnection) newConnection, credentials, remainingRedirects - 1);
+				}
+			}
+			return (HttpURLConnection) newConnection;
+		}
+		throw new UriNotAnHttpAddressException("A HTTP connection to the server can not be established "
+				+ "because the specified URL can not be used with the HTTP protocol.", newUrl);
 	}
 
 	private static URLConnection openConnection(final URI uri, final Credentials credentials) throws IOException {
@@ -831,7 +891,7 @@ public final class UriUtils {
 		final URLConnection c = uri.toURL().openConnection();
 		c.setConnectTimeout(TIMEOUT);
 		c.setReadTimeout(readTimeout);
-		c.setRequestProperty("User-Agent", System.getProperty("http.ii.agent", "ii agent"));
+		c.setRequestProperty("User-Agent", System.getProperty("http.ii.agent", "ii-agent"));
 		if (credentials == null || credentials.isEmpty()) {
 			return c;
 		}
@@ -1081,8 +1141,7 @@ public final class UriUtils {
 	public static boolean httpExists(final URI uri, final Credentials cred) {
 		HttpURLConnection connection = null;
 		try {
-			connection = openHttpConnection(uri, cred);
-			connection.setRequestMethod("GET");
+			connection = openHttpGetConnection(uri, cred);
 			final int responseCode = connection.getResponseCode();
 			return 200 >= responseCode && responseCode < 400;
 		} catch (final UriNotAbsoluteException exception) {
@@ -1106,14 +1165,14 @@ public final class UriUtils {
 	 * @throws UriNotAbsoluteException if the URL is not absolute
 	 * @return true if the resource exists, false otherwise
 	 */
-	public static boolean httpExistsIgnoreErrorCodes(final URI uri, final Credentials cred, final int...acceptedHttpErrorCodes) {
+	public static boolean httpExistsIgnoreErrorCodes(final URI uri, final Credentials cred,
+			final int... acceptedHttpErrorCodes) {
 		HttpURLConnection connection = null;
 		try {
-			connection = openHttpConnection(uri, cred);
-			connection.setRequestMethod("GET");
+			connection = openHttpGetConnection(uri, cred);
 			final int responseCode = connection.getResponseCode();
 			for (final int acceptedHttpErrorCode : acceptedHttpErrorCodes) {
-				if(responseCode==acceptedHttpErrorCode) {
+				if (responseCode == acceptedHttpErrorCode) {
 					return true;
 				}
 			}
@@ -1126,8 +1185,6 @@ public final class UriUtils {
 			disconnectQuietly(connection);
 		}
 	}
-
-
 
 	public static long getContentLength(final URI uri) throws IOException {
 		return getContentLength(uri, null);
