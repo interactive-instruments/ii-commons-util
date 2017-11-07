@@ -932,10 +932,20 @@ public final class UriUtils {
 	}
 
 	public static InputStream openStream(final URI uri, final Credentials cred, final int timeout) throws IOException {
+		return openStream(uri, cred, timeout, null);
+	}
+
+	// Todo refactoring: introduce builder for parameter object
+	public static InputStream openStream(final URI uri, final Credentials cred, final int timeout, final String acceptMimeType)
+			throws IOException {
 		if (isFile(uri)) {
 			return new FileInputStream(new IFile(uri));
 		}
-		return new HttpInputStream(openConnection(uri, cred, timeout));
+		final URLConnection connection = openConnection(uri, cred, timeout);
+		if (!SUtils.isNullOrEmpty(acceptMimeType)) {
+			connection.setRequestProperty("Accept", acceptMimeType);
+		}
+		return new HttpInputStream(connection);
 	}
 
 	public static InputStream openStream(URI uri) throws IOException {
