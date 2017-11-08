@@ -65,12 +65,27 @@ public final class IoUtils {
 		}
 	}
 
+	/**
+	 * Copies a resource to a resource path.
+	 * Note: First use the class to find the resource,
+	 * if nothing is found the associated classloader will be used as fallback.
+	 * @param ctxObj
+	 * @param resourcePath
+	 * @param destFile
+	 * @throws IOException
+	 */
 	public static void copyResourceToFile(final Object ctxObj, final String resourcePath, final IFile destFile)
 			throws IOException {
 		destFile.getParentFile().mkdirs();
 		destFile.expectFileIsWritable();
-		destFile.write(IoUtils.requireNonNullIO(
-				ctxObj.getClass().getResourceAsStream(resourcePath), "Resource " + resourcePath + " not found"));
+		final InputStream cStream = ctxObj.getClass().getResourceAsStream(resourcePath);
+		final InputStream stream;
+		if (cStream == null) {
+			stream = ctxObj.getClass().getClassLoader().getResourceAsStream(resourcePath);
+		} else {
+			stream = cStream;
+		}
+		destFile.write(IoUtils.requireNonNullIO(stream, "Resource " + resourcePath + " not found"));
 	}
 
 	public static <T> T requireNonNullIO(T obj, String message) throws IOException {
