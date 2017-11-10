@@ -37,6 +37,8 @@ public final class TimeUtils {
 
 	// thread safe (in contrast to SimpleDateFormat)
 	public static final FastDateFormat ISO_DATETIME_TIME_ZONE_FORMAT = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ssZZ");
+	public static final FastDateFormat ISO_DATETIME_TIME_WITHOUT_TZ_FORMAT = FastDateFormat
+			.getInstance("yyyy-MM-dd'T'HH:mm:ss");
 
 	private TimeUtils() {}
 
@@ -120,8 +122,12 @@ public final class TimeUtils {
 	public static Date string8601ToDate(final String str) {
 		try {
 			return ISO_DATETIME_TIME_ZONE_FORMAT.parse(str);
-		} catch (ParseException e) {
-			throw new IllegalArgumentException(e);
+		} catch (final ParseException fallback) {
+			try {
+				return ISO_DATETIME_TIME_WITHOUT_TZ_FORMAT.parse(str);
+			} catch (final ParseException e) {
+				throw new IllegalArgumentException(e);
+			}
 		}
 	}
 
