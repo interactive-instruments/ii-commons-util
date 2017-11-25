@@ -88,7 +88,7 @@ public final class IoUtils {
 		destFile.write(IoUtils.requireNonNullIO(stream, "Resource " + resourcePath + " not found"));
 	}
 
-	public static <T> T requireNonNullIO(T obj, String message) throws IOException {
+	public static <T> T requireNonNullIO(final T obj, final String message) throws IOException {
 		if (obj == null)
 			throw new IOException(message);
 		return obj;

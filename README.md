@@ -6,7 +6,7 @@
 
 ## About
 
-ii-commons-util is used in [ETF](http://docs.etf-validator.net/), an open source testing framework for validating spatial data, metadata and web services in Spatial Data Infrastructures (SDIs).  
+ii-commons-util is used in [ETF](http://docs.etf-validator.net/), an open source testing framework for validating spatial data, metadata and web services in Spatial Data Infrastructures (SDIs).
 
 Please report issues [in the GitHub issue tracker](https://github.com/interactive-instruments/ii-commons-util/issues).
 
