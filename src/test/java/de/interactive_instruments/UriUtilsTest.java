@@ -270,6 +270,7 @@ public class UriUtilsTest {
 	@Test
 	public void isPrivateNet() throws UnknownHostException, URISyntaxException, MalformedURLException {
 		assertTrue(UriUtils.isPrivateNet("127.0.0.1"));
+		assertFalse(UriUtils.isPrivateNet("9.127.0.1"));
 		assertTrue(UriUtils.isPrivateNet("192.168.0.1"));
 		assertTrue(UriUtils.isPrivateNet("192.168.131.1"));
 		assertTrue(UriUtils.isPrivateNet("192.168.131.1"));
@@ -284,6 +285,7 @@ public class UriUtilsTest {
 		assertFalse(UriUtils.isPrivateNet("::ffff:8.8.8.8"));
 
 		assertTrue(UriUtils.isPrivateNet(new URI("http://127.0.0.1")));
+		assertFalse(UriUtils.isPrivateNet(new URI("http://9.127.0.1")));
 		assertFalse(UriUtils.isPrivateNet(new URI("file://here")));
 	}
 
