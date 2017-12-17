@@ -126,6 +126,9 @@ public class MimeTypeUtils {
 		}
 	}
 
+	/**
+	 * Content based detection
+	 */
 	public static String detectMimeType(final String str) throws MimeTypeUtilsException {
 		InputStream stream = null;
 		try {
@@ -135,6 +138,14 @@ public class MimeTypeUtils {
 			throw new MimeTypeUtilsException(e);
 		} finally {
 			IoUtils.closeQuietly(stream);
+		}
+	}
+
+	public static String detectMimeTypeFromFilename(final String filename) {
+		try {
+			return tika.detect(filename);
+		} catch (IllegalStateException e) {
+			return "";
 		}
 	}
 

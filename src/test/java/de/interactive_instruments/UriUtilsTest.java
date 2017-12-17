@@ -258,13 +258,21 @@ public class UriUtilsTest {
 
 	@Test
 	public void proposeFilenameFromConnection() throws URISyntaxException, IOException {
-		final URI url1 = new URI("http://herrmann.cx");
-		assertEquals("herrmann.cx", UriUtils.proposeFilenameFromConnection(
-				(HttpURLConnection) url1.toURL().openConnection(), true));
-
-		final URI url2 = new URI("http://herrmann.cx/index.php");
-		assertEquals("index.php", UriUtils.proposeFilenameFromConnection(
-				(HttpURLConnection) url2.toURL().openConnection(), true));
+		{
+			final URI url1 = new URI("http://herrmann.cx");
+			assertEquals("herrmann.cx.html", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url1.toURL().openConnection(), true));
+		}
+		{
+			final URI url2 = new URI("http://herrmann.cx/index.php");
+			assertEquals("index.php", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url2.toURL().openConnection(), true));
+		}
+		{
+			final URI url3 = new URI("http://herrmann.cx/test.get");
+			assertEquals("test.get.txt", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url3.toURL().openConnection(), true));
+		}
 	}
 
 	@Test

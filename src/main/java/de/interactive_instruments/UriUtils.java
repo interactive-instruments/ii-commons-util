@@ -724,30 +724,45 @@ public final class UriUtils {
 		final String disposition = connection.getHeaderField("Content-Disposition");
 		final String url = connection.getURL().toString();
 		final String name;
+		final boolean contentDispositionUsed;
 		if (!SUtils.isNullOrEmpty(disposition)) {
 			final Matcher m = CONTENT_DISPOSITION_PATTERN.matcher(disposition);
 			if (m.find()) {
 				name = m.group(1);
+				contentDispositionUsed = true;
 			} else {
 				name = lastSegment(url);
+				contentDispositionUsed = false;
 			}
 		} else if (url.indexOf('/', 7) != -1) {
 			// take last segment after slash
 			name = lastSegment(url);
+			contentDispositionUsed = false;
 		} else {
 			// take domain name
 			final String hostName = connection.getURL().getHost();
 			name = hostName.startsWith("www.") ? hostName.substring(4) : hostName;
+			contentDispositionUsed = false;
 		}
 
 		// add a file extension if nescessary
-		if (proposeFileExtension && name.indexOf(".") == -1) {
+		if (proposeFileExtension) {
+			if (!contentDispositionUsed && name.indexOf(".") > 0) {
+				final String detectedType = MimeTypeUtils.detectMimeTypeFromFilename(name);
+				if (!SUtils.isNullOrEmpty(detectedType) && !"application/octet-stream".equals(detectedType)) {
+					// The filename is not forced with the the Content-Disposition
+					// header and the derived file extension is known
+					return IFile.sanitize(name);
+				}
+			}
+			// add a file extension from the content header
 			final String contentType = connection.getHeaderField("Content-Type");
 			if (!SUtils.isNullOrEmpty(contentType)) {
 				try {
 					final String ext = MimeTypeUtils.getFileExtensionForMimeType(contentType);
 					return IFile.sanitize(name + ext);
 				} catch (MimeTypeUtilsException ign) {
+					// Failed to detect the file extension from the content type
 					ExcUtils.suppress(ign);
 				}
 			}
