@@ -53,6 +53,7 @@ public class Properties implements MutablePropertyHolder, ClassifyingPropertyHol
 	}
 
 	public Properties(final Map<String, String> map) {
+		properties = new LinkedHashMap<>();
 		set(map);
 	}
 
