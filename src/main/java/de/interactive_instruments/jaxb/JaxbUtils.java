@@ -33,8 +33,8 @@ import javax.xml.bind.annotation.XmlSchema;
 import org.apache.commons.lang3.ClassUtils;
 
 import de.interactive_instruments.FieldType;
-import de.interactive_instruments.MutableNamespaceHolder;
 import de.interactive_instruments.SUtils;
+import de.interactive_instruments.xml.NamespaceBuilder;
 
 /**
  * Created by herrmann@interactive-instruments.de.
@@ -52,19 +52,19 @@ public class JaxbUtils {
 	/**
 	 * Analyze namespace and return default package namespace
 	 *
-	 * @param clasz
-	 * @param nSh
-	 * @return
+	 * @param clasz class to analyze
+	 * @param nsB Namespace Builder
+	 * @return default namespace URI
 	 */
-	public static String analyzeNamespacesFromAnnotations(final Class<?> clasz, MutableNamespaceHolder nSh) {
+	public static String analyzeNamespacesFromAnnotations(final Class<?> clasz, final NamespaceBuilder nsB) {
 		final XmlRootElement[] rootElementAnnotation = clasz.getAnnotationsByType(XmlRootElement.class);
 		String defaultNamespaceUri = "";
 		if (rootElementAnnotation.length == 1) {
 			final String namespace = rootElementAnnotation[0].namespace();
 			if (!isEmptyOrDefault(namespace)) {
 				// defaultNamespaceUri=namespace;
-				if (!nSh.hasPrefixForNamespace(namespace)) {
-					nSh.addNamespaceUriForLaterPrefixLookup(namespace);
+				if (!nsB.hasPrefixForNamespace(namespace)) {
+					nsB.addNamespaceUri(namespace);
 				}
 			}
 		}
@@ -78,18 +78,18 @@ public class JaxbUtils {
 					if (SUtils.isNullOrEmpty(defaultNamespaceUri)) {
 						defaultNamespaceUri = schemaAnnotation.namespace();
 					}
-					if (!nSh.hasPrefixForNamespace(schemaAnnotation.namespace())) {
-						nSh.addNamespaceUriForLaterPrefixLookup(schemaAnnotation.namespace());
+					if (!nsB.hasPrefixForNamespace(schemaAnnotation.namespace())) {
+						nsB.addNamespaceUri(schemaAnnotation.namespace());
 					}
 				}
 				if (schemaAnnotation.xmlns().length > 0) {
 					for (final XmlNs xmlNs : schemaAnnotation.xmlns()) {
 						if (!isEmptyOrDefault(xmlNs.namespaceURI()) &&
-								nSh.getPrefixForNamespaceUri(xmlNs.namespaceURI()) == null) {
+								nsB.getPrefix(xmlNs.namespaceURI()) == null) {
 							if (isEmptyOrDefault(xmlNs.prefix())) {
-								nSh.addUnknownNamespaceUriAndDeterminePrefix(xmlNs.prefix());
+								nsB.addNamespaceUri(xmlNs.prefix());
 							} else {
-								nSh.addNamespaceUriAndPrefix(xmlNs.namespaceURI(), xmlNs.prefix());
+								nsB.addNamespaceUriAndPrefix(xmlNs.namespaceURI(), xmlNs.prefix());
 							}
 						}
 					}
@@ -98,7 +98,7 @@ public class JaxbUtils {
 
 			final Class<?> superClass = clasz.getSuperclass();
 			if (superClass != null && !ClassUtils.isPrimitiveOrWrapper(superClass)) {
-				analyzeNamespacesFromAnnotations(superClass, nSh);
+				analyzeNamespacesFromAnnotations(superClass, nsB);
 			}
 		}
 		return defaultNamespaceUri;
