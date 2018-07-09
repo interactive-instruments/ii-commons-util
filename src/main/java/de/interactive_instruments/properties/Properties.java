@@ -142,6 +142,22 @@ public class Properties implements MutablePropertyHolder, ClassifyingPropertyHol
 	}
 
 	@Override
+	public ClassifyingPropertyHolder getFlattenedPropertiesByClassification(final String classification) {
+		if (SUtils.isNullOrEmpty(classification)) {
+			throw new IllegalArgumentException("Classification is null");
+		}
+		final String clEnd = classification.endsWith(".") ? "" : ".";
+		final String fStr = classification + clEnd;
+		final Map<String, String> classificationMap = new LinkedHashMap<>();
+		properties.forEach((k, v) -> {
+			if (k.startsWith(fStr)) {
+				classificationMap.put(k.substring(fStr.length()), v.getValue());
+			}
+		});
+		return new Properties(classificationMap);
+	}
+
+	@Override
 	public Set<String> getFirstLevelClassifications() {
 		final Set<String> classifications = new TreeSet<>();
 		properties.keySet().forEach(k -> {

@@ -29,7 +29,7 @@ public class Pair<L, R> implements Map.Entry<L, R> {
 	// aka value
 	private R right;
 
-	public Pair(L left, R right) {
+	public Pair(final L left, final R right) {
 		this.left = left;
 		this.right = right;
 	}
