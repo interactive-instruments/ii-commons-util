@@ -16,7 +16,7 @@ buildscript {
             }}
     }
     dependencies {
-        classpath group: 'de.interactive_instruments.bda', name: 'etf-bda', version:'1.0.25'
+        classpath group: 'de.interactive_instruments.bda', name: 'etf-bda', version:'[1.0.26,1.0.99]'
     }
     dependencies {
         ant.unjar src: configurations.classpath.files.find {it.path.contains('etf')}, dest: 'build/gradle'
@@ -34,16 +34,13 @@ dependencies {
 
     compile group: 'org.slf4j', name: 'slf4j-api', version: etf_slf4jApiVersion
 
-    // Data structures
-    compile group: 'com.googlecode.concurrentlinkedhashmap', name: 'concurrentlinkedhashmap-lru', version:'1.4'
-
     // Extra helper libraries for String manipulation, etc.
     compile group: 'org.apache.commons', name: 'commons-lang3', version: etf_commonsLang3Version
 
     compile group: 'commons-io', name: 'commons-io', version: '2.5'
 
     // Mime type detection
-    compile group: 'org.apache.tika', name: 'tika-core', version: '1.15'
+    compile group: 'org.apache.tika', name: 'tika-core', version: '1.17'
 
     // Testing
     testCompile group: 'junit', name: 'junit', version: etf_junitTestVersion
