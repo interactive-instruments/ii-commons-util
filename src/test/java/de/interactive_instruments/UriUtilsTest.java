@@ -265,13 +265,58 @@ public class UriUtilsTest {
 		}
 		{
 			final URI url2 = new URI("http://herrmann.cx/index.php");
-			assertEquals("index.php", UriUtils.proposeFilenameFromConnection(
+			assertEquals("index.php.html", UriUtils.proposeFilenameFromConnection(
 					(HttpURLConnection) url2.toURL().openConnection(), true));
 		}
 		{
-			final URI url3 = new URI("http://herrmann.cx/test.get");
-			assertEquals("test.get.txt", UriUtils.proposeFilenameFromConnection(
+			final URI url3 = new URI("http://herrmann.cx/empty.get");
+			assertEquals("empty.get", UriUtils.proposeFilenameFromConnection(
 					(HttpURLConnection) url3.toURL().openConnection(), true));
+		}
+		{
+			final URI url4 = new URI("http://herrmann.cx/empty.txt");
+			assertEquals("empty.txt", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url4.toURL().openConnection(), true));
+		}
+		{
+			final URI url5 = new URI("http://herrmann.cx/test.xml");
+			assertEquals("test.xml", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url5.toURL().openConnection(), true));
+		}
+		{
+			final URI url6 = new URI("http://herrmann.cx/get-content-type-text.php");
+			assertEquals("get-content-type-text.php", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url6.toURL().openConnection(), true));
+		}
+		{
+			final URI url7 = new URI("http://herrmann.cx/get-content-type-xml.php");
+			assertEquals("get-content-type-xml.php.xml", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url7.toURL().openConnection(), true));
+		}
+		{
+			final URI url8 = new URI("http://herrmann.cx/get-content-disposition-text1.php");
+			assertEquals("textfile.txt", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url8.toURL().openConnection(), true));
+		}
+		{
+			final URI url9 = new URI("http://herrmann.cx/get-content-disposition-text2.php");
+			assertEquals("textfile.txt", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url9.toURL().openConnection(), true));
+		}
+		{
+			final URI url10 = new URI("http://herrmann.cx/get-xml-with-incorrect-content-type.php");
+			assertEquals("test.xml", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url10.toURL().openConnection(), true));
+		}
+		{
+			final URI url11 = new URI("http://herrmann.cx/get-xml-with-incorrect-content-disposition.php");
+			assertEquals("test.bin.xml", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url11.toURL().openConnection(), true));
+		}
+		{
+			final URI url12 = new URI("http://herrmann.cx/get-binary.php");
+			assertEquals("test.bin", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url12.toURL().openConnection(), true));
 		}
 	}
 

@@ -721,6 +721,7 @@ public final class UriUtils {
 	 * @return
 	 */
 	public static String proposeFilenameFromConnection(final HttpURLConnection connection, boolean proposeFileExtension) {
+		// Priority: Content-Disposition, Content-Type, file ending
 		final String disposition = connection.getHeaderField("Content-Disposition");
 		final String url = connection.getURL().toString();
 		final String name;
@@ -747,27 +748,55 @@ public final class UriUtils {
 
 		// add a file extension if nescessary
 		if (proposeFileExtension) {
-			if (!contentDispositionUsed && name.indexOf(".") > 0) {
+			if (contentDispositionUsed) {
+				// Check if a mime type can be detected from the content disposition header filename
 				final String detectedType = MimeTypeUtils.detectMimeTypeFromFilename(name);
-				if (!SUtils.isNullOrEmpty(detectedType) && !"application/octet-stream".equals(detectedType)) {
-					// The filename is not forced with the the Content-Disposition
-					// header and the derived file extension is known
-					return IFile.sanitize(name);
+				if (SUtils.isNullOrEmpty(detectedType) || "application/octet-stream".equals(detectedType)) {
+					// The type is unknown. Fallback: try to use the content-type header
+					final String contentType = connection.getHeaderField("Content-Type");
+					final String fileName = getFileExtensionFromContentType(contentType, name);
+					if (!SUtils.isNullOrEmpty(fileName)) {
+						return fileName;
+					}
 				}
-			}
-			// add a file extension from the content header
-			final String contentType = connection.getHeaderField("Content-Type");
-			if (!SUtils.isNullOrEmpty(contentType)) {
-				try {
-					final String ext = MimeTypeUtils.getFileExtensionForMimeType(contentType);
-					return IFile.sanitize(name + ext);
-				} catch (MimeTypeUtilsException ign) {
-					// Failed to detect the file extension from the content type
-					ExcUtils.suppress(ign);
+			} else {
+				final String contentType = connection.getHeaderField("Content-Type");
+				if (!SUtils.isNullOrEmpty(contentType) && !"application/octet-stream".equals(contentType)) {
+					if (contentType.startsWith("text/plain") && name.indexOf(".") > 0 && !name.endsWith(".txt")) {
+						// Content type is set to text plain, but the filename does not end with .txt
+						final String detectedType = MimeTypeUtils.detectMimeTypeFromFilename(name);
+						if (!SUtils.isNullOrEmpty(detectedType) && !"application/octet-stream".equals(detectedType)) {
+							// A mimetype could be detected from the filename, so use the filename
+							return IFile.sanitize(name);
+						}
+						// weird case...
+						return IFile.sanitize(name + ".txt");
+					}
+					final String fileName = getFileExtensionFromContentType(contentType, name);
+					if (!SUtils.isNullOrEmpty(fileName)) {
+						return fileName;
+					}
 				}
 			}
 		}
 		return IFile.sanitize(name);
+	}
+
+	private static String getFileExtensionFromContentType(final String contentType, final String filename) {
+		if (!SUtils.isNullOrEmpty(contentType)) {
+			try {
+				final String ext = MimeTypeUtils.getFileExtensionForMimeType(contentType);
+				if (filename.endsWith(ext)) {
+					return IFile.sanitize(filename);
+				} else {
+					return IFile.sanitize(filename + ext);
+				}
+			} catch (MimeTypeUtilsException ign) {
+				// Failed to detect the file extension from the content type
+				ExcUtils.suppress(ign);
+			}
+		}
+		return null;
 	}
 
 	/**
