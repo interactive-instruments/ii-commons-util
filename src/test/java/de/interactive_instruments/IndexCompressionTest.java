@@ -17,14 +17,12 @@
  * European Public Administrations Programme (http://ec.europa.eu/isa)
  * through Action 1.17: A Reusable INSPIRE Reference Platform (ARE3NA).
  */
-package de.interactive_instruments.etf.bsxm;
+package de.interactive_instruments;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-
-import de.interactive_instruments.etf.bsxm.topox.IndexCompression;
 
 /**
  * Test compression of index arrays

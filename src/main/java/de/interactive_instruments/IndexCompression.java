@@ -17,7 +17,7 @@
  * European Public Administrations Programme (http://ec.europa.eu/isa)
  * through Action 1.17: A Reusable INSPIRE Reference Platform (ARE3NA).
  */
-package de.interactive_instruments.etf.bsxm.topox;
+package de.interactive_instruments;
 
 /**
  * Functions for compressing/decompressing an array of indices to a long data
