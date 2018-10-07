@@ -581,9 +581,10 @@ public final class IFile extends File {
 
 	/**
 	 * Ensure that all necessary parent directories are available
+	 * @return the directory
 	 * @throws IOException
 	 */
-	public void ensureDir() throws IOException {
+	public IFile ensureDir() throws IOException {
 		this.mkdirs();
 		if (!this.exists()) {
 			throw new IOException("Unable to create "
@@ -591,6 +592,7 @@ public final class IFile extends File {
 					getCanonicalOrSimplePath() +
 					"\" due to security or right restrictions");
 		}
+		return this;
 	}
 
 	/**
