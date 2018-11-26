@@ -19,6 +19,8 @@
  */
 package de.interactive_instruments;
 
+import static de.interactive_instruments.CLUtils.getResourceAsStream;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,8 +28,6 @@ import java.io.OutputStream;
 
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.IOsizeLimitExceededException;
-
-import static de.interactive_instruments.CLUtils.getResourceAsStream;
 
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )

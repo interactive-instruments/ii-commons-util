@@ -25,10 +25,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
@@ -144,12 +141,9 @@ public final class CLUtils {
 	}
 
 	public static InputStream getResourceAsStream(final Object ctxObj, final String resourcePath) {
-		final InputStream cStream = ctxObj.getClass().getResourceAsStream(resourcePath);
-		final InputStream stream;
+		final InputStream cStream = Objects.requireNonNull(ctxObj, "Context object is null").
+				getClass().getResourceAsStream(resourcePath);
 		if (cStream == null) {
-			if(ctxObj==null) {
-				throw new NullPointerException("Context object is null");
-			}
 			return ctxObj.getClass().getClassLoader().getResourceAsStream(resourcePath);
 		} else {
 			return cStream;
