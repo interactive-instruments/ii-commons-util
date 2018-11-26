@@ -141,10 +141,20 @@ public final class CLUtils {
 	}
 
 	public static InputStream getResourceAsStream(final Object ctxObj, final String resourcePath) {
-		final InputStream cStream = Objects.requireNonNull(ctxObj, "Context object is null").
-				getClass().getResourceAsStream(resourcePath);
+		final InputStream cStream = Objects.requireNonNull(ctxObj, "Context object is null").getClass()
+				.getResourceAsStream(resourcePath);
 		if (cStream == null) {
 			return ctxObj.getClass().getClassLoader().getResourceAsStream(resourcePath);
+		} else {
+			return cStream;
+		}
+	}
+
+	public static URL getResource(final Object ctxObj, final String resourcePath) {
+		final URL cStream = Objects.requireNonNull(ctxObj, "Context object is null").getClass()
+				.getResource(resourcePath);
+		if (cStream == null) {
+			return ctxObj.getClass().getClassLoader().getResource(resourcePath);
 		} else {
 			return cStream;
 		}
