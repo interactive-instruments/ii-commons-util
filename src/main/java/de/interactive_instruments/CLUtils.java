@@ -142,4 +142,17 @@ public final class CLUtils {
 			IoUtils.closeQuietly(stream);
 		}
 	}
+
+	public static InputStream getResourceAsStream(final Object ctxObj, final String resourcePath) {
+		final InputStream cStream = ctxObj.getClass().getResourceAsStream(resourcePath);
+		final InputStream stream;
+		if (cStream == null) {
+			if(ctxObj==null) {
+				throw new NullPointerException("Context object is null");
+			}
+			return ctxObj.getClass().getClassLoader().getResourceAsStream(resourcePath);
+		} else {
+			return cStream;
+		}
+	}
 }

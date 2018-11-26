@@ -27,6 +27,8 @@ import java.io.OutputStream;
 import de.interactive_instruments.exceptions.ExcUtils;
 import de.interactive_instruments.exceptions.IOsizeLimitExceededException;
 
+import static de.interactive_instruments.CLUtils.getResourceAsStream;
+
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
@@ -78,13 +80,7 @@ public final class IoUtils {
 			throws IOException {
 		destFile.getParentFile().mkdirs();
 		destFile.expectFileIsWritable();
-		final InputStream cStream = ctxObj.getClass().getResourceAsStream(resourcePath);
-		final InputStream stream;
-		if (cStream == null) {
-			stream = ctxObj.getClass().getClassLoader().getResourceAsStream(resourcePath);
-		} else {
-			stream = cStream;
-		}
+		final InputStream stream = getResourceAsStream(ctxObj, resourcePath);
 		destFile.write(IoUtils.requireNonNullIO(stream, "Resource " + resourcePath + " not found"));
 	}
 
