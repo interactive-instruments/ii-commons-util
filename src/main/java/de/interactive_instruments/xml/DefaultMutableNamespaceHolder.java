@@ -21,8 +21,6 @@ package de.interactive_instruments.xml;
 
 import java.util.*;
 
-import javax.xml.namespace.QName;
-
 /**
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
