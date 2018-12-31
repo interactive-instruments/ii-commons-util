@@ -39,6 +39,9 @@ import de.interactive_instruments.container.Pair;
  */
 public interface NamespaceHolder extends NamespaceContext, Iterable<Map.Entry<String, String>> {
 
+	Pattern FRAGMENT_TO_QNAME = Pattern
+			.compile("((\\{([\\w:\\/.#]*)\\})(@?[\\w-]*$))|(@?[\\w:\\/.#]*:)([\\w-]*$)|(@?[\\w-]*$)");
+
 	/**
 	 * Returns the default namespace URI
 	 *
@@ -102,9 +105,6 @@ public interface NamespaceHolder extends NamespaceContext, Iterable<Map.Entry<St
 		}
 		return null;
 	}
-
-	Pattern FRAGMENT_TO_QNAME = Pattern
-			.compile("((\\{([\\w:\\/.#]*)\\})(@?[\\w-]*$))|(@?[\\w:\\/.#]*:)([\\w-]*$)|(@?[\\w-]*$)");
 
 	/**
 	 * Derive and lookup the qualified name from a string
