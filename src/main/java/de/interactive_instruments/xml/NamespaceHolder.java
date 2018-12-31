@@ -287,7 +287,6 @@ public interface NamespaceHolder extends NamespaceContext, Iterable<Map.Entry<St
 	 */
 	default String generateNamespaceUri(final String namespaceUri) {
 		final int lastSlashPos = namespaceUri.lastIndexOf("/");
-		final String candidate;
 		if (lastSlashPos != -1) {
 			// Is the last segment of the namespace URI:
 			// 3 characters long and not a version
