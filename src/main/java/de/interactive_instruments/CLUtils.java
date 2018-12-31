@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 European Union, interactive instruments GmbH
+ * Copyright 2017-2018 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -25,10 +25,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.security.CodeSource;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
@@ -140,6 +137,26 @@ public final class CLUtils {
 			return "";
 		} finally {
 			IoUtils.closeQuietly(stream);
+		}
+	}
+
+	public static InputStream getResourceAsStream(final Object ctxObj, final String resourcePath) {
+		final InputStream cStream = Objects.requireNonNull(ctxObj, "Context object is null").getClass()
+				.getResourceAsStream(resourcePath);
+		if (cStream == null) {
+			return ctxObj.getClass().getClassLoader().getResourceAsStream(resourcePath);
+		} else {
+			return cStream;
+		}
+	}
+
+	public static URL getResource(final Object ctxObj, final String resourcePath) {
+		final URL cStream = Objects.requireNonNull(ctxObj, "Context object is null").getClass()
+				.getResource(resourcePath);
+		if (cStream == null) {
+			return ctxObj.getClass().getClassLoader().getResource(resourcePath);
+		} else {
+			return cStream;
 		}
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 European Union, interactive instruments GmbH
+ * Copyright 2017-2018 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -217,7 +217,7 @@ public class UriUtilsTest {
 
 	@Test
 	public void testDownloadFile() throws URISyntaxException, IOException {
-		final URI url = new URI("http://herrmann.cx/ps-ro-50.zip");
+		final URI url = new URI("http://jherrmann.org/ps-ro-50.zip");
 		final IFile downloadedFile = UriUtils.download(url);
 		assertEquals(2414481L, UriUtils.getContentLength(downloadedFile.toURI()));
 	}
@@ -240,7 +240,7 @@ public class UriUtilsTest {
 
 	@Test
 	public void testDownloadFile2() throws URISyntaxException, IOException {
-		final URI url1 = new URI("http://herrmann.cx/ps-ro-50.zip");
+		final URI url1 = new URI("http://jherrmann.org/ps-ro-50.zip");
 		final IFile downloadedFile1 = UriUtils.download(url1);
 		assertEquals(2414481L, UriUtils.getContentLength(downloadedFile1.toURI()));
 
@@ -259,19 +259,64 @@ public class UriUtilsTest {
 	@Test
 	public void proposeFilenameFromConnection() throws URISyntaxException, IOException {
 		{
-			final URI url1 = new URI("http://herrmann.cx");
-			assertEquals("herrmann.cx.html", UriUtils.proposeFilenameFromConnection(
+			final URI url1 = new URI("http://jherrmann.org");
+			assertEquals("jherrmann.org.html", UriUtils.proposeFilenameFromConnection(
 					(HttpURLConnection) url1.toURL().openConnection(), true));
 		}
 		{
-			final URI url2 = new URI("http://herrmann.cx/index.php");
-			assertEquals("index.php", UriUtils.proposeFilenameFromConnection(
+			final URI url2 = new URI("http://jherrmann.org/index.php");
+			assertEquals("index.php.html", UriUtils.proposeFilenameFromConnection(
 					(HttpURLConnection) url2.toURL().openConnection(), true));
 		}
 		{
-			final URI url3 = new URI("http://herrmann.cx/test.get");
-			assertEquals("test.get.txt", UriUtils.proposeFilenameFromConnection(
+			final URI url3 = new URI("http://jherrmann.org/empty.get");
+			assertEquals("empty.get", UriUtils.proposeFilenameFromConnection(
 					(HttpURLConnection) url3.toURL().openConnection(), true));
+		}
+		{
+			final URI url4 = new URI("http://jherrmann.org/empty.txt");
+			assertEquals("empty.txt", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url4.toURL().openConnection(), true));
+		}
+		{
+			final URI url5 = new URI("http://jherrmann.org/test.xml");
+			assertEquals("test.xml", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url5.toURL().openConnection(), true));
+		}
+		{
+			final URI url6 = new URI("http://jherrmann.org/get-content-type-text.php");
+			assertEquals("get-content-type-text.php", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url6.toURL().openConnection(), true));
+		}
+		{
+			final URI url7 = new URI("http://jherrmann.org/get-content-type-xml.php");
+			assertEquals("get-content-type-xml.php.xml", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url7.toURL().openConnection(), true));
+		}
+		{
+			final URI url8 = new URI("http://jherrmann.org/get-content-disposition-text1.php");
+			assertEquals("textfile.txt", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url8.toURL().openConnection(), true));
+		}
+		{
+			final URI url9 = new URI("http://jherrmann.org/get-content-disposition-text2.php");
+			assertEquals("textfile.txt", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url9.toURL().openConnection(), true));
+		}
+		{
+			final URI url10 = new URI("http://jherrmann.org/get-xml-with-incorrect-content-type.php");
+			assertEquals("test.xml", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url10.toURL().openConnection(), true));
+		}
+		{
+			final URI url11 = new URI("http://jherrmann.org/get-xml-with-incorrect-content-disposition.php");
+			assertEquals("test.bin.xml", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url11.toURL().openConnection(), true));
+		}
+		{
+			final URI url12 = new URI("http://jherrmann.org/get-binary.php");
+			assertEquals("test.bin", UriUtils.proposeFilenameFromConnection(
+					(HttpURLConnection) url12.toURL().openConnection(), true));
 		}
 	}
 

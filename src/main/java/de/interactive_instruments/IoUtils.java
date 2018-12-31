@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 European Union, interactive instruments GmbH
+ * Copyright 2017-2018 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -18,6 +18,8 @@
  * through Action 1.17: A Reusable INSPIRE Reference Platform (ARE3NA).
  */
 package de.interactive_instruments;
+
+import static de.interactive_instruments.CLUtils.getResourceAsStream;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -78,13 +80,7 @@ public final class IoUtils {
 			throws IOException {
 		destFile.getParentFile().mkdirs();
 		destFile.expectFileIsWritable();
-		final InputStream cStream = ctxObj.getClass().getResourceAsStream(resourcePath);
-		final InputStream stream;
-		if (cStream == null) {
-			stream = ctxObj.getClass().getClassLoader().getResourceAsStream(resourcePath);
-		} else {
-			stream = cStream;
-		}
+		final InputStream stream = getResourceAsStream(ctxObj, resourcePath);
 		destFile.write(IoUtils.requireNonNullIO(stream, "Resource " + resourcePath + " not found"));
 	}
 

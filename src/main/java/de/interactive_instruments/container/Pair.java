@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 European Union, interactive instruments GmbH
+ * Copyright 2017-2018 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -29,7 +29,7 @@ public class Pair<L, R> implements Map.Entry<L, R> {
 	// aka value
 	private R right;
 
-	public Pair(L left, R right) {
+	public Pair(final L left, final R right) {
 		this.left = left;
 		this.right = right;
 	}

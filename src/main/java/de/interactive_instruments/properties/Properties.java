@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 European Union, interactive instruments GmbH
+ * Copyright 2017-2018 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -53,6 +53,7 @@ public class Properties implements MutablePropertyHolder, ClassifyingPropertyHol
 	}
 
 	public Properties(final Map<String, String> map) {
+		properties = new LinkedHashMap<>();
 		set(map);
 	}
 
@@ -135,6 +136,22 @@ public class Properties implements MutablePropertyHolder, ClassifyingPropertyHol
 		properties.forEach((k, v) -> {
 			if (k.startsWith(classification + clEnd)) {
 				classificationMap.put(k, v.getValue());
+			}
+		});
+		return new Properties(classificationMap);
+	}
+
+	@Override
+	public ClassifyingPropertyHolder getFlattenedPropertiesByClassification(final String classification) {
+		if (SUtils.isNullOrEmpty(classification)) {
+			throw new IllegalArgumentException("Classification is null");
+		}
+		final String clEnd = classification.endsWith(".") ? "" : ".";
+		final String fStr = classification + clEnd;
+		final Map<String, String> classificationMap = new LinkedHashMap<>();
+		properties.forEach((k, v) -> {
+			if (k.startsWith(fStr)) {
+				classificationMap.put(k.substring(fStr.length()), v.getValue());
 			}
 		});
 		return new Properties(classificationMap);

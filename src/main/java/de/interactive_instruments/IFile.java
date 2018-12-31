@@ -1,5 +1,5 @@
 /**
- * Copyright 2017 European Union, interactive instruments GmbH
+ * Copyright 2017-2018 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -581,9 +581,10 @@ public final class IFile extends File {
 
 	/**
 	 * Ensure that all necessary parent directories are available
+	 * @return the directory
 	 * @throws IOException
 	 */
-	public void ensureDir() throws IOException {
+	public IFile ensureDir() throws IOException {
 		this.mkdirs();
 		if (!this.exists()) {
 			throw new IOException("Unable to create "
@@ -591,6 +592,7 @@ public final class IFile extends File {
 					getCanonicalOrSimplePath() +
 					"\" due to security or right restrictions");
 		}
+		return this;
 	}
 
 	/**
