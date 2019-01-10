@@ -1,7 +1,8 @@
 version: "{branch} {build}"
 
 init:
-  tzutil /s "W. Europe Standard Time"
+ - cmd: tzutil /s "W. Europe Standard Time"
+ - ps: if ($env:APPVEYOR_REPO_BRANCH -eq "master" -and !$env:APPVEYOR_PULL_REQUEST_TITLE) {Exit-AppveyorBuild}
 
 build:
   verbosity: detailed
