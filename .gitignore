@@ -9,3 +9,4 @@ build
 outputFileStates.bin
 *.licensed
 .DS_Store
+/build-dependencies.txt
