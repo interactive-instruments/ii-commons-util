@@ -8,6 +8,7 @@ build:
   verbosity: detailed
 
 build_script:
+  - cmd: .\gradlew.bat clean --info --no-daemon
   - cmd: .\gradlew.bat assemble --info --no-daemon
 
 test_script:
