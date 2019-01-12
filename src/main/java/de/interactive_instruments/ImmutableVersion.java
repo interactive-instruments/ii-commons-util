@@ -20,64 +20,64 @@
 package de.interactive_instruments;
 
 /**
- * An interface for comparing version numbers with respect to the
- * major, minor and bugfix version number.
+ * An interface for comparing version numbers with respect to the major, minor and bugfix version number.
  *
  * @author herrmann@interactive-instruments.de.
  */
 public interface ImmutableVersion extends Comparable<ImmutableVersion> {
 
-	int getMajorVersion();
+    int getMajorVersion();
 
-	int getMinorVersion();
+    int getMinorVersion();
 
-	int getBugfixVersion();
+    int getBugfixVersion();
 
-	default boolean isSnapshot() {
-		return false;
-	}
+    default boolean isSnapshot() {
+        return false;
+    }
 
-	String getAsString();
+    String getAsString();
 
-	default String getAsStringWithExtension() {
-		if (!isSnapshot()) {
-			return getAsString();
-		} else {
-			return getAsString() + "-SNAPSHOT";
-		}
-	}
+    default String getAsStringWithExtension() {
+        if (!isSnapshot()) {
+            return getAsString();
+        } else {
+            return getAsString() + "-SNAPSHOT";
+        }
+    }
 
-	/**
-	 * Compare a version
-	 * @param version the version to be compared
-	 * @return a negative integer, zero, or a positive integer as this
-	 * object is less than, equal to, or greater than the specified version.
-	 */
-	@Override
-	default int compareTo(ImmutableVersion version) {
-		if (version == null) {
-			throw new IllegalArgumentException("Version is null!");
-		}
-		if (getMajorVersion() < version.getMajorVersion()) {
-			return -1;
-		} else if (getMajorVersion() > version.getMajorVersion()) {
-			return 1;
-		}
-		if (getMinorVersion() < version.getMinorVersion()) {
-			return -1;
-		} else if (getMinorVersion() > version.getMinorVersion()) {
-			return 1;
-		}
-		if (getBugfixVersion() < version.getBugfixVersion()) {
-			return -1;
-		} else if (getBugfixVersion() > version.getBugfixVersion()) {
-			return 1;
-		}
-		if (isSnapshot() && !version.isSnapshot()) {
-			return -1;
-		} else if (!isSnapshot() && version.isSnapshot()) {
-			return 1;
-		}
-		return 0;
-	}
+    /**
+     * Compare a version
+     *
+     * @param version
+     *            the version to be compared
+     * @return a negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified version.
+     */
+    @Override
+    default int compareTo(ImmutableVersion version) {
+        if (version == null) {
+            throw new IllegalArgumentException("Version is null!");
+        }
+        if (getMajorVersion() < version.getMajorVersion()) {
+            return -1;
+        } else if (getMajorVersion() > version.getMajorVersion()) {
+            return 1;
+        }
+        if (getMinorVersion() < version.getMinorVersion()) {
+            return -1;
+        } else if (getMinorVersion() > version.getMinorVersion()) {
+            return 1;
+        }
+        if (getBugfixVersion() < version.getBugfixVersion()) {
+            return -1;
+        } else if (getBugfixVersion() > version.getBugfixVersion()) {
+            return 1;
+        }
+        if (isSnapshot() && !version.isSnapshot()) {
+            return -1;
+        } else if (!isSnapshot() && version.isSnapshot()) {
+            return 1;
+        }
+        return 0;
+    }
 }

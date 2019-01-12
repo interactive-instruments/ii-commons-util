@@ -28,59 +28,59 @@ import java.util.*;
  */
 abstract class AbstractNamespaceHolder implements NamespaceHolder {
 
-	// namespace uri -> namespace prefix
-	protected final Map<String, Collection<String>> namespacesUriMappings;
-	protected final Map<String, String> prefixMappings;
+    // namespace uri -> namespace prefix
+    protected final Map<String, Collection<String>> namespacesUriMappings;
+    protected final Map<String, String> prefixMappings;
 
-	AbstractNamespaceHolder() {
-		namespacesUriMappings = new LinkedHashMap<>();
-		prefixMappings = new LinkedHashMap<>();
-	}
+    AbstractNamespaceHolder() {
+        namespacesUriMappings = new LinkedHashMap<>();
+        prefixMappings = new LinkedHashMap<>();
+    }
 
-	AbstractNamespaceHolder(final Map<String, Collection<String>> namespacesUriMappings,
-			final Map<String, String> prefixMappings) {
-		this.namespacesUriMappings = namespacesUriMappings;
-		this.prefixMappings = prefixMappings;
-	}
+    AbstractNamespaceHolder(final Map<String, Collection<String>> namespacesUriMappings,
+            final Map<String, String> prefixMappings) {
+        this.namespacesUriMappings = namespacesUriMappings;
+        this.prefixMappings = prefixMappings;
+    }
 
-	AbstractNamespaceHolder(final Map<String, Collection<String>> namespaceUriToPrefixMappings) {
-		this.namespacesUriMappings = namespaceUriToPrefixMappings;
-		this.prefixMappings = new LinkedHashMap<>();
-		for (final Map.Entry<String, Collection<String>> namespaceUriToPrefixMapping : this.namespacesUriMappings.entrySet()) {
-			for (final String prefix : namespaceUriToPrefixMapping.getValue()) {
-				this.prefixMappings.put(prefix, namespaceUriToPrefixMapping.getKey());
-			}
-		}
-	}
+    AbstractNamespaceHolder(final Map<String, Collection<String>> namespaceUriToPrefixMappings) {
+        this.namespacesUriMappings = namespaceUriToPrefixMappings;
+        this.prefixMappings = new LinkedHashMap<>();
+        for (final Map.Entry<String, Collection<String>> namespaceUriToPrefixMapping : this.namespacesUriMappings.entrySet()) {
+            for (final String prefix : namespaceUriToPrefixMapping.getValue()) {
+                this.prefixMappings.put(prefix, namespaceUriToPrefixMapping.getKey());
+            }
+        }
+    }
 
-	@Override
-	public Map<String, Iterable<String>> getNamespacesAsMap() {
-		return Collections.unmodifiableMap(namespacesUriMappings);
-	}
+    @Override
+    public Map<String, Iterable<String>> getNamespacesAsMap() {
+        return Collections.unmodifiableMap(namespacesUriMappings);
+    }
 
-	@Override
-	public String getNamespaceURI(final String prefix) {
-		return prefixMappings.get(prefix);
-	}
+    @Override
+    public String getNamespaceURI(final String prefix) {
+        return prefixMappings.get(prefix);
+    }
 
-	@Override
-	public String getPrefix(final String namespaceUri) {
-		if (namespaceUri != null) {
-			final Iterable<String> ps = namespacesUriMappings.get(namespaceUri);
-			if (ps != null) {
-				return ps.iterator().next();
-			}
-		}
-		return null;
-	}
+    @Override
+    public String getPrefix(final String namespaceUri) {
+        if (namespaceUri != null) {
+            final Iterable<String> ps = namespacesUriMappings.get(namespaceUri);
+            if (ps != null) {
+                return ps.iterator().next();
+            }
+        }
+        return null;
+    }
 
-	@Override
-	public Iterator<String> getPrefixes(final String namespaceUri) {
-		return namespacesUriMappings.get(namespaceUri).iterator();
-	}
+    @Override
+    public Iterator<String> getPrefixes(final String namespaceUri) {
+        return namespacesUriMappings.get(namespaceUri).iterator();
+    }
 
-	@Override
-	public int prefixesSize() {
-		return prefixMappings.size();
-	}
+    @Override
+    public int prefixesSize() {
+        return prefixMappings.size();
+    }
 }

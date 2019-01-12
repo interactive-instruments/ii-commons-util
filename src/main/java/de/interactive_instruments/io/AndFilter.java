@@ -27,32 +27,32 @@ import java.util.Objects;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class AndFilter implements MultiFileFilter {
-	private final FileFilter[] fileFilters;
+    private final FileFilter[] fileFilters;
 
-	AndFilter(final FileFilter... fileFilters) {
-		this.fileFilters = Objects.requireNonNull(fileFilters, "Filters are null");
-	}
+    AndFilter(final FileFilter... fileFilters) {
+        this.fileFilters = Objects.requireNonNull(fileFilters, "Filters are null");
+    }
 
-	public AndFilter(final MultiFileFilter multiFileFilter, final FileFilter[] fileFilters) {
-		if (fileFilters == null) {
-			this.fileFilters = new FileFilter[1];
-			this.fileFilters[0] = multiFileFilter;
-		} else {
-			this.fileFilters = new FileFilter[fileFilters.length + 1];
-			this.fileFilters[0] = multiFileFilter;
-			for (int i = 0; i < this.fileFilters.length; i++) {
-				this.fileFilters[i + 1] = fileFilters[i];
-			}
-		}
-	}
+    public AndFilter(final MultiFileFilter multiFileFilter, final FileFilter[] fileFilters) {
+        if (fileFilters == null) {
+            this.fileFilters = new FileFilter[1];
+            this.fileFilters[0] = multiFileFilter;
+        } else {
+            this.fileFilters = new FileFilter[fileFilters.length + 1];
+            this.fileFilters[0] = multiFileFilter;
+            for (int i = 0; i < this.fileFilters.length; i++) {
+                this.fileFilters[i + 1] = fileFilters[i];
+            }
+        }
+    }
 
-	@Override
-	public boolean accept(final File pathname) {
-		for (int i = 1; i < this.fileFilters.length; i++) {
-			if (!fileFilters[i].accept(pathname)) {
-				return false;
-			}
-		}
-		return true;
-	}
+    @Override
+    public boolean accept(final File pathname) {
+        for (int i = 1; i < this.fileFilters.length; i++) {
+            if (!fileFilters[i].accept(pathname)) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

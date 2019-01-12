@@ -32,35 +32,35 @@ import de.interactive_instruments.exceptions.ContainerFactoryException;
  */
 public interface ContainerFactory {
 
-	/**
-	 * Creates a container with a mime type
-	 *
-	 * @param name
-	 * @param mimeType
-	 * @param str
-	 * @return
-	 */
-	LazyLoadContainer create(String name, String mimeType, String str) throws ContainerFactoryException;
+    /**
+     * Creates a container with a mime type
+     *
+     * @param name
+     * @param mimeType
+     * @param str
+     * @return
+     */
+    LazyLoadContainer create(String name, String mimeType, String str) throws ContainerFactoryException;
 
-	/**
-	 * Creates a container and sets container content type to a default or guesses it
-	 *
-	 * @param name
-	 * @param str
-	 * @return
-	 */
-	LazyLoadContainer create(String name, String str) throws ContainerFactoryException;
+    /**
+     * Creates a container and sets container content type to a default or guesses it
+     *
+     * @param name
+     * @param str
+     * @return
+     */
+    LazyLoadContainer create(String name, String str) throws ContainerFactoryException;
 
-	/**
-	 * Base URI that is used for storing container content
-	 *
-	 * @return
-	 */
-	URI getUri();
+    /**
+     * Base URI that is used for storing container content
+     *
+     * @return
+     */
+    URI getUri();
 
-	URI getNewReferencedContainerStoreUri() throws ContainerFactoryException;
+    URI getNewReferencedContainerStoreUri() throws ContainerFactoryException;
 
-	LazyLoadContainer createReferencedContainer(String name, URI uri) throws ContainerFactoryException;
+    LazyLoadContainer createReferencedContainer(String name, URI uri) throws ContainerFactoryException;
 
-	LazyLoadContainer createReferencedContainer(String name, String mimeType, URI uri) throws ContainerFactoryException;
+    LazyLoadContainer createReferencedContainer(String name, String mimeType, URI uri) throws ContainerFactoryException;
 }

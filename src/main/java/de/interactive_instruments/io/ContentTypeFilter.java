@@ -33,30 +33,30 @@ import de.interactive_instruments.exceptions.MimeTypeUtilsException;
  */
 public class ContentTypeFilter implements MultiFileFilter {
 
-	private final Set<String> allowedMimeTypes;
+    private final Set<String> allowedMimeTypes;
 
-	public ContentTypeFilter(final Set<String> allowedMimeTypes) {
-		this.allowedMimeTypes = Objects.requireNonNull(allowedMimeTypes);
-	}
+    public ContentTypeFilter(final Set<String> allowedMimeTypes) {
+        this.allowedMimeTypes = Objects.requireNonNull(allowedMimeTypes);
+    }
 
-	public ContentTypeFilter(final String... allowedMimeTypes) {
-		this.allowedMimeTypes = new HashSet<>(Arrays.asList(allowedMimeTypes));
-	}
+    public ContentTypeFilter(final String... allowedMimeTypes) {
+        this.allowedMimeTypes = new HashSet<>(Arrays.asList(allowedMimeTypes));
+    }
 
-	public Set<String> getAllowedMimeTypes() {
-		return allowedMimeTypes;
-	}
+    public Set<String> getAllowedMimeTypes() {
+        return allowedMimeTypes;
+    }
 
-	public boolean accept(final String mimeType) {
-		return allowedMimeTypes.contains(mimeType);
-	}
+    public boolean accept(final String mimeType) {
+        return allowedMimeTypes.contains(mimeType);
+    }
 
-	@Override
-	public boolean accept(final File path) {
-		try {
-			return allowedMimeTypes.contains(MimeTypeUtils.detectMimeType(path));
-		} catch (MimeTypeUtilsException e) {
-			return false;
-		}
-	}
+    @Override
+    public boolean accept(final File path) {
+        try {
+            return allowedMimeTypes.contains(MimeTypeUtils.detectMimeType(path));
+        } catch (MimeTypeUtilsException e) {
+            return false;
+        }
+    }
 }

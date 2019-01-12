@@ -23,11 +23,11 @@ package de.interactive_instruments.exceptions;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class ContainerFactoryException extends Exception {
-	public ContainerFactoryException(String message) {
-		super(message);
-	}
+    public ContainerFactoryException(String message) {
+        super(message);
+    }
 
-	public ContainerFactoryException(Throwable cause) {
-		super(cause);
-	}
+    public ContainerFactoryException(Throwable cause) {
+        super(cause);
+    }
 }

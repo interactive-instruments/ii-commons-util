@@ -40,99 +40,101 @@ import de.interactive_instruments.exceptions.ExcUtils;
 @XmlRootElement(name = "ID", namespace = II_Constants.XML_SCHEMA_NS_URI)
 public class DefaultId implements Id {
 
-	@XmlValue
-	private String id;
+    @XmlValue
+    private String id;
 
-	/**
-	 * Private C'tor
-	 */
-	private DefaultId() {}
+    /**
+     * Private C'tor
+     */
+    private DefaultId() {}
 
-	/**
-	 * Creates an Id object from an string
-	 *
-	 * @param id string
-	 */
-	DefaultId(final String id) {
-		this.id = id;
-	}
+    /**
+     * Creates an Id object from an string
+     *
+     * @param id
+     *            string
+     */
+    DefaultId(final String id) {
+        this.id = id;
+    }
 
-	/**
-	 * Creates an Id object from an UUID
-	 *
-	 * @param uuid UUID
-	 */
-	DefaultId(final UUID uuid) {
-		this.id = uuid.toString();
-	}
+    /**
+     * Creates an Id object from an UUID
+     *
+     * @param uuid
+     *            UUID
+     */
+    DefaultId(final UUID uuid) {
+        this.id = uuid.toString();
+    }
 
-	@Override
-	public String getId() {
-		return id;
-	}
+    @Override
+    public String getId() {
+        return id;
+    }
 
-	/**
-	 * Sets the internal Id as string without generating an UUID!
-	 *
-	 * @param id as string
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
+    /**
+     * Sets the internal Id as string without generating an UUID!
+     *
+     * @param id
+     *            as string
+     */
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	/**
-	 * Returns the Id as string
-	 *
-	 * @return A string or an UUID as string
-	 */
-	@Override
-	public String toString() {
-		return id;
-	}
+    /**
+     * Returns the Id as string
+     *
+     * @return A string or an UUID as string
+     */
+    @Override
+    public String toString() {
+        return id;
+    }
 
-	/**
-	 * Returns the id in UUID representation if possible
-	 * or returns a generated UUID hash
-	 *
-	 * @return UUID from string or UUID hash from string
-	 */
-	public UUID toUuid() {
-		try {
-			if (id.length() == 36) {
-				return UUID.fromString(id);
-			}
-		} catch (IllegalArgumentException e) {
-			ExcUtils.suppress(e);
-		}
-		return UUID.nameUUIDFromBytes(id.getBytes());
-	}
+    /**
+     * Returns the id in UUID representation if possible or returns a generated UUID hash
+     *
+     * @return UUID from string or UUID hash from string
+     */
+    public UUID toUuid() {
+        try {
+            if (id.length() == 36) {
+                return UUID.fromString(id);
+            }
+        } catch (IllegalArgumentException e) {
+            ExcUtils.suppress(e);
+        }
+        return UUID.nameUUIDFromBytes(id.getBytes());
+    }
 
-	@Override
-	public int compareTo(Object o) {
-		if (o instanceof Id) {
-			return id.compareTo(((Id) o).getId());
-		} else {
-			return o.toString().compareTo(o.toString());
-		}
-	}
+    @Override
+    public int compareTo(Object o) {
+        if (o instanceof Id) {
+            return id.compareTo(((Id) o).getId());
+        } else {
+            return o.toString().compareTo(o.toString());
+        }
+    }
 
-	/**
-	 * Compare an EID, a String or an UUID against an object
-	 *
-	 * @param obj the object to compare this {@code EID} against
-	 * @return {@code true} if the given object represents a {@code EID}, {@code String} or {@code UUID}
-	 *          equivalent to this Id, {@code false} otherwise
-	 */
-	@Override
-	public boolean equals(final Object obj) {
-		if (!(obj instanceof Id) && !(obj instanceof String)) {
-			return obj instanceof UUID && this.toUuid().equals(obj);
-		}
-		return this.id.equals(obj.toString());
-	}
+    /**
+     * Compare an EID, a String or an UUID against an object
+     *
+     * @param obj
+     *            the object to compare this {@code EID} against
+     * @return {@code true} if the given object represents a {@code EID}, {@code String} or {@code UUID} equivalent to this Id, {@code false} otherwise
+     */
+    @Override
+    public boolean equals(final Object obj) {
+        if (!(obj instanceof Id) && !(obj instanceof String)) {
+            return obj instanceof UUID && this.toUuid().equals(obj);
+        }
+        return this.id.equals(obj.toString());
+    }
 
-	@Override
-	public int hashCode() {
-		return id.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
 }

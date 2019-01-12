@@ -26,12 +26,12 @@ package de.interactive_instruments.model.std;
  */
 public interface RetrievableItemMap<T extends RetrievableItem> extends IdMap<T> {
 
-	/**
-	 * Associates the specified value with the specified RetrievableItem in this map
-	 *
-	 * @param m value
-	 * @return the previous value associated with <tt>key</tt>, or
-	 *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
-	 */
-	T put(T m);
+    /**
+     * Associates the specified value with the specified RetrievableItem in this map
+     *
+     * @param m
+     *            value
+     * @return the previous value associated with <tt>key</tt>, or <tt>null</tt> if there was no mapping for <tt>key</tt>.
+     */
+    T put(T m);
 }

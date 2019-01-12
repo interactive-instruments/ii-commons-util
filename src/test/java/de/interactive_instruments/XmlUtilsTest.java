@@ -29,9 +29,9 @@ import org.junit.Test;
  */
 public class XmlUtilsTest {
 
-	@Test
-	public void isWellFormed() {
-		assertTrue(XmlUtils.isWellFormed("<xml><bla>foo</bla></xml>"));
-		assertFalse(XmlUtils.isWellFormed("<xml><bla>foo<bla></xml>"));
-	}
+    @Test
+    public void isWellFormed() {
+        assertTrue(XmlUtils.isWellFormed("<xml><bla>foo</bla></xml>"));
+        assertFalse(XmlUtils.isWellFormed("<xml><bla>foo<bla></xml>"));
+    }
 }

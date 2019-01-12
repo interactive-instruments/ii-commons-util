@@ -28,35 +28,30 @@ import java.util.Map;
  */
 public interface MediaType extends Comparable<MediaType> {
 
-	/**
-	 * Returns the base form of the MediaType, excluding
-	 *  any parameters, such as "text/plain" for
-	 *  "text/plain; charset=utf-8"
-	 */
-	MediaType getBaseType();
+    /**
+     * Returns the base form of the MediaType, excluding any parameters, such as "text/plain" for "text/plain; charset=utf-8"
+     */
+    MediaType getBaseType();
 
-	/**
-	 * Return the Type of the MediaType, such as
-	 *  "text" for "text/plain"
-	 */
-	String getType();
+    /**
+     * Return the Type of the MediaType, such as "text" for "text/plain"
+     */
+    String getType();
 
-	/**
-	 * Return the Sub-Type of the MediaType,
-	 *  such as "plain" for "text/plain"
-	 */
-	String getSubtype();
+    /**
+     * Return the Sub-Type of the MediaType, such as "plain" for "text/plain"
+     */
+    String getSubtype();
 
-	/**
-	 * Returns an immutable sorted map of the parameters of this media type.
-	 * The parameter names are guaranteed to be trimmed and in lower case.
-	 *
-	 * @return sorted map of parameters
-	 */
-	Map<String, String> getParameters();
+    /**
+     * Returns an immutable sorted map of the parameters of this media type. The parameter names are guaranteed to be trimmed and in lower case.
+     *
+     * @return sorted map of parameters
+     */
+    Map<String, String> getParameters();
 
-	@Override
-	default int compareTo(MediaType o) {
-		return this.toString().compareTo(o.toString());
-	}
+    @Override
+    default int compareTo(MediaType o) {
+        return this.toString().compareTo(o.toString());
+    }
 }

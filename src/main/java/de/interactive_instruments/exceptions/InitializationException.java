@@ -24,15 +24,15 @@ package de.interactive_instruments.exceptions;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class InitializationException extends Exception {
-	public InitializationException(String msg, Throwable e) {
-		super(msg + " " + e.getMessage());
-	}
+    public InitializationException(String msg, Throwable e) {
+        super(msg + " " + e.getMessage());
+    }
 
-	public InitializationException(Throwable e) {
-		super("Initialization Failed. " + e.getMessage());
-	}
+    public InitializationException(Throwable e) {
+        super("Initialization Failed. " + e.getMessage());
+    }
 
-	public InitializationException(String msg) {
-		super(msg);
-	}
+    public InitializationException(String msg) {
+        super(msg);
+    }
 }

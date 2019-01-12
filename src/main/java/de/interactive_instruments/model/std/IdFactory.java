@@ -28,38 +28,40 @@ import java.util.UUID;
  */
 public interface IdFactory {
 
-	/**
-	 * Creates a random UUID
-	 *
-	 * @return new Id object
-	 */
-	Id createRandomUuid();
+    /**
+     * Creates a random UUID
+     *
+     * @return new Id object
+     */
+    Id createRandomUuid();
 
-	/**
-	 * Create an Id object from a String, preserves the String as identifier.
-	 *
-	 * @param str an id string
-	 * @return new Id object which holds the string
-	 */
-	Id createFromStrAndPreserve(String str);
+    /**
+     * Create an Id object from a String, preserves the String as identifier.
+     *
+     * @param str
+     *            an id string
+     * @return new Id object which holds the string
+     */
+    Id createFromStrAndPreserve(String str);
 
-	/**
-	 * Create an UUID from the string standard representation.
-	 *
-	 * @param str a string
-	 * @return new Id object which holds an UUID
-	 */
-	Id createFromStrAsUuid(String str);
+    /**
+     * Create an UUID from the string standard representation.
+     *
+     * @param str
+     *            a string
+     * @return new Id object which holds an UUID
+     */
+    Id createFromStrAsUuid(String str);
 
-	/**
-	 * Creates an Id object from an UUID, preserves the UUID
-	 *
-	 * @param uuid
-	 * @return
-	 */
-	Id createFromUuid(UUID uuid);
+    /**
+     * Creates an Id object from an UUID, preserves the UUID
+     *
+     * @param uuid
+     * @return
+     */
+    Id createFromUuid(UUID uuid);
 
-	static IdFactory getDefault() {
-		return new DefaultIdFactory();
-	}
+    static IdFactory getDefault() {
+        return new DefaultIdFactory();
+    }
 }

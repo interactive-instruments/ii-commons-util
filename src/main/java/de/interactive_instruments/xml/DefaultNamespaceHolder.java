@@ -28,18 +28,18 @@ import java.util.Map;
  */
 public final class DefaultNamespaceHolder extends AbstractNamespaceHolder implements NamespaceHolder {
 
-	private final String defaultNamespaceUri;
+    private final String defaultNamespaceUri;
 
-	public DefaultNamespaceHolder(
-			final String defaultNamespaceUri,
-			final Map<String, Collection<String>> namespacesUriMappings,
-			final Map<String, String> prefixMappings) {
-		super(Collections.unmodifiableMap(namespacesUriMappings), Collections.unmodifiableMap(prefixMappings));
-		this.defaultNamespaceUri = defaultNamespaceUri;
-	}
+    public DefaultNamespaceHolder(
+            final String defaultNamespaceUri,
+            final Map<String, Collection<String>> namespacesUriMappings,
+            final Map<String, String> prefixMappings) {
+        super(Collections.unmodifiableMap(namespacesUriMappings), Collections.unmodifiableMap(prefixMappings));
+        this.defaultNamespaceUri = defaultNamespaceUri;
+    }
 
-	@Override
-	public String getDefaultNamespaceUri() {
-		return defaultNamespaceUri;
-	}
+    @Override
+    public String getDefaultNamespaceUri() {
+        return defaultNamespaceUri;
+    }
 }

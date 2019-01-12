@@ -25,23 +25,23 @@ import java.util.Map;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class XmlMediaType implements MediaType {
-	@Override
-	public MediaType getBaseType() {
-		return null;
-	}
+    @Override
+    public MediaType getBaseType() {
+        return null;
+    }
 
-	@Override
-	public String getType() {
-		return null;
-	}
+    @Override
+    public String getType() {
+        return null;
+    }
 
-	@Override
-	public String getSubtype() {
-		return null;
-	}
+    @Override
+    public String getSubtype() {
+        return null;
+    }
 
-	@Override
-	public Map<String, String> getParameters() {
-		return null;
-	}
+    @Override
+    public Map<String, String> getParameters() {
+        return null;
+    }
 }

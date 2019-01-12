@@ -25,12 +25,12 @@ package de.interactive_instruments.xml;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface MutableNamespaceHolder extends NamespaceHolder {
-	/**
-	 * Add namespace URI and its namespace prefix
-	 *
-	 * @param namespaceUri
-	 * @param prefix
-	 * @return MutableNamespaceHolder
-	 */
-	void addNamespaceUriAndPrefix(String namespaceUri, String prefix);
+    /**
+     * Add namespace URI and its namespace prefix
+     *
+     * @param namespaceUri
+     * @param prefix
+     * @return MutableNamespaceHolder
+     */
+    void addNamespaceUriAndPrefix(String namespaceUri, String prefix);
 }

@@ -34,13 +34,13 @@ import de.interactive_instruments.IFile;
  * @see de.interactive_instruments.IFile
  */
 public final class IFileXmlAdapter extends XmlAdapter<File, IFile> {
-	@Override
-	public IFile unmarshal(final File file) {
-		return new IFile(file.getPath());
-	}
+    @Override
+    public IFile unmarshal(final File file) {
+        return new IFile(file.getPath());
+    }
 
-	@Override
-	public File marshal(final IFile file) {
-		return new File(file.getPath());
-	}
+    @Override
+    public File marshal(final IFile file) {
+        return new File(file.getPath());
+    }
 }

@@ -23,11 +23,11 @@ package de.interactive_instruments.exceptions;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class InvalidParameterException extends Exception {
-	public InvalidParameterException(String parameter, Throwable e) {
-		super("Parameter " + parameter + " is invalid: " + e.getMessage(), e);
-	}
+    public InvalidParameterException(String parameter, Throwable e) {
+        super("Parameter " + parameter + " is invalid: " + e.getMessage(), e);
+    }
 
-	protected InvalidParameterException(String msg) {
-		super(msg);
-	}
+    protected InvalidParameterException(String msg) {
+        super(msg);
+    }
 }

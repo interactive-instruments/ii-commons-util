@@ -22,56 +22,58 @@ package de.interactive_instruments.model.std;
 import de.interactive_instruments.Releasable;
 
 /**
- * An abstract class for managing objects that implement the RetrievableItem and the Releasable
- * interface.
+ * An abstract class for managing objects that implement the RetrievableItem and the Releasable interface.
  *
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public abstract class ManagedItemRegistry<T extends RetrievableItem & Releasable> implements Releasable {
 
-	private final DefaultRetrievableItemMap<T> managedObjects = new DefaultRetrievableItemMap<T>();
+    private final DefaultRetrievableItemMap<T> managedObjects = new DefaultRetrievableItemMap<T>();
 
-	/**
-	 * Registers a managed item
-	 *
-	 * @param managedItem item to register
-	 */
-	public void register(T managedItem) {
-		managedObjects.put(managedItem);
-	}
+    /**
+     * Registers a managed item
+     *
+     * @param managedItem
+     *            item to register
+     */
+    public void register(T managedItem) {
+        managedObjects.put(managedItem);
+    }
 
-	/**
-	 * Unregisters the managed item.
-	 *
-	 * NOTE: does not call release() method of the managed object
-	 *
-	 * @param managedItem item to unregister
-	 */
-	public void unregister(T managedItem) {
-		this.managedObjects.remove(managedItem.getId());
-	}
+    /**
+     * Unregisters the managed item.
+     *
+     * NOTE: does not call release() method of the managed object
+     *
+     * @param managedItem
+     *            item to unregister
+     */
+    public void unregister(T managedItem) {
+        this.managedObjects.remove(managedItem.getId());
+    }
 
-	/**
-	 * Gets the managed item
-	 *
-	 * @param id managed item Id
-	 * @return managed item
-	 */
-	public T getById(final Id id) {
-		return managedObjects.get(id);
-	}
+    /**
+     * Gets the managed item
+     *
+     * @param id
+     *            managed item Id
+     * @return managed item
+     */
+    public T getById(final Id id) {
+        return managedObjects.get(id);
+    }
 
-	/**
-	 * Releases all managed items
-	 */
-	@Override
-	public void release() {
-		managedObjects.values().forEach(m -> m.release());
-		managedObjects.clear();
-	}
+    /**
+     * Releases all managed items
+     */
+    @Override
+    public void release() {
+        managedObjects.values().forEach(m -> m.release());
+        managedObjects.clear();
+    }
 
-	@Override
-	public void finalize() {
-		release();
-	}
+    @Override
+    public void finalize() {
+        release();
+    }
 }

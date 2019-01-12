@@ -28,27 +28,27 @@ import java.util.Objects;
  */
 class OrFilter implements MultiFileFilter {
 
-	private final FileFilter[] fileFilters;
+    private final FileFilter[] fileFilters;
 
-	OrFilter(final FileFilter... fileFilters) {
-		this.fileFilters = Objects.requireNonNull(fileFilters, "Filters are null");
-	}
+    OrFilter(final FileFilter... fileFilters) {
+        this.fileFilters = Objects.requireNonNull(fileFilters, "Filters are null");
+    }
 
-	public OrFilter(final MultiFileFilter multiFileFilter, final FileFilter[] fileFilters) {
-		this.fileFilters = new FileFilter[fileFilters.length + 1];
-		this.fileFilters[0] = multiFileFilter;
-		for (int i = 1; i < this.fileFilters.length; i++) {
-			this.fileFilters[i] = fileFilters[i];
-		}
-	}
+    public OrFilter(final MultiFileFilter multiFileFilter, final FileFilter[] fileFilters) {
+        this.fileFilters = new FileFilter[fileFilters.length + 1];
+        this.fileFilters[0] = multiFileFilter;
+        for (int i = 1; i < this.fileFilters.length; i++) {
+            this.fileFilters[i] = fileFilters[i];
+        }
+    }
 
-	@Override
-	public boolean accept(final File pathname) {
-		for (int i = 0, fileFiltersLength = fileFilters.length; i < fileFiltersLength; i++) {
-			if (fileFilters[i].accept(pathname)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    @Override
+    public boolean accept(final File pathname) {
+        for (int i = 0, fileFiltersLength = fileFilters.length; i < fileFiltersLength; i++) {
+            if (fileFilters[i].accept(pathname)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -31,12 +31,12 @@ import de.interactive_instruments.IFile;
  */
 public interface RepositoryFactory {
 
-	Repository createRepository(final IFile localDir, final URI uri, final Credentials credentials,
-			final Set<String> groupFilter) throws IOException;
+    Repository createRepository(final IFile localDir, final URI uri, final Credentials credentials,
+            final Set<String> groupFilter) throws IOException;
 
-	Repository createRepository(final IFile localDir, final URI uri, final Credentials credentials) throws IOException;
+    Repository createRepository(final IFile localDir, final URI uri, final Credentials credentials) throws IOException;
 
-	default Repository createRepository(final IFile localDir, final URI uri) throws IOException {
-		return createRepository(localDir, uri, null);
-	}
+    default Repository createRepository(final IFile localDir, final URI uri) throws IOException {
+        return createRepository(localDir, uri, null);
+    }
 }

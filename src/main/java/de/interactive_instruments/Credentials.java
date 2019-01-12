@@ -31,69 +31,68 @@ import de.interactive_instruments.properties.PropertyHolder;
  */
 public class Credentials {
 
-	private final String username;
-	private final String password;
+    private final String username;
+    private final String password;
 
-	/**
-	 * Constructs new Credentials, when both username and password are not set
-	 * the method isEmpty() returns true.
-	 *
-	 * @param username
-	 * @param password
-	 */
-	public Credentials(final String username, final String password) {
-		this.username = username;
-		this.password = password;
-	}
+    /**
+     * Constructs new Credentials, when both username and password are not set the method isEmpty() returns true.
+     *
+     * @param username
+     * @param password
+     */
+    public Credentials(final String username, final String password) {
+        this.username = username;
+        this.password = password;
+    }
 
-	public static Credentials fromProperties(final PropertyHolder holder) {
-		if (holder == null || !holder.hasProperty("username")) {
-			return null;
-		}
-		return new Credentials(
-				holder.getProperty("username"), holder.getProperty("password"));
-	}
+    public static Credentials fromProperties(final PropertyHolder holder) {
+        if (holder == null || !holder.hasProperty("username")) {
+            return null;
+        }
+        return new Credentials(
+                holder.getProperty("username"), holder.getProperty("password"));
+    }
 
-	public static Credentials fromProperties(final Properties properties) {
-		if (properties == null || !properties.hasProperty("username")) {
-			return null;
-		}
-		return new Credentials(
-				properties.getProperty("username"), properties.getProperty("password"));
-	}
+    public static Credentials fromProperties(final Properties properties) {
+        if (properties == null || !properties.hasProperty("username")) {
+            return null;
+        }
+        return new Credentials(
+                properties.getProperty("username"), properties.getProperty("password"));
+    }
 
-	public static Credentials fromMap(final Map<String, String> map) {
-		if (map == null || !map.containsKey("username")) {
-			return null;
-		}
-		return new Credentials(
-				map.get("username"), map.get("password"));
-	}
+    public static Credentials fromMap(final Map<String, String> map) {
+        if (map == null || !map.containsKey("username")) {
+            return null;
+        }
+        return new Credentials(
+                map.get("username"), map.get("password"));
+    }
 
-	public String getUsername() {
-		return username;
-	}
+    public String getUsername() {
+        return username;
+    }
 
-	public boolean checkPassword(final String password) {
-		return Objects.equals(this.password, password);
-	}
+    public boolean checkPassword(final String password) {
+        return Objects.equals(this.password, password);
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public boolean isEmpty() {
-		return SUtils.isNullOrEmpty(username) && SUtils.isNullOrEmpty(password);
-	}
+    public boolean isEmpty() {
+        return SUtils.isNullOrEmpty(username) && SUtils.isNullOrEmpty(password);
+    }
 
-	public String toBasicAuth() {
-		final String userpass = username + ":" + password;
-		return "Basic " + javax.xml.bind.DatatypeConverter.printBase64Binary(
-				userpass.getBytes());
-	}
+    public String toBasicAuth() {
+        final String userpass = username + ":" + password;
+        return "Basic " + javax.xml.bind.DatatypeConverter.printBase64Binary(
+                userpass.getBytes());
+    }
 
-	@Override
-	public String toString() {
-		return this.username + ":*******";
-	}
+    @Override
+    public String toString() {
+        return this.username + ":*******";
+    }
 }

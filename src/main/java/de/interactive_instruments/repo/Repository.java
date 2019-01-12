@@ -33,53 +33,55 @@ import de.interactive_instruments.IFile;
  */
 public interface Repository {
 
-	/**
-	 * Get path to local directory
-	 *
-	 * @return
-	 */
-	IFile getLocalDirectory();
+    /**
+     * Get path to local directory
+     *
+     * @return
+     */
+    IFile getLocalDirectory();
 
-	/**
-	 * List artifacts in the local directory
-	 *
-	 * @return
-	 */
-	Map<String, Artifact> getLocalArtifacts();
+    /**
+     * List artifacts in the local directory
+     *
+     * @return
+     */
+    Map<String, Artifact> getLocalArtifacts();
 
-	/**
-	 * Get remote repository URI
-	 *
-	 * @return
-	 */
-	URI getRemote();
+    /**
+     * Get remote repository URI
+     *
+     * @return
+     */
+    URI getRemote();
 
-	/**
-	 * Get remote artifacts in repository
-	 *
-	 * @return
-	 */
-	Map<String, Artifact> getRemoteArtifacts(boolean latestVersionOnly);
+    /**
+     * Get remote artifacts in repository
+     *
+     * @return
+     */
+    Map<String, Artifact> getRemoteArtifacts(boolean latestVersionOnly);
 
-	interface SyncCmd {
-		/**
-		 * Synchronizes the local repo with the remote repo
-		 * @throws IOException
-		 */
-		void sync() throws IOException;
+    interface SyncCmd {
+        /**
+         * Synchronizes the local repo with the remote repo
+         *
+         * @throws IOException
+         */
+        void sync() throws IOException;
 
-		/**
-		 * Returns the artifacts that will be synced
-		 * @return
-		 */
-		Set<Artifact> getCandidates();
-	}
+        /**
+         * Returns the artifacts that will be synced
+         *
+         * @return
+         */
+        Set<Artifact> getCandidates();
+    }
 
-	/**
-	 * Sync with remote repository, returns all updated artifacts
-	 *
-	 * @return
-	 */
-	SyncCmd prepareSync();
+    /**
+     * Sync with remote repository, returns all updated artifacts
+     *
+     * @return
+     */
+    SyncCmd prepareSync();
 
 }

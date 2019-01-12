@@ -28,10 +28,10 @@ import org.apache.commons.io.FileUtils;
  */
 public class IOsizeLimitExceededException extends IOException {
 
-	final long maxSize;
+    final long maxSize;
 
-	public IOsizeLimitExceededException(final long maxSize) {
-		super("Size limit of " + FileUtils.byteCountToDisplaySize(maxSize > 0 ? maxSize : 0) + " exceeded");
-		this.maxSize = maxSize;
-	}
+    public IOsizeLimitExceededException(final long maxSize) {
+        super("Size limit of " + FileUtils.byteCountToDisplaySize(maxSize > 0 ? maxSize : 0) + " exceeded");
+        this.maxSize = maxSize;
+    }
 }

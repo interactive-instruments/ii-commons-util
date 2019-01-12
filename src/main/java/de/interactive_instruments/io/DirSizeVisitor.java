@@ -32,51 +32,55 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 public class DirSizeVisitor implements FileVisitor<Path> {
 
-	private long size = 0;
-	private final PathFilter filter;
+    private long size = 0;
+    private final PathFilter filter;
 
-	/**
-	 * Calculate size of filtered files in the directory
-	 * @param filter A PathFilter or null
-	 * @param filter PathFilter
-	 */
-	public DirSizeVisitor(PathFilter filter) {
-		if (filter == null) {
-			this.filter = (p) -> true;
-		} else {
-			this.filter = filter;
-		}
-	}
+    /**
+     * Calculate size of filtered files in the directory
+     *
+     * @param filter
+     *            A PathFilter or null
+     * @param filter
+     *            PathFilter
+     */
+    public DirSizeVisitor(PathFilter filter) {
+        if (filter == null) {
+            this.filter = (p) -> true;
+        } else {
+            this.filter = filter;
+        }
+    }
 
-	/**
-	 * Get calculated size
-	 * @return
-	 */
-	public long getSize() {
-		return size;
-	}
+    /**
+     * Get calculated size
+     *
+     * @return
+     */
+    public long getSize() {
+        return size;
+    }
 
-	@Override
-	public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-		return FileVisitResult.CONTINUE;
-	}
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
 
-	@Override
-	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-		if (filter.accept(file)) {
-			size += attrs.size();
-		}
-		return FileVisitResult.CONTINUE;
-	}
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        if (filter.accept(file)) {
+            size += attrs.size();
+        }
+        return FileVisitResult.CONTINUE;
+    }
 
-	@Override
-	public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-		return FileVisitResult.CONTINUE;
-	}
+    @Override
+    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
 
-	@Override
-	public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-		return FileVisitResult.CONTINUE;
-	}
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
 
 }

@@ -33,17 +33,17 @@ import org.junit.Test;
  */
 public class TestUriModificationCheck {
 
-	@Test
-	public void testModificationCheckNonChangingHash() throws URISyntaxException, IOException {
-		final URI url = new URI("http://www.interactive-instruments.de");
-		final UriModificationCheck check = new UriModificationCheck(url, null);
-		assertNull(check.getIfModified());
-	}
+    @Test
+    public void testModificationCheckNonChangingHash() throws URISyntaxException, IOException {
+        final URI url = new URI("http://www.interactive-instruments.de");
+        final UriModificationCheck check = new UriModificationCheck(url, null);
+        assertNull(check.getIfModified());
+    }
 
-	@Test
-	public void testModificationCheckChangedHash() throws URISyntaxException, IOException {
-		final URI url = new URI("https://time.is");
-		final UriModificationCheck check = new UriModificationCheck(url, null);
-		assertNotNull(check.getIfModified());
-	}
+    @Test
+    public void testModificationCheckChangedHash() throws URISyntaxException, IOException {
+        final URI url = new URI("https://time.is");
+        final UriModificationCheck check = new UriModificationCheck(url, null);
+        assertNotNull(check.getIfModified());
+    }
 }

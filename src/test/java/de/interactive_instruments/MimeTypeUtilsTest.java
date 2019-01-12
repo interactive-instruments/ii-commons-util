@@ -33,19 +33,19 @@ import de.interactive_instruments.exceptions.MimeTypeUtilsException;
  */
 public class MimeTypeUtilsTest {
 
-	@Test
-	public void testGetParent() throws IOException, MimeTypeUtilsException, URISyntaxException {
+    @Test
+    public void testGetParent() throws IOException, MimeTypeUtilsException, URISyntaxException {
 
-		final ClassLoader classLoader = getClass().getClassLoader();
-		final IFile xmlFile = new IFile(classLoader.getResource(
-				"MimeTypeUtilsTest/xmlFile.xml").toURI());
+        final ClassLoader classLoader = getClass().getClassLoader();
+        final IFile xmlFile = new IFile(classLoader.getResource(
+                "MimeTypeUtilsTest/xmlFile.xml").toURI());
 
-		System.out.println(
-				classLoader.getResource(
-						"MimeTypeUtilsTest/xmlFile.xml").getFile());
+        System.out.println(
+                classLoader.getResource(
+                        "MimeTypeUtilsTest/xmlFile.xml").getFile());
 
-		xmlFile.expectFileIsReadable();
+        xmlFile.expectFileIsReadable();
 
-		assertEquals("application/xml", MimeTypeUtils.detectMimeType(xmlFile));
-	}
+        assertEquals("application/xml", MimeTypeUtils.detectMimeType(xmlFile));
+    }
 }

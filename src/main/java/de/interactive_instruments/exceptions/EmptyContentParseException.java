@@ -26,11 +26,11 @@ package de.interactive_instruments.exceptions;
  */
 public class EmptyContentParseException extends ParseException {
 
-	public EmptyContentParseException(final String errMessage, final String target, final int errorOffset) {
-		super(errMessage, target, errorOffset);
-	}
+    public EmptyContentParseException(final String errMessage, final String target, final int errorOffset) {
+        super(errMessage, target, errorOffset);
+    }
 
-	public EmptyContentParseException(final String errMessage, final String target) {
-		super(errMessage, target);
-	}
+    public EmptyContentParseException(final String errMessage, final String target) {
+        super(errMessage, target);
+    }
 }

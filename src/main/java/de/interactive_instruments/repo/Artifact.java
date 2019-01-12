@@ -31,36 +31,36 @@ import de.interactive_instruments.Version;
  */
 public interface Artifact {
 
-	/**
-	 * Returns unique artifact ID
-	 */
-	String getId();
+    /**
+     * Returns unique artifact ID
+     */
+    String getId();
 
-	/**
-	 * Get artifact name
-	 *
-	 * @return
-	 */
-	String getName();
+    /**
+     * Get artifact name
+     *
+     * @return
+     */
+    String getName();
 
-	/**
-	 * Get artifact group name
-	 *
-	 * @return
-	 */
-	String getGroupname();
+    /**
+     * Get artifact group name
+     *
+     * @return
+     */
+    String getGroupname();
 
-	/**
-	 * Get artifact version
-	 *
-	 * @return
-	 */
-	Version getVersion();
+    /**
+     * Get artifact version
+     *
+     * @return
+     */
+    Version getVersion();
 
-	/**
-	 * Download to destination
-	 *
-	 * @param destination
-	 */
-	void copyTo(final File destination) throws IOException;
+    /**
+     * Download to destination
+     *
+     * @param destination
+     */
+    void copyTo(final File destination) throws IOException;
 }

@@ -42,121 +42,122 @@ import de.interactive_instruments.exceptions.ExcUtils;
  */
 public final class CLUtils {
 
-	private CLUtils() {
+    private CLUtils() {
 
-	}
+    }
 
-	public static List<Class> getLoadedClasses(final ClassLoader classLoader)
-			throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		final Field f = ClassLoader.class.getDeclaredField("classes");
-		f.setAccessible(true);
-		return new ArrayList<>(((Vector<Class>) f.get(classLoader)));
-	}
+    public static List<Class> getLoadedClasses(final ClassLoader classLoader)
+            throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+        final Field f = ClassLoader.class.getDeclaredField("classes");
+        f.setAccessible(true);
+        return new ArrayList<>(((Vector<Class>) f.get(classLoader)));
+    }
 
-	/**
-	 * Logs all loaded classes of a ClassLoader. Uses the info level.
-	 *
-	 * @param classLoader
-	 */
-	public static void logLoadedClasses(final ClassLoader classLoader) {
-		try {
-			final Logger logger = LoggerFactory.getLogger(CLUtils.class);
-			logger.info("Classes loaded by {} ({}) ", classLoader.getClass().getSimpleName(), classLoader.hashCode());
-			for (final Class c : getLoadedClasses(classLoader)) {
-				final CodeSource cs = c.getProtectionDomain().getCodeSource();
-				if (cs != null && cs.getLocation() != null && cs.getLocation().getFile() != null) {
-					logger.info(" {} <- {} ", c.getCanonicalName(),
-							c.getProtectionDomain().getCodeSource().getLocation().getFile());
-				} else {
-					logger.info(c.getCanonicalName());
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+    /**
+     * Logs all loaded classes of a ClassLoader. Uses the info level.
+     *
+     * @param classLoader
+     */
+    public static void logLoadedClasses(final ClassLoader classLoader) {
+        try {
+            final Logger logger = LoggerFactory.getLogger(CLUtils.class);
+            logger.info("Classes loaded by {} ({}) ", classLoader.getClass().getSimpleName(), classLoader.hashCode());
+            for (final Class c : getLoadedClasses(classLoader)) {
+                final CodeSource cs = c.getProtectionDomain().getCodeSource();
+                if (cs != null && cs.getLocation() != null && cs.getLocation().getFile() != null) {
+                    logger.info(" {} <- {} ", c.getCanonicalName(),
+                            c.getProtectionDomain().getCodeSource().getLocation().getFile());
+                } else {
+                    logger.info(c.getCanonicalName());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-	/**
-	 * 	Workaround for Windows: close all jar file handles
-	 *
-	 * 	@param classLoader any URLClassLoader
-	 */
-	public static void forceCloseUcp(final URLClassLoader classLoader) {
-		if (classLoader != null) {
-			try {
-				classLoader.close();
-			} catch (final IOException ignore) {
-				ExcUtils.suppress(ignore);
-			}
-			try {
-				final Class<? extends URLClassLoader> clazz = classLoader.getClass();
-				final Field ucp = clazz.getDeclaredField("ucp");
-				ucp.setAccessible(true);
-				final Object sunMiscURLClassPath = ucp.get(classLoader);
-				final Field loaders = sunMiscURLClassPath.getClass().getDeclaredField("loaders");
-				loaders.setAccessible(true);
-				final Collection<?> collection = (Collection<?>) loaders.get(sunMiscURLClassPath);
-				for (final Object sunMiscURLClassPathJarLoader : collection.toArray()) {
-					try {
-						final Field loader = sunMiscURLClassPathJarLoader.getClass().getDeclaredField("jar");
-						loader.setAccessible(true);
-						final Object jarFile = loader.get(sunMiscURLClassPathJarLoader);
-						((JarFile) jarFile).close();
-					} catch (Throwable ignore) {
-						ExcUtils.suppress(ignore);
-					}
-				}
-			} catch (Throwable ignore) {
-				ExcUtils.suppress(ignore);
-			}
-		}
-	}
+    /**
+     * Workaround for Windows: close all jar file handles
+     *
+     * @param classLoader
+     *            any URLClassLoader
+     */
+    public static void forceCloseUcp(final URLClassLoader classLoader) {
+        if (classLoader != null) {
+            try {
+                classLoader.close();
+            } catch (final IOException ignore) {
+                ExcUtils.suppress(ignore);
+            }
+            try {
+                final Class<? extends URLClassLoader> clazz = classLoader.getClass();
+                final Field ucp = clazz.getDeclaredField("ucp");
+                ucp.setAccessible(true);
+                final Object sunMiscURLClassPath = ucp.get(classLoader);
+                final Field loaders = sunMiscURLClassPath.getClass().getDeclaredField("loaders");
+                loaders.setAccessible(true);
+                final Collection<?> collection = (Collection<?>) loaders.get(sunMiscURLClassPath);
+                for (final Object sunMiscURLClassPathJarLoader : collection.toArray()) {
+                    try {
+                        final Field loader = sunMiscURLClassPathJarLoader.getClass().getDeclaredField("jar");
+                        loader.setAccessible(true);
+                        final Object jarFile = loader.get(sunMiscURLClassPathJarLoader);
+                        ((JarFile) jarFile).close();
+                    } catch (Throwable ignore) {
+                        ExcUtils.suppress(ignore);
+                    }
+                }
+            } catch (Throwable ignore) {
+                ExcUtils.suppress(ignore);
+            }
+        }
+    }
 
-	public static String getImplVersionOrDefault(final Class clasz, String defaultValue) {
-		final String v = clasz.getPackage().getImplementationVersion();
-		if (!SUtils.isNullOrEmpty(v)) {
-			return v;
-		}
-		return defaultValue;
-	}
+    public static String getImplVersionOrDefault(final Class clasz, String defaultValue) {
+        final String v = clasz.getPackage().getImplementationVersion();
+        if (!SUtils.isNullOrEmpty(v)) {
+            return v;
+        }
+        return defaultValue;
+    }
 
-	public static String getManifestAttributeValue(final Class clasz, final String value) {
-		final String className = clasz.getSimpleName() + ".class";
-		final String classPath = clasz.getResource(className).toString();
-		if (!classPath.startsWith("jar")) {
-			return "";
-		}
-		final String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) +
-				"/META-INF/MANIFEST.MF";
-		InputStream stream = null;
-		try {
-			stream = new URL(manifestPath).openStream();
-			final Manifest manifest = new Manifest(stream);
-			return manifest.getMainAttributes().getValue(value);
-		} catch (final IOException e) {
-			return "";
-		} finally {
-			IoUtils.closeQuietly(stream);
-		}
-	}
+    public static String getManifestAttributeValue(final Class clasz, final String value) {
+        final String className = clasz.getSimpleName() + ".class";
+        final String classPath = clasz.getResource(className).toString();
+        if (!classPath.startsWith("jar")) {
+            return "";
+        }
+        final String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) +
+                "/META-INF/MANIFEST.MF";
+        InputStream stream = null;
+        try {
+            stream = new URL(manifestPath).openStream();
+            final Manifest manifest = new Manifest(stream);
+            return manifest.getMainAttributes().getValue(value);
+        } catch (final IOException e) {
+            return "";
+        } finally {
+            IoUtils.closeQuietly(stream);
+        }
+    }
 
-	public static InputStream getResourceAsStream(final Object ctxObj, final String resourcePath) {
-		final InputStream cStream = Objects.requireNonNull(ctxObj, "Context object is null").getClass()
-				.getResourceAsStream(resourcePath);
-		if (cStream == null) {
-			return ctxObj.getClass().getClassLoader().getResourceAsStream(resourcePath);
-		} else {
-			return cStream;
-		}
-	}
+    public static InputStream getResourceAsStream(final Object ctxObj, final String resourcePath) {
+        final InputStream cStream = Objects.requireNonNull(ctxObj, "Context object is null").getClass()
+                .getResourceAsStream(resourcePath);
+        if (cStream == null) {
+            return ctxObj.getClass().getClassLoader().getResourceAsStream(resourcePath);
+        } else {
+            return cStream;
+        }
+    }
 
-	public static URL getResource(final Object ctxObj, final String resourcePath) {
-		final URL cStream = Objects.requireNonNull(ctxObj, "Context object is null").getClass()
-				.getResource(resourcePath);
-		if (cStream == null) {
-			return ctxObj.getClass().getClassLoader().getResource(resourcePath);
-		} else {
-			return cStream;
-		}
-	}
+    public static URL getResource(final Object ctxObj, final String resourcePath) {
+        final URL cStream = Objects.requireNonNull(ctxObj, "Context object is null").getClass()
+                .getResource(resourcePath);
+        if (cStream == null) {
+            return ctxObj.getClass().getClassLoader().getResource(resourcePath);
+        } else {
+            return cStream;
+        }
+    }
 }

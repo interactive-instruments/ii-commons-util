@@ -23,7 +23,7 @@ package de.interactive_instruments.exceptions;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class MimeTypeUtilsException extends Exception {
-	public MimeTypeUtilsException(Exception e) {
-		super(e);
-	}
+    public MimeTypeUtilsException(Exception e) {
+        super(e);
+    }
 }

@@ -20,5 +20,5 @@
 package de.interactive_instruments.properties;
 
 public interface PropertyObjHolder {
-	PropertyHolder getProperties();
+    PropertyHolder getProperties();
 }

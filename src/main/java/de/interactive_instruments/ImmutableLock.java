@@ -25,8 +25,7 @@ import javax.xml.bind.annotation.XmlValue;
 import de.interactive_instruments.exceptions.ImmutableLockException;
 
 /**
- * With the ImmutableLock object an object can be put in a final state
- * by using checkLock in the setter methods of the object.
+ * With the ImmutableLock object an object can be put in a final state by using checkLock in the setter methods of the object.
  *
  * TODO checkLock Annotation
  *
@@ -36,24 +35,24 @@ import de.interactive_instruments.exceptions.ImmutableLockException;
 @XmlRootElement(name = "FinalState")
 public class ImmutableLock {
 
-	@XmlValue
-	private boolean locked;
+    @XmlValue
+    private boolean locked;
 
-	public ImmutableLock() {
-		this.locked = false;
-	}
+    public ImmutableLock() {
+        this.locked = false;
+    }
 
-	public void setLock() {
-		this.locked = true;
-	}
+    public void setLock() {
+        this.locked = true;
+    }
 
-	public void checkLock(Object caller) throws ImmutableLockException {
-		if (this.locked) {
-			throw new ImmutableLockException(caller);
-		}
-	}
+    public void checkLock(Object caller) throws ImmutableLockException {
+        if (this.locked) {
+            throw new ImmutableLockException(caller);
+        }
+    }
 
-	public boolean isLocked() {
-		return locked;
-	}
+    public boolean isLocked() {
+        return locked;
+    }
 }

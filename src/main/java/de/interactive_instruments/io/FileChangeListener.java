@@ -32,64 +32,64 @@ import java.util.*;
 @FunctionalInterface
 public interface FileChangeListener extends Comparable<FileChangeListener> {
 
-	/**
-	 * Default fileChanged() delegates the call to the filesChanged() method.
-	 *
-	 * @param watchableEventMap
-	 */
-	default void fileChanged(final Map<Path, List<WatchEvent<?>>> watchableEventMap) {
-		final Set<Path> dirSet = new TreeSet<>();
-		final Map<Path, WatchEvent.Kind> pathEventMap = new TreeMap<>();
-		watchableEventMap.entrySet().forEach(wE -> wE.getValue().forEach(event -> {
-			if (event.context() instanceof Path) {
-				final Path path = wE.getKey().resolve((Path) event.context());
-				if (Files.isDirectory(path)) {
-					dirSet.add(path);
-				} else {
-					dirSet.add(path.getParent());
-				}
-				pathEventMap.put(path, event.kind());
-			}
-		}));
-		filesChanged(pathEventMap, dirSet);
-	}
+    /**
+     * Default fileChanged() delegates the call to the filesChanged() method.
+     *
+     * @param watchableEventMap
+     */
+    default void fileChanged(final Map<Path, List<WatchEvent<?>>> watchableEventMap) {
+        final Set<Path> dirSet = new TreeSet<>();
+        final Map<Path, WatchEvent.Kind> pathEventMap = new TreeMap<>();
+        watchableEventMap.entrySet().forEach(wE -> wE.getValue().forEach(event -> {
+            if (event.context() instanceof Path) {
+                final Path path = wE.getKey().resolve((Path) event.context());
+                if (Files.isDirectory(path)) {
+                    dirSet.add(path);
+                } else {
+                    dirSet.add(path.getParent());
+                }
+                pathEventMap.put(path, event.kind());
+            }
+        }));
+        filesChanged(pathEventMap, dirSet);
+    }
 
-	/**
-	 * Informs the observer that files have changed.
-	 *
-	 * @param eventMap a map containing all full file paths that changed and
-	 *                    the corresponding event kinds.
-	 * @param dirs a set of the directories that changed or in which files changed.
-	 */
-	void filesChanged(final Map<Path, WatchEvent.Kind> eventMap, final Set<Path> dirs);
+    /**
+     * Informs the observer that files have changed.
+     *
+     * @param eventMap
+     *            a map containing all full file paths that changed and the corresponding event kinds.
+     * @param dirs
+     *            a set of the directories that changed or in which files changed.
+     */
+    void filesChanged(final Map<Path, WatchEvent.Kind> eventMap, final Set<Path> dirs);
 
-	/**
-	 * A FileChangeListener with a higher priority is fired first before a FileChangeListener with
-	 * a lower priority.
-	 *
-	 * @return
-	 */
-	default int fileChangeNotificationPriority() {
-		return 100;
-	}
+    /**
+     * A FileChangeListener with a higher priority is fired first before a FileChangeListener with a lower priority.
+     *
+     * @return
+     */
+    default int fileChangeNotificationPriority() {
+        return 100;
+    }
 
-	/**
-	 * Filter before event is fired
-	 *
-	 * @return
-	 */
-	default MultiFileFilter fileChangePreFilter() {
-		return null;
-	}
+    /**
+     * Filter before event is fired
+     *
+     * @return
+     */
+    default MultiFileFilter fileChangePreFilter() {
+        return null;
+    }
 
-	@Override
-	default int compareTo(final FileChangeListener fileChangeListener) {
-		final int cmp = -Integer.compare(fileChangeNotificationPriority(),
-				fileChangeListener.fileChangeNotificationPriority());
-		if (cmp == 0) {
-			return this.toString().compareTo(fileChangeListener.toString());
-		} else {
-			return cmp;
-		}
-	}
+    @Override
+    default int compareTo(final FileChangeListener fileChangeListener) {
+        final int cmp = -Integer.compare(fileChangeNotificationPriority(),
+                fileChangeListener.fileChangeNotificationPriority());
+        if (cmp == 0) {
+            return this.toString().compareTo(fileChangeListener.toString());
+        } else {
+            return cmp;
+        }
+    }
 }

@@ -28,29 +28,29 @@ import java.util.Set;
  */
 public class FilenameExtensionFilter implements MultiFileFilter {
 
-	private final Set<String> fileExtensions;
+    private final Set<String> fileExtensions;
 
-	public FilenameExtensionFilter(final Set<String> fileExtensions) {
-		this.fileExtensions = new HashSet<>();
-		for (final String fileExtension : fileExtensions) {
-			this.fileExtensions.add(fileExtension.replace(".", ""));
-		}
-	}
+    public FilenameExtensionFilter(final Set<String> fileExtensions) {
+        this.fileExtensions = new HashSet<>();
+        for (final String fileExtension : fileExtensions) {
+            this.fileExtensions.add(fileExtension.replace(".", ""));
+        }
+    }
 
-	public FilenameExtensionFilter(final String... fileExtensions) {
-		this.fileExtensions = new HashSet<>();
-		for (int i = 0; i < fileExtensions.length; i++) {
-			this.fileExtensions.add(fileExtensions[i].replace(".", ""));
-		}
-	}
+    public FilenameExtensionFilter(final String... fileExtensions) {
+        this.fileExtensions = new HashSet<>();
+        for (int i = 0; i < fileExtensions.length; i++) {
+            this.fileExtensions.add(fileExtensions[i].replace(".", ""));
+        }
+    }
 
-	@Override
-	public boolean accept(final File path) {
-		final String pathname = path.getName();
-		final int index = pathname.lastIndexOf(".");
-		if (index == -1) {
-			return false;
-		}
-		return fileExtensions.contains(pathname.substring(index + 1).toLowerCase());
-	}
+    @Override
+    public boolean accept(final File path) {
+        final String pathname = path.getName();
+        final int index = pathname.lastIndexOf(".");
+        if (index == -1) {
+            return false;
+        }
+        return fileExtensions.contains(pathname.substring(index + 1).toLowerCase());
+    }
 }

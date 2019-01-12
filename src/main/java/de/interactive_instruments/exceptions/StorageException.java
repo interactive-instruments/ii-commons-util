@@ -29,17 +29,17 @@ import java.io.IOException;
  */
 public class StorageException extends IOException {
 
-	private static final long serialVersionUID = 8918479002295277311L;
+    private static final long serialVersionUID = 8918479002295277311L;
 
-	public StorageException(final String mesg) {
-		super(mesg);
-	}
+    public StorageException(final String mesg) {
+        super(mesg);
+    }
 
-	public StorageException(final Throwable e) {
-		super(e);
-	}
+    public StorageException(final Throwable e) {
+        super(e);
+    }
 
-	public StorageException(final String mesg, final Throwable e) {
-		super(mesg, e);
-	}
+    public StorageException(final String mesg, final Throwable e) {
+        super(mesg, e);
+    }
 }

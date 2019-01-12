@@ -41,171 +41,167 @@ import de.interactive_instruments.xml.NamespaceBuilder;
  */
 public class JaxbUtils {
 
-	private JaxbUtils() {}
+    private JaxbUtils() {}
 
-	public static final String ELEMENT_DEFAULT = "##default";
+    public static final String ELEMENT_DEFAULT = "##default";
 
-	public static boolean isEmptyOrDefault(final String str) {
-		return SUtils.isNullOrEmpty(str) || ELEMENT_DEFAULT.equals(str);
-	}
+    public static boolean isEmptyOrDefault(final String str) {
+        return SUtils.isNullOrEmpty(str) || ELEMENT_DEFAULT.equals(str);
+    }
 
-	/**
-	 * Analyze namespace and return default package namespace
-	 *
-	 * @param clasz class to analyze
-	 * @param nsB Namespace Builder
-	 * @return default namespace URI
-	 */
-	public static String analyzeNamespacesFromAnnotations(final Class<?> clasz, final NamespaceBuilder nsB) {
-		final XmlRootElement[] rootElementAnnotation = clasz.getAnnotationsByType(XmlRootElement.class);
-		String defaultNamespaceUri = "";
-		if (rootElementAnnotation.length == 1) {
-			final String namespace = rootElementAnnotation[0].namespace();
-			if (!isEmptyOrDefault(namespace)) {
-				// defaultNamespaceUri=namespace;
-				if (!nsB.hasPrefixForNamespace(namespace)) {
-					nsB.addNamespaceUri(namespace);
-				}
-			}
-		}
+    /**
+     * Analyze namespace and return default package namespace
+     *
+     * @param clasz
+     *            class to analyze
+     * @param nsB
+     *            Namespace Builder
+     * @return default namespace URI
+     */
+    public static String analyzeNamespacesFromAnnotations(final Class<?> clasz, final NamespaceBuilder nsB) {
+        final XmlRootElement[] rootElementAnnotation = clasz.getAnnotationsByType(XmlRootElement.class);
+        String defaultNamespaceUri = "";
+        if (rootElementAnnotation.length == 1) {
+            final String namespace = rootElementAnnotation[0].namespace();
+            if (!isEmptyOrDefault(namespace)) {
+                // defaultNamespaceUri=namespace;
+                if (!nsB.hasPrefixForNamespace(namespace)) {
+                    nsB.addNamespaceUri(namespace);
+                }
+            }
+        }
 
-		if (clasz.getPackage() != null) {
-			// Get additional namespace from XmlSchema package annotation
-			final XmlSchema[] packageNamespaceAnnotation = clasz.getPackage().getAnnotationsByType(XmlSchema.class);
-			if (packageNamespaceAnnotation.length == 1) {
-				final XmlSchema schemaAnnotation = packageNamespaceAnnotation[0];
-				if (!isEmptyOrDefault(schemaAnnotation.namespace())) {
-					if (SUtils.isNullOrEmpty(defaultNamespaceUri)) {
-						defaultNamespaceUri = schemaAnnotation.namespace();
-					}
-					if (!nsB.hasPrefixForNamespace(schemaAnnotation.namespace())) {
-						nsB.addNamespaceUri(schemaAnnotation.namespace());
-					}
-				}
-				if (schemaAnnotation.xmlns().length > 0) {
-					for (final XmlNs xmlNs : schemaAnnotation.xmlns()) {
-						if (!isEmptyOrDefault(xmlNs.namespaceURI()) &&
-								nsB.getPrefix(xmlNs.namespaceURI()) == null) {
-							if (isEmptyOrDefault(xmlNs.prefix())) {
-								nsB.addNamespaceUri(xmlNs.prefix());
-							} else {
-								nsB.addNamespaceUriAndPrefix(xmlNs.namespaceURI(), xmlNs.prefix());
-							}
-						}
-					}
-				}
-			}
+        if (clasz.getPackage() != null) {
+            // Get additional namespace from XmlSchema package annotation
+            final XmlSchema[] packageNamespaceAnnotation = clasz.getPackage().getAnnotationsByType(XmlSchema.class);
+            if (packageNamespaceAnnotation.length == 1) {
+                final XmlSchema schemaAnnotation = packageNamespaceAnnotation[0];
+                if (!isEmptyOrDefault(schemaAnnotation.namespace())) {
+                    if (SUtils.isNullOrEmpty(defaultNamespaceUri)) {
+                        defaultNamespaceUri = schemaAnnotation.namespace();
+                    }
+                    if (!nsB.hasPrefixForNamespace(schemaAnnotation.namespace())) {
+                        nsB.addNamespaceUri(schemaAnnotation.namespace());
+                    }
+                }
+                if (schemaAnnotation.xmlns().length > 0) {
+                    for (final XmlNs xmlNs : schemaAnnotation.xmlns()) {
+                        if (!isEmptyOrDefault(xmlNs.namespaceURI()) &&
+                                nsB.getPrefix(xmlNs.namespaceURI()) == null) {
+                            if (isEmptyOrDefault(xmlNs.prefix())) {
+                                nsB.addNamespaceUri(xmlNs.prefix());
+                            } else {
+                                nsB.addNamespaceUriAndPrefix(xmlNs.namespaceURI(), xmlNs.prefix());
+                            }
+                        }
+                    }
+                }
+            }
 
-			final Class<?> superClass = clasz.getSuperclass();
-			if (superClass != null && !ClassUtils.isPrimitiveOrWrapper(superClass)) {
-				analyzeNamespacesFromAnnotations(superClass, nsB);
-			}
-		}
-		return defaultNamespaceUri;
-	}
+            final Class<?> superClass = clasz.getSuperclass();
+            if (superClass != null && !ClassUtils.isPrimitiveOrWrapper(superClass)) {
+                analyzeNamespacesFromAnnotations(superClass, nsB);
+            }
+        }
+        return defaultNamespaceUri;
+    }
 
-	/**
-	 * Resolve unknown generic type parameters of a not instantiated generic class on the basis of a concrete
-	 * (parameterized) type. Can be used with XmlJavaTypeAdapter attributes.
-	 *
-	 * E.g. concreteParameterizedType = Map<String, Map<String,Integer>> ,
-	 * genericDefinedType = Map<String, Map<V1,V2>> then the mapping
-	 * V1 = String.class , V2=Integer.class is returned
-	 *
-	 * @param concreteParameterizedType
-	 * @param genericDefinedType
-	 * @return null if not applicable, else a mapping with the parameter names as strings and the classes as keys
-	 */
-	public static Map<String, FieldType> resolveGenericTypes(final Type concreteParameterizedType,
-			final Type genericDefinedType) {
-		if (!(concreteParameterizedType instanceof ParameterizedType) ||
-				!(genericDefinedType instanceof ParameterizedType)) {
-			throw new IllegalArgumentException("Types are not generics");
-		}
+    /**
+     * Resolve unknown generic type parameters of a not instantiated generic class on the basis of a concrete (parameterized) type. Can be used with XmlJavaTypeAdapter attributes.
+     *
+     * E.g. concreteParameterizedType = Map<String, Map<String,Integer>> , genericDefinedType = Map<String, Map<V1,V2>> then the mapping V1 = String.class , V2=Integer.class is returned
+     *
+     * @param concreteParameterizedType
+     * @param genericDefinedType
+     * @return null if not applicable, else a mapping with the parameter names as strings and the classes as keys
+     */
+    public static Map<String, FieldType> resolveGenericTypes(final Type concreteParameterizedType,
+            final Type genericDefinedType) {
+        if (!(concreteParameterizedType instanceof ParameterizedType) ||
+                !(genericDefinedType instanceof ParameterizedType)) {
+            throw new IllegalArgumentException("Types are not generics");
+        }
 
-		final Map<String, FieldType> mapping = new HashMap<>();
-		resolveGenericType((ParameterizedType) concreteParameterizedType, (ParameterizedType) genericDefinedType, mapping);
+        final Map<String, FieldType> mapping = new HashMap<>();
+        resolveGenericType((ParameterizedType) concreteParameterizedType, (ParameterizedType) genericDefinedType, mapping);
 
-		if (!mapping.isEmpty()) {
-			return mapping;
-		}
-		return null;
-	}
+        if (!mapping.isEmpty()) {
+            return mapping;
+        }
+        return null;
+    }
 
-	/**
-	 * Resolve unknown generic type parameters of a not instantiated generic class on the basis of a concrete
-	 * (parameterized) type. Can be used with XmlJavaTypeAdapter attributes.
-	 *
-	 * E.g. concreteParameterizedType = Map<String, Map<String,Integer>> ,
-	 * genericDefinedType = Map<String, Map<V1,V2>> then the mapping
-	 * V1 = String.class , V2=Integer.class is returned
-	 *
-	 * @param concreteParameterizedType
-	 * @param genericDefinedTypeVariables
-	 * @return null if not applicable, else a mapping with the parameter names as strings and the classes as keys
-	 */
-	public static Map<String, FieldType> resolveGenericTypes(final Type concreteParameterizedType,
-			final TypeVariable[] genericDefinedTypeVariables) {
-		if (!(concreteParameterizedType instanceof ParameterizedType)) {
-			throw new IllegalArgumentException(concreteParameterizedType.getTypeName() + " is not generic");
-		}
+    /**
+     * Resolve unknown generic type parameters of a not instantiated generic class on the basis of a concrete (parameterized) type. Can be used with XmlJavaTypeAdapter attributes.
+     *
+     * E.g. concreteParameterizedType = Map<String, Map<String,Integer>> , genericDefinedType = Map<String, Map<V1,V2>> then the mapping V1 = String.class , V2=Integer.class is returned
+     *
+     * @param concreteParameterizedType
+     * @param genericDefinedTypeVariables
+     * @return null if not applicable, else a mapping with the parameter names as strings and the classes as keys
+     */
+    public static Map<String, FieldType> resolveGenericTypes(final Type concreteParameterizedType,
+            final TypeVariable[] genericDefinedTypeVariables) {
+        if (!(concreteParameterizedType instanceof ParameterizedType)) {
+            throw new IllegalArgumentException(concreteParameterizedType.getTypeName() + " is not generic");
+        }
 
-		final Map<String, FieldType> mapping = new HashMap<>();
-		resolveGenericType((ParameterizedType) concreteParameterizedType, genericDefinedTypeVariables, mapping);
+        final Map<String, FieldType> mapping = new HashMap<>();
+        resolveGenericType((ParameterizedType) concreteParameterizedType, genericDefinedTypeVariables, mapping);
 
-		if (!mapping.isEmpty()) {
-			return mapping;
-		}
-		return null;
-	}
+        if (!mapping.isEmpty()) {
+            return mapping;
+        }
+        return null;
+    }
 
-	private static void resolveGenericType(final ParameterizedType concreteParameterizedType,
-			final TypeVariable[] genericDefinedTypes,
-			final Map<String, FieldType> mapping)
+    private static void resolveGenericType(final ParameterizedType concreteParameterizedType,
+            final TypeVariable[] genericDefinedTypes,
+            final Map<String, FieldType> mapping)
 
-	{
-		final Type[] params = concreteParameterizedType.getActualTypeArguments();
-		if (params.length != genericDefinedTypes.length) {
-			throw new IllegalArgumentException("Incompatible number of parameters ");
-		}
+    {
+        final Type[] params = concreteParameterizedType.getActualTypeArguments();
+        if (params.length != genericDefinedTypes.length) {
+            throw new IllegalArgumentException("Incompatible number of parameters ");
+        }
 
-		for (int i = 0; i < genericDefinedTypes.length; i++) {
-			final Type t = params[i];
-			if ((params[i] instanceof ParameterizedType)) {
-				if (!Collection.class.isAssignableFrom((Class<?>) ((ParameterizedType) params[i]).getRawType())) {
-					throw new IllegalArgumentException("Incompatible types");
-				}
-			}
-			mapping.put(genericDefinedTypes[i].getTypeName(), new FieldType(params[i]));
-		}
-	}
+        for (int i = 0; i < genericDefinedTypes.length; i++) {
+            final Type t = params[i];
+            if ((params[i] instanceof ParameterizedType)) {
+                if (!Collection.class.isAssignableFrom((Class<?>) ((ParameterizedType) params[i]).getRawType())) {
+                    throw new IllegalArgumentException("Incompatible types");
+                }
+            }
+            mapping.put(genericDefinedTypes[i].getTypeName(), new FieldType(params[i]));
+        }
+    }
 
-	private static void resolveGenericType(final ParameterizedType concreteParameterizedType,
-			final ParameterizedType genericDefinedType,
-			final Map<String, FieldType> mapping) {
-		final Type[] params = concreteParameterizedType.getActualTypeArguments();
-		final Type[] generics = genericDefinedType.getActualTypeArguments();
+    private static void resolveGenericType(final ParameterizedType concreteParameterizedType,
+            final ParameterizedType genericDefinedType,
+            final Map<String, FieldType> mapping) {
+        final Type[] params = concreteParameterizedType.getActualTypeArguments();
+        final Type[] generics = genericDefinedType.getActualTypeArguments();
 
-		if (params.length != generics.length) {
-			throw new IllegalArgumentException("Incompatible number of parameters ");
-		}
+        if (params.length != generics.length) {
+            throw new IllegalArgumentException("Incompatible number of parameters ");
+        }
 
-		for (int i = 0; i < generics.length; i++) {
-			final Type t = generics[i];
-			if (t instanceof ParameterizedType) {
-				// go deeper
-				if (!(params[i] instanceof ParameterizedType)) {
-					throw new IllegalArgumentException("Incompatible types");
-				}
-				resolveGenericType((ParameterizedType) params[i], (ParameterizedType) t, mapping);
-			} else {
-				if ((params[i] instanceof ParameterizedType)) {
-					if (!Collection.class.isAssignableFrom((Class<?>) ((ParameterizedType) params[i]).getRawType())) {
-						throw new IllegalArgumentException("Incompatible types");
-					}
-				}
-				mapping.put(t.getTypeName(), new FieldType(params[i]));
-			}
-		}
-	}
+        for (int i = 0; i < generics.length; i++) {
+            final Type t = generics[i];
+            if (t instanceof ParameterizedType) {
+                // go deeper
+                if (!(params[i] instanceof ParameterizedType)) {
+                    throw new IllegalArgumentException("Incompatible types");
+                }
+                resolveGenericType((ParameterizedType) params[i], (ParameterizedType) t, mapping);
+            } else {
+                if ((params[i] instanceof ParameterizedType)) {
+                    if (!Collection.class.isAssignableFrom((Class<?>) ((ParameterizedType) params[i]).getRawType())) {
+                        throw new IllegalArgumentException("Incompatible types");
+                    }
+                }
+                mapping.put(t.getTypeName(), new FieldType(params[i]));
+            }
+        }
+    }
 }

@@ -30,19 +30,22 @@ import de.interactive_instruments.exceptions.config.ConfigurationException;
  */
 public interface Initializable {
 
-	/**
-	 * Initialized the Object
-	 *
-	 * @throws ConfigurationException if the configuration options are invalid
-	 * @throws InitializationException if the initialization failed
-	 * @throws InvalidStateTransitionException if Object is already initialized
-	 */
-	void init() throws ConfigurationException, InitializationException, InvalidStateTransitionException;
+    /**
+     * Initialized the Object
+     *
+     * @throws ConfigurationException
+     *             if the configuration options are invalid
+     * @throws InitializationException
+     *             if the initialization failed
+     * @throws InvalidStateTransitionException
+     *             if Object is already initialized
+     */
+    void init() throws ConfigurationException, InitializationException, InvalidStateTransitionException;
 
-	/**
-	 * Checks if the Object is initialized
-	 *
-	 * @return true if object is initialized, false otherwise
-	 */
-	boolean isInitialized();
+    /**
+     * Checks if the Object is initialized
+     *
+     * @return true if object is initialized, false otherwise
+     */
+    boolean isInitialized();
 }

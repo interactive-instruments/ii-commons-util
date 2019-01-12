@@ -23,5 +23,5 @@ package de.interactive_instruments;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface Factory<T> extends Releasable {
-	T create();
+    T create();
 }

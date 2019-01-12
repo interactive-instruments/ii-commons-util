@@ -26,13 +26,13 @@ import org.slf4j.MarkerFactory;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class LogUtils {
-	/**
-	 * Message that needs the administrators attention
-	 */
-	public static Marker ADMIN_MESSAGE = MarkerFactory.getMarker("ADMIN");
+    /**
+     * Message that needs the administrators attention
+     */
+    public static Marker ADMIN_MESSAGE = MarkerFactory.getMarker("ADMIN");
 
-	/**
-	 * Internal error message, that may need developer attention
-	 */
-	public static Marker FATAL_MESSAGE = MarkerFactory.getMarker("FATAL");
+    /**
+     * Internal error message, that may need developer attention
+     */
+    public static Marker FATAL_MESSAGE = MarkerFactory.getMarker("FATAL");
 }

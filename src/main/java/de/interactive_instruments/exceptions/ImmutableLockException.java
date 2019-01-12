@@ -21,15 +21,16 @@ package de.interactive_instruments.exceptions;
 
 /**
  * Thrown if an object is in immutable/final state and an attempt is made to modify it.
+ *
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public class ImmutableLockException extends Exception {
 
-	private static final long serialVersionUID = 8412915674737635200L;
+    private static final long serialVersionUID = 8412915674737635200L;
 
-	public ImmutableLockException(Object caller) {
-		super("The object " + caller + " is in immutable state and does not allow modification!");
-	}
+    public ImmutableLockException(Object caller) {
+        super("The object " + caller + " is in immutable state and does not allow modification!");
+    }
 
 }

@@ -30,28 +30,28 @@ import java.nio.file.Path;
  */
 public interface MultiFileFilter extends FileFilter, FilenameFilter, PathFilter {
 
-	default boolean accept(final Path pathname) {
-		return accept(pathname.toFile());
-	}
+    default boolean accept(final Path pathname) {
+        return accept(pathname.toFile());
+    }
 
-	default boolean accept(final File dir, final String name) {
-		return accept(new File(dir, name));
-	}
+    default boolean accept(final File dir, final String name) {
+        return accept(new File(dir, name));
+    }
 
-	default MultiFileFilter and(final FileFilter... fileFilters) {
-		return new AndFilter(this, fileFilters);
-	}
+    default MultiFileFilter and(final FileFilter... fileFilters) {
+        return new AndFilter(this, fileFilters);
+    }
 
-	default MultiFileFilter and(final FileFilter fileFilter) {
-		return new AndFilter(this, fileFilter);
-	}
+    default MultiFileFilter and(final FileFilter fileFilter) {
+        return new AndFilter(this, fileFilter);
+    }
 
-	default MultiFileFilter or(final FileFilter... fileFilters) {
-		return new OrFilter(this, fileFilters);
-	}
+    default MultiFileFilter or(final FileFilter... fileFilters) {
+        return new OrFilter(this, fileFilters);
+    }
 
-	default MultiFileFilter or(final FileFilter fileFilter) {
-		return new OrFilter(this, fileFilter);
-	}
+    default MultiFileFilter or(final FileFilter fileFilter) {
+        return new OrFilter(this, fileFilter);
+    }
 
 }

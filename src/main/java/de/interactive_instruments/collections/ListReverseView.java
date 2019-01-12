@@ -31,23 +31,23 @@ import java.util.List;
  */
 public class ListReverseView<T> extends AbstractList<T> {
 
-	private final List<T> wrappedList;
+    private final List<T> wrappedList;
 
-	public ListReverseView(final List<T> wrappedList) {
-		this.wrappedList = wrappedList;
-	}
+    public ListReverseView(final List<T> wrappedList) {
+        this.wrappedList = wrappedList;
+    }
 
-	@Override
-	public T get(int i) {
-		return wrappedList.get(wrappedList.size() - i - 1);
-	}
+    @Override
+    public T get(int i) {
+        return wrappedList.get(wrappedList.size() - i - 1);
+    }
 
-	@Override
-	public int size() {
-		return wrappedList.size();
-	}
+    @Override
+    public int size() {
+        return wrappedList.size();
+    }
 
-	public List<T> normalView() {
-		return wrappedList;
-	}
+    public List<T> normalView() {
+        return wrappedList;
+    }
 }

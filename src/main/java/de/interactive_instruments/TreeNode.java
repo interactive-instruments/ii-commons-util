@@ -27,13 +27,13 @@ import java.util.List;
  */
 public interface TreeNode<T> {
 
-	TreeNode<? extends T> getParent();
+    TreeNode<? extends T> getParent();
 
-	List<TreeNode<? extends T>> getChildren();
+    List<TreeNode<? extends T>> getChildren();
 
-	Iterator<TreeNode<? extends T>> iterator();
+    Iterator<TreeNode<? extends T>> iterator();
 
-	int getLevel();
+    int getLevel();
 
-	int getPosition();
+    int getPosition();
 }

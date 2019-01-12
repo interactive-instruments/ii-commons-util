@@ -29,5 +29,5 @@ import de.interactive_instruments.Releasable;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface RepositoryFactoryService extends RepositoryFactory, Initializable, Releasable {
-	boolean canHandle(final URI uri, final Credentials credentials);
+    boolean canHandle(final URI uri, final Credentials credentials);
 }

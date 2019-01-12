@@ -26,5 +26,5 @@ import de.interactive_instruments.exceptions.InvalidStateTransitionException;
  */
 @FunctionalInterface
 public interface Cancelable {
-	void cancel() throws InvalidStateTransitionException;
+    void cancel() throws InvalidStateTransitionException;
 }

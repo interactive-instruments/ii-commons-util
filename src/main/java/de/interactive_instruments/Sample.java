@@ -26,42 +26,42 @@ import java.util.*;
  */
 public class Sample {
 
-	public static <T> List<T> normalDistributed(final List<T> input, final double desiredSubsetSizeInPercent) {
-		return normalDistributed(input, (int) (input.size() / 100 * desiredSubsetSizeInPercent));
-	}
+    public static <T> List<T> normalDistributed(final List<T> input, final double desiredSubsetSizeInPercent) {
+        return normalDistributed(input, (int) (input.size() / 100 * desiredSubsetSizeInPercent));
+    }
 
-	public static <T> List<T> normalDistributed(final List<T> input, final int desiredSubsetSize) {
-		final int inputSize = input.size();
+    public static <T> List<T> normalDistributed(final List<T> input, final int desiredSubsetSize) {
+        final int inputSize = input.size();
 
-		final int subsetSize = Math.min(inputSize, desiredSubsetSize < 0 ? 1 : desiredSubsetSize);
-		if (subsetSize >= inputSize) {
-			return input;
-		}
-		final int distribution = Math.min(subsetSize, (int) Math.ceil(inputSize / subsetSize));
-		final int distributionClassSize = inputSize / distribution;
-		final int samplesPerDistribution = subsetSize / distribution;
+        final int subsetSize = Math.min(inputSize, desiredSubsetSize < 0 ? 1 : desiredSubsetSize);
+        if (subsetSize >= inputSize) {
+            return input;
+        }
+        final int distribution = Math.min(subsetSize, (int) Math.ceil(inputSize / subsetSize));
+        final int distributionClassSize = inputSize / distribution;
+        final int samplesPerDistribution = subsetSize / distribution;
 
-		final Random random = new Random();
-		final List<T> samples = new ArrayList<>(subsetSize);
-		final Set<Integer> allIndices = new TreeSet<>();
-		// iterate over distribution classes
-		for (int d = 0; d < distribution; d++) {
-			// pick random elements from distribution class
-			final int dStart = d * distributionClassSize;
-			final Set<Integer> selectedIndices = new TreeSet<>();
-			while (selectedIndices.size() < samplesPerDistribution) {
-				selectedIndices.add(dStart + random.nextInt(distributionClassSize));
-			}
-			allIndices.addAll(selectedIndices);
-		}
-		// pick random from somewhere
-		while (allIndices.size() < desiredSubsetSize) {
-			allIndices.add(random.nextInt(inputSize));
-		}
-		for (final Integer selectedIndex : allIndices) {
-			samples.add(input.get(selectedIndex));
-		}
+        final Random random = new Random();
+        final List<T> samples = new ArrayList<>(subsetSize);
+        final Set<Integer> allIndices = new TreeSet<>();
+        // iterate over distribution classes
+        for (int d = 0; d < distribution; d++) {
+            // pick random elements from distribution class
+            final int dStart = d * distributionClassSize;
+            final Set<Integer> selectedIndices = new TreeSet<>();
+            while (selectedIndices.size() < samplesPerDistribution) {
+                selectedIndices.add(dStart + random.nextInt(distributionClassSize));
+            }
+            allIndices.addAll(selectedIndices);
+        }
+        // pick random from somewhere
+        while (allIndices.size() < desiredSubsetSize) {
+            allIndices.add(random.nextInt(inputSize));
+        }
+        for (final Integer selectedIndex : allIndices) {
+            samples.add(input.get(selectedIndex));
+        }
 
-		return samples;
-	}
+        return samples;
+    }
 }

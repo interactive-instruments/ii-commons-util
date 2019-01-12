@@ -23,7 +23,7 @@ package de.interactive_instruments.exceptions;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class InvalidStateTransitionException extends Exception {
-	public InvalidStateTransitionException(final String msg) {
-		super(msg);
-	}
+    public InvalidStateTransitionException(final String msg) {
+        super(msg);
+    }
 }

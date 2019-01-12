@@ -27,9 +27,9 @@ package de.interactive_instruments.exceptions.config;
  */
 public class ConfigurationException extends Exception {
 
-	private static final long serialVersionUID = -7880677096321443233L;
+    private static final long serialVersionUID = -7880677096321443233L;
 
-	public ConfigurationException(String mesg) {
-		super(mesg);
-	}
+    public ConfigurationException(String mesg) {
+        super(mesg);
+    }
 }

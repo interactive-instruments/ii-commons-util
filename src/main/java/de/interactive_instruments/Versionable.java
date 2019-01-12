@@ -28,10 +28,10 @@ package de.interactive_instruments;
  */
 public interface Versionable {
 
-	/**
-	 * Returns the version of the object.
-	 *
-	 * @return version as Version object
-	 */
-	ImmutableVersion getVersion();
+    /**
+     * Returns the version of the object.
+     *
+     * @return version as Version object
+     */
+    ImmutableVersion getVersion();
 }

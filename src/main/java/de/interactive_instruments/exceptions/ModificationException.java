@@ -21,10 +21,10 @@ package de.interactive_instruments.exceptions;
 
 public class ModificationException extends IllegalStateException {
 
-	private static final long serialVersionUID = -1835661826369563925L;
+    private static final long serialVersionUID = -1835661826369563925L;
 
-	public ModificationException(String mesg) {
-		super(mesg);
-	}
+    public ModificationException(String mesg) {
+        super(mesg);
+    }
 
 }

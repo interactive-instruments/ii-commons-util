@@ -26,8 +26,8 @@ package de.interactive_instruments;
  */
 @FunctionalInterface
 public interface Releasable {
-	/**
-	 * Release resources of the object
-	 */
-	void release();
+    /**
+     * Release resources of the object
+     */
+    void release();
 }

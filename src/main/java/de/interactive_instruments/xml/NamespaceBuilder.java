@@ -29,80 +29,85 @@ import java.util.Map;
  */
 public interface NamespaceBuilder extends NamespaceHolder {
 
-	/**
-	 * Set default namespace. An Exception will be thrown if it is already set.
-	 *
-	 * @param defaultNamespaceUri the default namespace URI
-	 * @return Builder object
-	 */
-	NamespaceBuilder setDefaultNamespaceUri(final String defaultNamespaceUri);
+    /**
+     * Set default namespace. An Exception will be thrown if it is already set.
+     *
+     * @param defaultNamespaceUri
+     *            the default namespace URI
+     * @return Builder object
+     */
+    NamespaceBuilder setDefaultNamespaceUri(final String defaultNamespaceUri);
 
-	/**
-	 * Set default namespace. If the default namespace is already set a new Builder object will be returned.
-	 *
-	 * @param defaultNamespaceUri the default namespace URI
-	 * @return Builder object
-	 */
-	NamespaceBuilder setDefaultNamespaceUriContextAware(final String defaultNamespaceUri);
+    /**
+     * Set default namespace. If the default namespace is already set a new Builder object will be returned.
+     *
+     * @param defaultNamespaceUri
+     *            the default namespace URI
+     * @return Builder object
+     */
+    NamespaceBuilder setDefaultNamespaceUriContextAware(final String defaultNamespaceUri);
 
-	/**
-	 * Add a namespace URI and a prefix. Prefix redefinition attempts will throw an Exception.
-	 *
-	 * @param namespaceUri namespace URI
-	 * @param prefix prefix for the namespace URI
-	 * @return Builder object
-	 */
-	NamespaceBuilder addNamespaceUriAndPrefix(final String namespaceUri, final String prefix);
+    /**
+     * Add a namespace URI and a prefix. Prefix redefinition attempts will throw an Exception.
+     *
+     * @param namespaceUri
+     *            namespace URI
+     * @param prefix
+     *            prefix for the namespace URI
+     * @return Builder object
+     */
+    NamespaceBuilder addNamespaceUriAndPrefix(final String namespaceUri, final String prefix);
 
-	/**
-	 * Add a namespace URI and a prefix. Prefix redefinition attempts will return a new Builder
-	 * object for the current context.
-	 *
-	 * @param namespaceUri namespace URI
-	 * @param prefix prefix for the namespace URI
-	 * @return Builder object
-	 */
-	NamespaceBuilder addNamespaceUriAndPrefixContextAware(final String namespaceUri, final String prefix);
+    /**
+     * Add a namespace URI and a prefix. Prefix redefinition attempts will return a new Builder object for the current context.
+     *
+     * @param namespaceUri
+     *            namespace URI
+     * @param prefix
+     *            prefix for the namespace URI
+     * @return Builder object
+     */
+    NamespaceBuilder addNamespaceUriAndPrefixContextAware(final String namespaceUri, final String prefix);
 
-	/**
-	 * Add namespace URIs and prefixes from a map.
-	 * Existing namespace URIs or prefixes are not overridden.
-	 *
-	 * @param map namespace URIs mapped to one or multiple prefixes
-	 * @return Builder object
-	 */
-	NamespaceBuilder addNamespaceUrisAndPrefixes(final Map<String, Collection<String>> map);
+    /**
+     * Add namespace URIs and prefixes from a map. Existing namespace URIs or prefixes are not overridden.
+     *
+     * @param map
+     *            namespace URIs mapped to one or multiple prefixes
+     * @return Builder object
+     */
+    NamespaceBuilder addNamespaceUrisAndPrefixes(final Map<String, Collection<String>> map);
 
-	/**
-	 * Add prefixes and namespace URIs from a map.
-	 * Existing namespace URIs or prefixes are not overridden.
-	 *
-	 * @param map prefixes mapped to namespace URIs
-	 * @return Builder object
-	 */
-	NamespaceBuilder addPrefixesAndNamespaceUris(final Map<String, String> map);
+    /**
+     * Add prefixes and namespace URIs from a map. Existing namespace URIs or prefixes are not overridden.
+     *
+     * @param map
+     *            prefixes mapped to namespace URIs
+     * @return Builder object
+     */
+    NamespaceBuilder addPrefixesAndNamespaceUris(final Map<String, String> map);
 
-	/**
-	 * Add a namespace URI. The prefix can either be defined later or will be generated
-	 * automatically when the {@link #build()} method is invoked.
-	 *
-	 * @param namespaceUri
-	 * @return
-	 */
-	NamespaceBuilder addNamespaceUri(final String namespaceUri);
+    /**
+     * Add a namespace URI. The prefix can either be defined later or will be generated automatically when the {@link #build()} method is invoked.
+     *
+     * @param namespaceUri
+     * @return
+     */
+    NamespaceBuilder addNamespaceUri(final String namespaceUri);
 
-	/**
-	 * Creates an immutable NamespaceHolder
-	 *
-	 * @return immutable NamespaceHolder
-	 */
-	NamespaceHolder build();
+    /**
+     * Creates an immutable NamespaceHolder
+     *
+     * @return immutable NamespaceHolder
+     */
+    NamespaceHolder build();
 
-	/**
-	 * Create a new Namespace Builder object
-	 * @return Namespace Builder object
-	 */
-	static NamespaceBuilder newInstance() {
-		return new RootNamespaceBuilder();
-	}
+    /**
+     * Create a new Namespace Builder object
+     *
+     * @return Namespace Builder object
+     */
+    static NamespaceBuilder newInstance() {
+        return new RootNamespaceBuilder();
+    }
 }

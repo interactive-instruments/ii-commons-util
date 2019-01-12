@@ -33,25 +33,25 @@ import de.interactive_instruments.exceptions.MimeTypeUtilsException;
  */
 public class MdUtilsTest {
 
-	@Test
-	public void testFnvChecksum1() throws IOException, MimeTypeUtilsException, URISyntaxException {
-		final MdUtils.FnvChecksum checksum = new MdUtils.FnvChecksum();
-		checksum.update("foo".getBytes());
-		assertEquals("DCB27518FED9D577", checksum.toString());
-		checksum.update("bar".getBytes());
-		assertEquals("85944171F73967E8", checksum.toString());
-	}
+    @Test
+    public void testFnvChecksum1() throws IOException, MimeTypeUtilsException, URISyntaxException {
+        final MdUtils.FnvChecksum checksum = new MdUtils.FnvChecksum();
+        checksum.update("foo".getBytes());
+        assertEquals("DCB27518FED9D577", checksum.toString());
+        checksum.update("bar".getBytes());
+        assertEquals("85944171F73967E8", checksum.toString());
+    }
 
-	@Test
-	public void testFnvChecksum2() throws IOException, MimeTypeUtilsException, URISyntaxException {
-		final MdUtils.FnvChecksum checksum = new MdUtils.FnvChecksum();
-		checksum.update("bar".getBytes());
-		assertEquals("003934191339461A", checksum.toString());
-	}
+    @Test
+    public void testFnvChecksum2() throws IOException, MimeTypeUtilsException, URISyntaxException {
+        final MdUtils.FnvChecksum checksum = new MdUtils.FnvChecksum();
+        checksum.update("bar".getBytes());
+        assertEquals("003934191339461A", checksum.toString());
+    }
 
-	@Test
-	public void testFnvChecksumAsHexStr() throws IOException, MimeTypeUtilsException, URISyntaxException {
-		assertEquals("003934191339461A", MdUtils.checksumAsHexStr("bar".getBytes()));
-	}
+    @Test
+    public void testFnvChecksumAsHexStr() throws IOException, MimeTypeUtilsException, URISyntaxException {
+        assertEquals("003934191339461A", MdUtils.checksumAsHexStr("bar".getBytes()));
+    }
 
 }

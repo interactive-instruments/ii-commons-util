@@ -30,35 +30,35 @@ import de.interactive_instruments.exceptions.ExcUtils;
  */
 public class DefaultIdFactory implements IdFactory {
 
-	/**
-	 * Default C'tor
-	 */
-	DefaultIdFactory() {}
+    /**
+     * Default C'tor
+     */
+    DefaultIdFactory() {}
 
-	@Override
-	public Id createRandomUuid() {
-		return new DefaultId(UUID.randomUUID().toString());
-	}
+    @Override
+    public Id createRandomUuid() {
+        return new DefaultId(UUID.randomUUID().toString());
+    }
 
-	@Override
-	public Id createFromStrAndPreserve(String s) {
-		return new DefaultId(s);
-	}
+    @Override
+    public Id createFromStrAndPreserve(String s) {
+        return new DefaultId(s);
+    }
 
-	@Override
-	public Id createFromStrAsUuid(final String s) {
-		try {
-			if (s.length() == 36) {
-				return new DefaultId(UUID.fromString(s));
-			}
-		} catch (IllegalArgumentException e) {
-			ExcUtils.suppress(e);
-		}
-		return new DefaultId(UUID.nameUUIDFromBytes(s.getBytes()));
-	}
+    @Override
+    public Id createFromStrAsUuid(final String s) {
+        try {
+            if (s.length() == 36) {
+                return new DefaultId(UUID.fromString(s));
+            }
+        } catch (IllegalArgumentException e) {
+            ExcUtils.suppress(e);
+        }
+        return new DefaultId(UUID.nameUUIDFromBytes(s.getBytes()));
+    }
 
-	@Override
-	public Id createFromUuid(UUID uuid) {
-		return new DefaultId(uuid);
-	}
+    @Override
+    public Id createFromUuid(UUID uuid) {
+        return new DefaultId(uuid);
+    }
 }

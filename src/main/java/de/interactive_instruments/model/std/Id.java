@@ -24,25 +24,23 @@ import java.util.UUID;
 /**
  * An universal interface for identifying domain model items.
  *
- * The interface enables the usage of unique (UUID) and non-unique identifiers (String). The
- * implementor decides on which type is generated, the clients of this interface obtain a uniform
- * access.
+ * The interface enables the usage of unique (UUID) and non-unique identifiers (String). The implementor decides on which type is generated, the clients of this interface obtain a uniform access.
  *
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public interface Id extends Comparable {
 
-	/**
-	 * Returns the string representation of this Id object
-	 *
-	 * @return identifier as String
-	 */
-	String getId();
+    /**
+     * Returns the string representation of this Id object
+     *
+     * @return identifier as String
+     */
+    String getId();
 
-	/**
-	 * Returns the UUID representation of this Id object
-	 *
-	 * @return identifier as UUID
-	 */
-	UUID toUuid();
+    /**
+     * Returns the UUID representation of this Id object
+     *
+     * @return identifier as UUID
+     */
+    UUID toUuid();
 }

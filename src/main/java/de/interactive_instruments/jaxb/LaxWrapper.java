@@ -32,29 +32,29 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class LaxWrapper<T> {
 
-	private List<T> items;
+    private List<T> items;
 
-	public LaxWrapper() {
-		items = new ArrayList<T>();
-	}
+    public LaxWrapper() {
+        items = new ArrayList<T>();
+    }
 
-	public LaxWrapper(List<T> items) {
-		this.items = items;
-	}
+    public LaxWrapper(List<T> items) {
+        this.items = items;
+    }
 
-	@XmlAnyElement(lax = true)
-	public List<T> getItems() {
-		return items;
-	}
+    @XmlAnyElement(lax = true)
+    public List<T> getItems() {
+        return items;
+    }
 
-	@Override
-	public String toString() {
-		final StringBuffer sb = new StringBuffer("LaxWrapper{");
-		sb.append("items={");
-		for (T item : items) {
-			sb.append("{").append(item).append("}");
-		}
-		sb.append('}');
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("LaxWrapper{");
+        sb.append("items={");
+        for (T item : items) {
+            sb.append("{").append(item).append("}");
+        }
+        sb.append('}');
+        return sb.toString();
+    }
 }

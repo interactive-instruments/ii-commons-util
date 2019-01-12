@@ -30,12 +30,12 @@ import de.interactive_instruments.properties.ConfigPropertyHolder;
  */
 public interface Configurable extends Initializable {
 
-	/**
-	 * Gets the configurable properties
-	 *
-	 * NOTE: The implementing class can clear the properties after init() has been called.
-	 *
-	 * @return ConfigPropertyHolder
-	 */
-	ConfigPropertyHolder getConfigurationProperties();
+    /**
+     * Gets the configurable properties
+     *
+     * NOTE: The implementing class can clear the properties after init() has been called.
+     *
+     * @return ConfigPropertyHolder
+     */
+    ConfigPropertyHolder getConfigurationProperties();
 }

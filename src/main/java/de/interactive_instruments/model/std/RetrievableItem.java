@@ -26,17 +26,17 @@ package de.interactive_instruments.model.std;
  */
 public interface RetrievableItem {
 
-	/**
-	 * Returns the id of the domain model item
-	 *
-	 * @return id as Id object
-	 */
-	Id getId();
+    /**
+     * Returns the id of the domain model item
+     *
+     * @return id as Id object
+     */
+    Id getId();
 
-	/**
-	 * Returns the label of the domain model item
-	 *
-	 * @return label as String
-	 */
-	String getLabel();
+    /**
+     * Returns the label of the domain model item
+     *
+     * @return label as String
+     */
+    String getLabel();
 }

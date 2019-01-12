@@ -26,42 +26,42 @@ import java.util.Map;
  */
 public class DefaultMediaType implements MediaType {
 
-	private final MediaType baseType;
-	private final String type;
-	private final String subtype;
-	private final Map<String, String> parameters;
-	private final String typeStr;
+    private final MediaType baseType;
+    private final String type;
+    private final String subtype;
+    private final Map<String, String> parameters;
+    private final String typeStr;
 
-	DefaultMediaType(final MediaType baseType, final String type, final String subtype, final Map<String, String> parameters) {
-		this.baseType = baseType;
-		this.type = type;
-		this.subtype = subtype;
-		this.parameters = parameters;
-		this.typeStr = type;
-	}
+    DefaultMediaType(final MediaType baseType, final String type, final String subtype, final Map<String, String> parameters) {
+        this.baseType = baseType;
+        this.type = type;
+        this.subtype = subtype;
+        this.parameters = parameters;
+        this.typeStr = type;
+    }
 
-	@Override
-	public MediaType getBaseType() {
-		return baseType;
-	}
+    @Override
+    public MediaType getBaseType() {
+        return baseType;
+    }
 
-	@Override
-	public String getType() {
-		return type;
-	}
+    @Override
+    public String getType() {
+        return type;
+    }
 
-	@Override
-	public String getSubtype() {
-		return subtype;
-	}
+    @Override
+    public String getSubtype() {
+        return subtype;
+    }
 
-	@Override
-	public Map<String, String> getParameters() {
-		return parameters;
-	}
+    @Override
+    public Map<String, String> getParameters() {
+        return parameters;
+    }
 
-	@Override
-	public String toString() {
-		return typeStr;
-	}
+    @Override
+    public String toString() {
+        return typeStr;
+    }
 }

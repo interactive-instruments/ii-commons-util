@@ -24,8 +24,8 @@ package de.interactive_instruments.io;
  */
 public interface FileContentFilterHolder {
 
-	ContentTypeFilter content();
+    ContentTypeFilter content();
 
-	MultiFileFilter filename();
+    MultiFileFilter filename();
 
 }

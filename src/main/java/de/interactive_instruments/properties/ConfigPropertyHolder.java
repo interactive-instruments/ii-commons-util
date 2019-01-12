@@ -25,16 +25,16 @@ import de.interactive_instruments.exceptions.config.MissingPropertyException;
 
 public interface ConfigPropertyHolder extends MutablePropertyHolder {
 
-	boolean allRequiredPropertiesSet();
+    boolean allRequiredPropertiesSet();
 
-	void expectAllRequiredPropertiesSet() throws MissingPropertyException;
+    void expectAllRequiredPropertiesSet() throws MissingPropertyException;
 
-	Set<String> getRequiredPropertyNames();
+    Set<String> getRequiredPropertyNames();
 
-	/**
-	 * Returns true if no more modification is allowed
-	 * (for instance because the properties are already user for initializing an object)
-	 * @return true if no
-	 */
-	boolean isLocked();
+    /**
+     * Returns true if no more modification is allowed (for instance because the properties are already user for initializing an object)
+     *
+     * @return true if no
+     */
+    boolean isLocked();
 }

@@ -41,111 +41,110 @@ import de.interactive_instruments.exceptions.ExcUtils;
 @XmlRootElement(name = "UrlReferenceContainer")
 public class UrlReferenceContainer implements LazyLoadContainer {
 
-	@XmlAttribute
-	String name;
+    @XmlAttribute
+    String name;
 
-	@XmlAttribute
-	String contentType;
+    @XmlAttribute
+    String contentType;
 
-	@XmlAttribute
-	URL referenceURL;
+    @XmlAttribute
+    URL referenceURL;
 
-	@XmlAttribute
-	boolean loadDataOnDemand;
+    @XmlAttribute
+    boolean loadDataOnDemand;
 
-	@XmlTransient
-	long contentSize;
+    @XmlTransient
+    long contentSize;
 
-	UrlReferenceContainer() {}
+    UrlReferenceContainer() {}
 
-	UrlReferenceContainer(final String name, final long size, final URL referenceURL, final String contentType,
-			final boolean loadDataOnDemand) {
-		this.name = name;
-		this.loadDataOnDemand = loadDataOnDemand;
-		this.referenceURL = referenceURL;
-		this.contentSize = size;
-	}
+    UrlReferenceContainer(final String name, final long size, final URL referenceURL, final String contentType,
+            final boolean loadDataOnDemand) {
+        this.name = name;
+        this.loadDataOnDemand = loadDataOnDemand;
+        this.referenceURL = referenceURL;
+        this.contentSize = size;
+    }
 
-	public UrlReferenceContainer(final String name, final URL referenceURL, final String contentType,
-			final boolean loadDataOnDemand) {
-		this.name = name;
-		this.loadDataOnDemand = loadDataOnDemand;
-		this.referenceURL = referenceURL;
-	}
+    public UrlReferenceContainer(final String name, final URL referenceURL, final String contentType,
+            final boolean loadDataOnDemand) {
+        this.name = name;
+        this.loadDataOnDemand = loadDataOnDemand;
+        this.referenceURL = referenceURL;
+    }
 
-	@Override
-	public boolean isReference() {
-		return true;
-	}
+    @Override
+    public boolean isReference() {
+        return true;
+    }
 
-	@Override
-	public String getContentType() {
-		return contentType;
-	}
+    @Override
+    public String getContentType() {
+        return contentType;
+    }
 
-	@Override
-	public String getAsString() throws IOException {
-		if (loadDataOnDemand) {
-			return referenceURL.toString();
-		}
-		return loadData();
-	}
+    @Override
+    public String getAsString() throws IOException {
+        if (loadDataOnDemand) {
+            return referenceURL.toString();
+        }
+        return loadData();
+    }
 
-	@Override
-	public String forceLoad() throws IOException {
-		return loadData();
-	}
+    @Override
+    public String forceLoad() throws IOException {
+        return loadData();
+    }
 
-	/**
-	 * Returns the size of the referenced URL
-	 * -2 if an error occurred
-	 * -1 if the size is unknown
-	 * @return file size, -2 if an error occurred, -1 if the size is unknown
-	 */
-	@XmlAttribute(name = "size")
-	public long getSizeOrErrorCode() {
-		if (this.contentSize > 0) {
-			return this.contentSize;
-		}
-		try {
-			return UriUtils.getContentLength(referenceURL.toURI(), null);
-		} catch (IOException | URISyntaxException e) {
-			ExcUtils.suppress(e);
-			return -2;
-		}
-	}
+    /**
+     * Returns the size of the referenced URL -2 if an error occurred -1 if the size is unknown
+     *
+     * @return file size, -2 if an error occurred, -1 if the size is unknown
+     */
+    @XmlAttribute(name = "size")
+    public long getSizeOrErrorCode() {
+        if (this.contentSize > 0) {
+            return this.contentSize;
+        }
+        try {
+            return UriUtils.getContentLength(referenceURL.toURI(), null);
+        } catch (IOException | URISyntaxException e) {
+            ExcUtils.suppress(e);
+            return -2;
+        }
+    }
 
-	private String loadData() throws IOException {
-		try {
-			return UriUtils.loadAsString(referenceURL.toURI());
-		} catch (URISyntaxException e) {
-			ExcUtils.suppress(e);
-			return "InvalidUrlReferenceContainer";
-		}
-	}
+    private String loadData() throws IOException {
+        try {
+            return UriUtils.loadAsString(referenceURL.toURI());
+        } catch (URISyntaxException e) {
+            ExcUtils.suppress(e);
+            return "InvalidUrlReferenceContainer";
+        }
+    }
 
-	@Override
-	public String getName() {
-		return this.name;
-	}
+    @Override
+    public String getName() {
+        return this.name;
+    }
 
-	@Override
-	public void forceLoadAsStream(OutputStream outStream) throws IOException {
-		final InputStream urlStream = referenceURL.openStream();
-		final byte[] buffer = new byte[1024];
-		int bytesRead;
-		while ((bytesRead = urlStream.read(buffer)) != -1) {
-			outStream.write(buffer, 0, bytesRead);
-		}
-		urlStream.close();
-	}
+    @Override
+    public void forceLoadAsStream(OutputStream outStream) throws IOException {
+        final InputStream urlStream = referenceURL.openStream();
+        final byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = urlStream.read(buffer)) != -1) {
+            outStream.write(buffer, 0, bytesRead);
+        }
+        urlStream.close();
+    }
 
-	@Override
-	public String toString() {
-		return "UrlReferenceContainer{" + "name='" + name + '\'' +
-				", contentType='" + contentType + '\'' +
-				", referenceURL=" + referenceURL +
-				", loadDataOnDemand=" + loadDataOnDemand +
-				'}';
-	}
+    @Override
+    public String toString() {
+        return "UrlReferenceContainer{" + "name='" + name + '\'' +
+                ", contentType='" + contentType + '\'' +
+                ", referenceURL=" + referenceURL +
+                ", loadDataOnDemand=" + loadDataOnDemand +
+                '}';
+    }
 }

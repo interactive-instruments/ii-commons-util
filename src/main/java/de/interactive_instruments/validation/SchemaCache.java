@@ -24,23 +24,17 @@ package de.interactive_instruments.validation;
  */
 public class SchemaCache {
 
-	/*
-	private final LoadingCache<Key, Graph> cache;
+    /* private final LoadingCache<Key, Graph> cache;
+     *
+     * private SchemaCache() { cache = Caffeine.newBuilder() .maximumSize(100) .build(key -> loadFromDiskOrParse(key)); } */
 
-	private SchemaCache() {
-		cache = Caffeine.newBuilder()
-				.maximumSize(100)
-				.build(key -> loadFromDiskOrParse(key));
-	}
-	*/
+    // 2 keys (url, schema hash), die nach schema gemappt sind.
 
-	// 2 keys (url, schema hash), die nach schema gemappt sind.
+    // cache: step 1: check if full url matches
 
-	// cache: step 1: check if full url matches
+    // Load with custom grammer pool
+    // https://xerces.apache.org/xerces2-j/faq-grammars.html
 
-	// Load with custom grammer pool
-	// https://xerces.apache.org/xerces2-j/faq-grammars.html
-
-	// https://santhosh-tekuri.github.io/jlibs/xml/crawler/XMLCrawler.html
+    // https://santhosh-tekuri.github.io/jlibs/xml/crawler/XMLCrawler.html
 
 }

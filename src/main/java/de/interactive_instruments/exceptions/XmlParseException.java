@@ -24,15 +24,15 @@ package de.interactive_instruments.exceptions;
  */
 public class XmlParseException extends ParseException {
 
-	public XmlParseException(final String message) {
-		super(message, null, 0);
-	}
+    public XmlParseException(final String message) {
+        super(message, null, 0);
+    }
 
-	public XmlParseException(final String message, final int errorOffset) {
-		super(message, null, errorOffset);
-	}
+    public XmlParseException(final String message, final int errorOffset) {
+        super(message, null, errorOffset);
+    }
 
-	public XmlParseException(final String errMessage, final String target, final int errorOffset) {
-		super(errMessage, target, errorOffset);
-	}
+    public XmlParseException(final String errMessage, final String target, final int errorOffset) {
+        super(errMessage, target, errorOffset);
+    }
 }

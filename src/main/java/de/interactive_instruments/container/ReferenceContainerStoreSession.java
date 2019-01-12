@@ -26,7 +26,7 @@ import java.util.UUID;
  * @author herrmann@interactive-instruments.de.
  */
 public interface ReferenceContainerStoreSession {
-	UUID getId();
+    UUID getId();
 
-	URI getUri();
+    URI getUri();
 }

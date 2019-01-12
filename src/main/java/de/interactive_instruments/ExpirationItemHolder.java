@@ -26,11 +26,13 @@ import java.util.concurrent.TimeUnit;
  */
 public interface ExpirationItemHolder {
 
-	/**
-	 * Remove an expired item
-	 *
-	 * @param maxLifeTime max lifetime
-	 * @param unit TimeUnit
-	 */
-	void removeExpiredItems(final long maxLifeTime, final TimeUnit unit);
+    /**
+     * Remove an expired item
+     *
+     * @param maxLifeTime
+     *            max lifetime
+     * @param unit
+     *            TimeUnit
+     */
+    void removeExpiredItems(final long maxLifeTime, final TimeUnit unit);
 }
