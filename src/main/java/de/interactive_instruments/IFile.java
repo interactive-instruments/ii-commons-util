@@ -25,10 +25,7 @@ import static de.interactive_instruments.IoUtils.copySecure;
 import java.io.*;
 import java.net.URI;
 import java.nio.channels.FileChannel;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.regex.Matcher;
@@ -40,6 +37,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 import de.interactive_instruments.container.Pair;
@@ -73,8 +71,9 @@ public final class IFile extends File {
     // identifier of the file which will be output in error messages
     protected String identifier;
 
-    // versionRemovePattern for relative file detection
-    private static final Pattern REL_PATH_REM = Pattern.compile("\\.\\.(\\\\*|/*)");
+    // patterns for relative file detection
+    final Pattern DIR_UP = Pattern.compile("\\.\\.");
+    final Pattern MULTI_B_SLASH = Pattern.compile("(\\\\+)|(//+)|(\\/+)");
 
     // replacements for special chars in file names
     private static Pair<Pattern, String>[] REPLACEMENTS = new Pair[]{
@@ -99,10 +98,6 @@ public final class IFile extends File {
 
     // removes all version information in a basename beginning with a number, followed by a dot
     private final static Pattern versionRemovePattern = Pattern.compile(
-            "-(?:0|(?:[1-9]\\d*))(?:-|(?:\\.(?:0|(?:[1-9]\\d*)))).*|\\.(?:.(?!\\.))+$");
-
-    // gets a major.minor and optional bugfix and snapshot version from a filename
-    private final static Pattern versionPattern = Pattern.compile(
             "-(?:0|(?:[1-9]\\d*))(?:-|(?:\\.(?:0|(?:[1-9]\\d*)))).*|\\.(?:.(?!\\.))+$");
 
     // files that are removed on exit
@@ -222,11 +217,20 @@ public final class IFile extends File {
      * @return
      */
     public IFile secureExpandPathDown(final String path) {
-        final Path p = Paths.get(
-                // \.\.(\\*|\/*)
-                REL_PATH_REM.matcher(path).replaceAll(""))
-                .normalize();
-        if (p.isAbsolute() && p.startsWith(this.toPath())) {
+        final Path p;
+        try {
+            p = Paths.get(
+                    MULTI_B_SLASH.matcher(
+                            DIR_UP.matcher(path).replaceAll(""))
+                            .replaceAll(java.util.regex.Matcher.quoteReplacement(File.separator)))
+                    .normalize();
+        } catch (InvalidPathException e) {
+            throw new SecurityException("Invalid path: " + path, e);
+        }
+        if ((p.isAbsolute() && (p.startsWith(this.toPath())) || (
+        // compare without driver letter
+        SystemUtils.IS_OS_WINDOWS && p.startsWith(File.separator + FilenameUtils.getPath(
+                this.toPath().toString() + File.separator))))) {
             return new IFile(p.toFile());
         }
         final IFile tmp = new IFile(this, p.toString());

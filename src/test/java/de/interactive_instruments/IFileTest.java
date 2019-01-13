@@ -42,6 +42,7 @@ public class IFileTest {
         IFile malFile7 = reportDir.secureExpandPathDown("/bla/bar/..//bli");
         IFile malFile8 = reportDir.secureExpandPathDown("/foo/bli");
         IFile malFile9 = reportDir.secureExpandPathDown("/foo/../bli");
+        IFile malFile10 = reportDir.secureExpandPathDown("./foo/../bli");
 
         assertFalse(malFile1.toPath().toAbsolutePath().toString().contains(".."));
         assertFalse(malFile2.toPath().toAbsolutePath().toString().contains(".."));
@@ -63,6 +64,18 @@ public class IFileTest {
             assertEquals(malFile7.getAbsolutePath(), "/bla/bar/bli");
             assertEquals(malFile8.getAbsolutePath(), "/bla/bar/foo/bli");
             assertEquals(malFile9.getAbsolutePath(), "/bla/bar/foo/bli");
+            assertEquals(malFile10.getAbsolutePath(), "/bla/bar/foo/bli");
+        } else {
+            assertEquals(malFile1.getAbsolutePath(), "C:\\bla\\bar\\bli");
+            assertEquals(malFile2.getAbsolutePath(), "C:\\bla\\bar\\bli");
+            assertEquals(malFile3.getAbsolutePath(), "C:\\bla\\bar\\bli");
+            assertEquals(malFile4.getAbsolutePath(), "C:\\bla\\bar\\bli");
+            assertEquals(malFile5.getAbsolutePath(), "C:\\bla\\bar\\bli");
+            assertEquals(malFile6.getAbsolutePath(), "C:\\bla\\bar\\bli");
+            assertEquals(malFile7.getAbsolutePath(), "C:\\bla\\bar\\bli");
+            assertEquals(malFile8.getAbsolutePath(), "C:\\bla\\bar\\foo\\bli");
+            assertEquals(malFile9.getAbsolutePath(), "C:\\bla\\bar\\foo\\bli");
+            assertEquals(malFile10.getAbsolutePath(), "C:\\bla\\bar\\foo\\bli");
         }
     }
 
