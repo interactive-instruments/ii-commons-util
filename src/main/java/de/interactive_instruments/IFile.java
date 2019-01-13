@@ -72,8 +72,8 @@ public final class IFile extends File {
     protected String identifier;
 
     // patterns for relative file detection
-    final Pattern DIR_UP = Pattern.compile("\\.\\.");
-    final Pattern MULTI_B_SLASH = Pattern.compile("(\\\\+)|(//+)|(\\/+)");
+    private static final Pattern DIR_UP = Pattern.compile("\\.\\.");
+    private static final Pattern MULTI_B_SLASH = Pattern.compile("(\\\\+)|(//+)|(\\/+)");
 
     // replacements for special chars in file names
     private static Pair<Pattern, String>[] REPLACEMENTS = new Pair[]{
@@ -222,7 +222,7 @@ public final class IFile extends File {
             p = Paths.get(
                     MULTI_B_SLASH.matcher(
                             DIR_UP.matcher(path).replaceAll(""))
-                            .replaceAll(java.util.regex.Matcher.quoteReplacement(File.separator)))
+                            .replaceAll(Matcher.quoteReplacement(File.separator)))
                     .normalize();
         } catch (InvalidPathException e) {
             throw new SecurityException("Invalid path: " + path, e);
