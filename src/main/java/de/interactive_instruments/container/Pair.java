@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -23,54 +23,54 @@ import java.util.Map;
 
 public class Pair<L, R> implements Map.Entry<L, R> {
 
-	// aka key
-	private final L left;
+    // aka key
+    private final L left;
 
-	// aka value
-	private R right;
+    // aka value
+    private R right;
 
-	public Pair(final L left, final R right) {
-		this.left = left;
-		this.right = right;
-	}
+    public Pair(final L left, final R right) {
+        this.left = left;
+        this.right = right;
+    }
 
-	@Override
-	public int hashCode() {
-		return left.hashCode() ^ right.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return left.hashCode() ^ right.hashCode();
+    }
 
-	public L getLeft() {
-		return left;
-	}
+    public L getLeft() {
+        return left;
+    }
 
-	@Override
-	public L getKey() {
-		return getLeft();
-	}
+    @Override
+    public L getKey() {
+        return getLeft();
+    }
 
-	public R getRight() {
-		return right;
-	}
+    public R getRight() {
+        return right;
+    }
 
-	@Override
-	public R getValue() {
-		return getRight();
-	}
+    @Override
+    public R getValue() {
+        return getRight();
+    }
 
-	@Override
-	public R setValue(R value) {
-		final R oldValue = right;
-		right = value;
-		return oldValue;
-	}
+    @Override
+    public R setValue(R value) {
+        final R oldValue = right;
+        right = value;
+        return oldValue;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (o == null || (!(o instanceof Map.Entry))) {
-			return false;
-		}
-		final Map.Entry<?, ?> p = (Pair<?, ?>) o;
-		return this.left.equals(p.getKey()) &&
-				this.right.equals(p.getValue());
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || (!(o instanceof Map.Entry))) {
+            return false;
+        }
+        final Map.Entry<?, ?> p = (Pair<?, ?>) o;
+        return this.left.equals(p.getKey()) &&
+                this.right.equals(p.getValue());
+    }
 }

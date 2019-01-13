@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -26,11 +26,11 @@ package de.interactive_instruments;
  *
  */
 final public class II_Constants {
-	public final static String II_COPYRIGHT = "(c) 2011-2018 interactive instruments GmbH";
+    public final static String II_COPYRIGHT = "(c) 2011-2018 interactive instruments GmbH";
 
-	public final static String XML_SCHEMA_NS_URI = "http://www.w3.org/2001/XMLSchema";
+    public final static String XML_SCHEMA_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
-	public final static String II_COMMON_UTILS_NS = "http://www.interactive-instruments.de/ii/1.0";
+    public final static String II_COMMON_UTILS_NS = "http://www.interactive-instruments.de/ii/1.0";
 
-	private II_Constants() {}
+    private II_Constants() {}
 }

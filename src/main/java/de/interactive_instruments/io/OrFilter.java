@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -28,27 +28,27 @@ import java.util.Objects;
  */
 class OrFilter implements MultiFileFilter {
 
-	private final FileFilter[] fileFilters;
+    private final FileFilter[] fileFilters;
 
-	OrFilter(final FileFilter... fileFilters) {
-		this.fileFilters = Objects.requireNonNull(fileFilters, "Filters are null");
-	}
+    OrFilter(final FileFilter... fileFilters) {
+        this.fileFilters = Objects.requireNonNull(fileFilters, "Filters are null");
+    }
 
-	public OrFilter(final MultiFileFilter multiFileFilter, final FileFilter[] fileFilters) {
-		this.fileFilters = new FileFilter[fileFilters.length + 1];
-		this.fileFilters[0] = multiFileFilter;
-		for (int i = 1; i < this.fileFilters.length; i++) {
-			this.fileFilters[i] = fileFilters[i];
-		}
-	}
+    public OrFilter(final MultiFileFilter multiFileFilter, final FileFilter[] fileFilters) {
+        this.fileFilters = new FileFilter[fileFilters.length + 1];
+        this.fileFilters[0] = multiFileFilter;
+        for (int i = 1; i < this.fileFilters.length; i++) {
+            this.fileFilters[i] = fileFilters[i];
+        }
+    }
 
-	@Override
-	public boolean accept(final File pathname) {
-		for (int i = 0, fileFiltersLength = fileFilters.length; i < fileFiltersLength; i++) {
-			if (fileFilters[i].accept(pathname)) {
-				return true;
-			}
-		}
-		return false;
-	}
+    @Override
+    public boolean accept(final File pathname) {
+        for (int i = 0, fileFiltersLength = fileFilters.length; i < fileFiltersLength; i++) {
+            if (fileFilters[i].accept(pathname)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

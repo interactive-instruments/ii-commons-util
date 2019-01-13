@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -31,36 +31,36 @@ import de.interactive_instruments.Version;
  */
 public interface Artifact {
 
-	/**
-	 * Returns unique artifact ID
-	 */
-	String getId();
+    /**
+     * Returns unique artifact ID
+     */
+    String getId();
 
-	/**
-	 * Get artifact name
-	 *
-	 * @return
-	 */
-	String getName();
+    /**
+     * Get artifact name
+     *
+     * @return
+     */
+    String getName();
 
-	/**
-	 * Get artifact group name
-	 *
-	 * @return
-	 */
-	String getGroupname();
+    /**
+     * Get artifact group name
+     *
+     * @return
+     */
+    String getGroupname();
 
-	/**
-	 * Get artifact version
-	 *
-	 * @return
-	 */
-	Version getVersion();
+    /**
+     * Get artifact version
+     *
+     * @return
+     */
+    Version getVersion();
 
-	/**
-	 * Download to destination
-	 *
-	 * @param destination
-	 */
-	void copyTo(final File destination) throws IOException;
+    /**
+     * Download to destination
+     *
+     * @param destination
+     */
+    void copyTo(final File destination) throws IOException;
 }

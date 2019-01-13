@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -32,29 +32,29 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class LaxWrapper<T> {
 
-	private List<T> items;
+    private List<T> items;
 
-	public LaxWrapper() {
-		items = new ArrayList<T>();
-	}
+    public LaxWrapper() {
+        items = new ArrayList<T>();
+    }
 
-	public LaxWrapper(List<T> items) {
-		this.items = items;
-	}
+    public LaxWrapper(List<T> items) {
+        this.items = items;
+    }
 
-	@XmlAnyElement(lax = true)
-	public List<T> getItems() {
-		return items;
-	}
+    @XmlAnyElement(lax = true)
+    public List<T> getItems() {
+        return items;
+    }
 
-	@Override
-	public String toString() {
-		final StringBuffer sb = new StringBuffer("LaxWrapper{");
-		sb.append("items={");
-		for (T item : items) {
-			sb.append("{").append(item).append("}");
-		}
-		sb.append('}');
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        final StringBuffer sb = new StringBuffer("LaxWrapper{");
+        sb.append("items={");
+        for (T item : items) {
+            sb.append("{").append(item).append("}");
+        }
+        sb.append('}');
+        return sb.toString();
+    }
 }

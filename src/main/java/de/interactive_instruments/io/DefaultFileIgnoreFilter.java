@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -27,20 +27,20 @@ import java.util.regex.Pattern;
  */
 public class DefaultFileIgnoreFilter implements MultiFileFilter {
 
-	private static Pattern pattern = Pattern.compile(".*(\\.DS_Store|\\.git.*|\\.localized|desktop.ini|Thumbs.db|__MACOSX)");
+    private static Pattern pattern = Pattern.compile(".*(\\.DS_Store|\\.git.*|\\.localized|desktop.ini|Thumbs.db|__MACOSX)");
 
-	public static boolean acceptFile(final File p) {
-		return !pattern.matcher(p.getAbsolutePath()).matches();
-	}
+    public static boolean acceptFile(final File p) {
+        return !pattern.matcher(p.getAbsolutePath()).matches();
+    }
 
-	private final static DefaultFileIgnoreFilter INSTANCE = new DefaultFileIgnoreFilter();
+    private final static DefaultFileIgnoreFilter INSTANCE = new DefaultFileIgnoreFilter();
 
-	public static MultiFileFilter getInstance() {
-		return INSTANCE;
-	}
+    public static MultiFileFilter getInstance() {
+        return INSTANCE;
+    }
 
-	@Override
-	public boolean accept(final File p) {
-		return acceptFile(p);
-	}
+    @Override
+    public boolean accept(final File p) {
+        return acceptFile(p);
+    }
 }

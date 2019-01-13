@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -34,73 +34,71 @@ import de.interactive_instruments.exceptions.IOsizeLimitExceededException;
  */
 public final class IoUtils {
 
-	private IoUtils() {}
+    private IoUtils() {}
 
-	public static void copySecure(final InputStream inputStream, final OutputStream outputStream,
-			final int bufferSize, final long maxSize) throws IOException {
-		final byte[] buffer = new byte[bufferSize];
-		long bytesWritten = 0;
-		int length;
-		while (-1 != (length = inputStream.read(buffer))) {
-			outputStream.write(buffer, 0, length);
-			bytesWritten += length;
-			if (bytesWritten > maxSize) {
-				throw new IOsizeLimitExceededException(maxSize);
-			}
-		}
-	}
+    public static void copySecure(final InputStream inputStream, final OutputStream outputStream,
+            final int bufferSize, final long maxSize) throws IOException {
+        final byte[] buffer = new byte[bufferSize];
+        long bytesWritten = 0;
+        int length;
+        while (-1 != (length = inputStream.read(buffer))) {
+            outputStream.write(buffer, 0, length);
+            bytesWritten += length;
+            if (bytesWritten > maxSize) {
+                throw new IOsizeLimitExceededException(maxSize);
+            }
+        }
+    }
 
-	public static void copy(final InputStream inputStream, final OutputStream outputStream,
-			final int bufferSize) throws IOException {
-		final byte[] buffer = new byte[bufferSize];
-		int length;
-		while (-1 != (length = inputStream.read(buffer))) {
-			outputStream.write(buffer, 0, length);
-		}
-	}
+    public static void copy(final InputStream inputStream, final OutputStream outputStream,
+            final int bufferSize) throws IOException {
+        final byte[] buffer = new byte[bufferSize];
+        int length;
+        while (-1 != (length = inputStream.read(buffer))) {
+            outputStream.write(buffer, 0, length);
+        }
+    }
 
-	public static void copy(final InputStream inputStream, final OutputStream outputStream,
-			final byte[] buffer) throws IOException {
-		int length;
-		while (-1 != (length = inputStream.read(buffer))) {
-			outputStream.write(buffer, 0, length);
-		}
-	}
+    public static void copy(final InputStream inputStream, final OutputStream outputStream,
+            final byte[] buffer) throws IOException {
+        int length;
+        while (-1 != (length = inputStream.read(buffer))) {
+            outputStream.write(buffer, 0, length);
+        }
+    }
 
-	/**
-	 * Copies a resource to a resource path.
-	 * Note: First use the class to find the resource,
-	 * if nothing is found the associated classloader will be used as fallback.
-	 * @param ctxObj
-	 * @param resourcePath
-	 * @param destFile
-	 * @throws IOException
-	 */
-	public static void copyResourceToFile(final Object ctxObj, final String resourcePath, final IFile destFile)
-			throws IOException {
-		destFile.getParentFile().mkdirs();
-		destFile.expectFileIsWritable();
-		final InputStream stream = getResourceAsStream(ctxObj, resourcePath);
-		destFile.write(IoUtils.requireNonNullIO(stream, "Resource " + resourcePath + " not found"));
-	}
+    /**
+     * Copies a resource to a resource path. Note: First use the class to find the resource, if nothing is found the associated classloader will be used as fallback.
+     *
+     * @param ctxObj
+     * @param resourcePath
+     * @param destFile
+     * @throws IOException
+     */
+    public static void copyResourceToFile(final Object ctxObj, final String resourcePath, final IFile destFile)
+            throws IOException {
+        destFile.getParentFile().mkdirs();
+        destFile.expectFileIsWritable();
+        final InputStream stream = getResourceAsStream(ctxObj, resourcePath);
+        destFile.write(IoUtils.requireNonNullIO(stream, "Resource " + resourcePath + " not found"));
+    }
 
-	public static <T> T requireNonNullIO(final T obj, final String message) throws IOException {
-		if (obj == null)
-			throw new IOException(message);
-		return obj;
-	}
+    public static <T> T requireNonNullIO(final T obj, final String message) throws IOException {
+        if (obj == null)
+            throw new IOException(message);
+        return obj;
+    }
 
-	/**
-	 * Unconditionally close a closeable object and ignore errors.
-	 * ! Use with care !
-	 */
-	public static void closeQuietly(final Closeable closeable) {
-		try {
-			if (closeable != null) {
-				closeable.close();
-			}
-		} catch (final Exception e) {
-			ExcUtils.suppress(e);
-		}
-	}
+    /**
+     * Unconditionally close a closeable object and ignore errors. ! Use with care !
+     */
+    public static void closeQuietly(final Closeable closeable) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            }
+        } catch (final Exception e) {
+            ExcUtils.suppress(e);
+        }
+    }
 }

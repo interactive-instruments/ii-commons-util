@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -45,88 +45,88 @@ import de.interactive_instruments.container.Pair;
  */
 public class MultiThreadedFilteredFileVisitor implements FileVisitor<Path> {
 
-	// simple filters that are executed before Threads are created
-	private final PathFilter level1Filter;
-	// expensive filters that are executed inside a Thread
-	private final Factory<MultiFileFilter> level2Filter;
-	// visitor tasks that are executed inside a Thread
-	private final Map<String, FileVisitor<Path>> visitors = new HashMap<>();
-	private final Queue<Pair<Path, BasicFileAttributes>> files = new ConcurrentLinkedQueue<>();
-	private final ExecutorService executorService = Executors.newWorkStealingPool();
-	private static final int MAX_TIMEOUT_H = 24;
+    // simple filters that are executed before Threads are created
+    private final PathFilter level1Filter;
+    // expensive filters that are executed inside a Thread
+    private final Factory<MultiFileFilter> level2Filter;
+    // visitor tasks that are executed inside a Thread
+    private final Map<String, FileVisitor<Path>> visitors = new HashMap<>();
+    private final Queue<Pair<Path, BasicFileAttributes>> files = new ConcurrentLinkedQueue<>();
+    private final ExecutorService executorService = Executors.newWorkStealingPool();
+    private static final int MAX_TIMEOUT_H = 24;
 
-	public MultiThreadedFilteredFileVisitor(final PathFilter level1Filter, final Factory<MultiFileFilter> level2Filter,
-			final Collection<FileVisitor<Path>> visitors) {
-		this.level1Filter = level1Filter;
-		this.level2Filter = level2Filter;
-		for (final FileVisitor<Path> visitor : visitors) {
-			this.visitors.put(visitor.getClass().getSimpleName(), visitor);
-		}
-	}
+    public MultiThreadedFilteredFileVisitor(final PathFilter level1Filter, final Factory<MultiFileFilter> level2Filter,
+            final Collection<FileVisitor<Path>> visitors) {
+        this.level1Filter = level1Filter;
+        this.level2Filter = level2Filter;
+        for (final FileVisitor<Path> visitor : visitors) {
+            this.visitors.put(visitor.getClass().getSimpleName(), visitor);
+        }
+    }
 
-	@Override
-	public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-		if (level1Filter == null || level1Filter.accept(file)) {
-			files.add(new Pair<>(file, attrs));
-		}
-		return FileVisitResult.CONTINUE;
-	}
+    @Override
+    public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
+        if (level1Filter == null || level1Filter.accept(file)) {
+            files.add(new Pair<>(file, attrs));
+        }
+        return FileVisitResult.CONTINUE;
+    }
 
-	@Override
-	public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
-		return FileVisitResult.CONTINUE;
-	}
+    @Override
+    public FileVisitResult preVisitDirectory(final Path dir, final BasicFileAttributes attrs) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
 
-	@Override
-	public FileVisitResult visitFileFailed(final Path file, final IOException exc) throws IOException {
-		return FileVisitResult.CONTINUE;
-	}
+    @Override
+    public FileVisitResult visitFileFailed(final Path file, final IOException exc) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
 
-	@Override
-	public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
-		return FileVisitResult.CONTINUE;
-	}
+    @Override
+    public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
 
-	public void startWorkers() {
-		final int threads = Math.min(files.size(), Runtime.getRuntime().availableProcessors());
-		for (int i = 0; i < threads; i++) {
-			executorService.execute(new FilterAndVisitRunnable(this.files, this.level2Filter.create(), visitors.values()));
-		}
-	}
+    public void startWorkers() {
+        final int threads = Math.min(files.size(), Runtime.getRuntime().availableProcessors());
+        for (int i = 0; i < threads; i++) {
+            executorService.execute(new FilterAndVisitRunnable(this.files, this.level2Filter.create(), visitors.values()));
+        }
+    }
 
-	public void awaitTermination() throws InterruptedException {
-		executorService.shutdown();
-		executorService.awaitTermination(MAX_TIMEOUT_H, TimeUnit.HOURS);
-		files.clear();
-	}
+    public void awaitTermination() throws InterruptedException {
+        executorService.shutdown();
+        executorService.awaitTermination(MAX_TIMEOUT_H, TimeUnit.HOURS);
+        files.clear();
+    }
 
-	private static class FilterAndVisitRunnable implements Runnable {
-		private final Queue<Pair<Path, BasicFileAttributes>> files;
-		private final MultiFileFilter level2Filter;
-		private final Collection<FileVisitor<Path>> visitors;
+    private static class FilterAndVisitRunnable implements Runnable {
+        private final Queue<Pair<Path, BasicFileAttributes>> files;
+        private final MultiFileFilter level2Filter;
+        private final Collection<FileVisitor<Path>> visitors;
 
-		FilterAndVisitRunnable(final Queue<Pair<Path, BasicFileAttributes>> files, final MultiFileFilter level2Filter,
-				final Collection<FileVisitor<Path>> visitors) {
-			this.files = files;
-			this.level2Filter = level2Filter;
-			this.visitors = visitors;
-		}
+        FilterAndVisitRunnable(final Queue<Pair<Path, BasicFileAttributes>> files, final MultiFileFilter level2Filter,
+                final Collection<FileVisitor<Path>> visitors) {
+            this.files = files;
+            this.level2Filter = level2Filter;
+            this.visitors = visitors;
+        }
 
-		@Override
-		public void run() {
-			for (Pair<Path, BasicFileAttributes> filePair; (filePair = files.poll()) != null;) {
-				final Path file = filePair.getLeft();
-				if (this.level2Filter == null || this.level2Filter.accept(file)) {
-					try {
-						for (final FileVisitor<Path> visitor : visitors) {
-							visitor.visitFile(file, filePair.getRight());
-						}
-					} catch (IOException e) {
-						LoggerFactory.getLogger(FilterAndVisitRunnable.class).error("Internal error visiting file: ", e);
-					}
-				}
-			}
-		}
-	}
+        @Override
+        public void run() {
+            for (Pair<Path, BasicFileAttributes> filePair; (filePair = files.poll()) != null;) {
+                final Path file = filePair.getLeft();
+                if (this.level2Filter == null || this.level2Filter.accept(file)) {
+                    try {
+                        for (final FileVisitor<Path> visitor : visitors) {
+                            visitor.visitFile(file, filePair.getRight());
+                        }
+                    } catch (IOException e) {
+                        LoggerFactory.getLogger(FilterAndVisitRunnable.class).error("Internal error visiting file: ", e);
+                    }
+                }
+            }
+        }
+    }
 
 }

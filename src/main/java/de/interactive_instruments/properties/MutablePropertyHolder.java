@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -28,46 +28,46 @@ import de.interactive_instruments.IoUtils;
 
 public interface MutablePropertyHolder extends PropertyHolder {
 
-	MutablePropertyHolder setProperty(final String key, final String value);
+    MutablePropertyHolder setProperty(final String key, final String value);
 
-	void removeProperty(final String key);
+    void removeProperty(final String key);
 
-	default void setPropertiesFrom(final PropertyHolder properties, boolean overwrite) {
-		if (properties == null) {
-			throw new IllegalArgumentException("PropertyHolder is null");
-		}
-		properties.namePropertyPairs().forEach(p -> {
-			if (overwrite || !hasProperty(p.getKey())) {
-				setProperty(p.getKey(), p.getValue());
-			}
-		});
-	}
+    default void setPropertiesFrom(final PropertyHolder properties, boolean overwrite) {
+        if (properties == null) {
+            throw new IllegalArgumentException("PropertyHolder is null");
+        }
+        properties.namePropertyPairs().forEach(p -> {
+            if (overwrite || !hasProperty(p.getKey())) {
+                setProperty(p.getKey(), p.getValue());
+            }
+        });
+    }
 
-	default void setPropertiesFrom(final java.util.Properties properties, boolean overwrite) {
-		if (properties == null) {
-			throw new IllegalArgumentException("Properties are null");
-		}
-		properties.entrySet().forEach(p -> {
-			if (overwrite || !hasProperty(p.getKey().toString())) {
-				setProperty(p.getKey().toString(), p.getValue().toString());
-			}
-		});
-	}
+    default void setPropertiesFrom(final java.util.Properties properties, boolean overwrite) {
+        if (properties == null) {
+            throw new IllegalArgumentException("Properties are null");
+        }
+        properties.entrySet().forEach(p -> {
+            if (overwrite || !hasProperty(p.getKey().toString())) {
+                setProperty(p.getKey().toString(), p.getValue().toString());
+            }
+        });
+    }
 
-	default void setPropertiesFrom(final IFile propertyFile, boolean overwrite) throws IOException {
-		if (propertyFile == null) {
-			throw new IllegalArgumentException("Property file is null");
-		}
-		propertyFile.expectFileIsReadable();
-		final java.util.Properties properties = new java.util.Properties();
-		BufferedInputStream stream = null;
-		try {
-			stream = new BufferedInputStream(new FileInputStream(propertyFile));
-			properties.load(stream);
-		} finally {
-			IoUtils.closeQuietly(stream);
-		}
-		setPropertiesFrom(properties, overwrite);
-	}
+    default void setPropertiesFrom(final IFile propertyFile, boolean overwrite) throws IOException {
+        if (propertyFile == null) {
+            throw new IllegalArgumentException("Property file is null");
+        }
+        propertyFile.expectFileIsReadable();
+        final java.util.Properties properties = new java.util.Properties();
+        BufferedInputStream stream = null;
+        try {
+            stream = new BufferedInputStream(new FileInputStream(propertyFile));
+            properties.load(stream);
+        } finally {
+            IoUtils.closeQuietly(stream);
+        }
+        setPropertiesFrom(properties, overwrite);
+    }
 
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -35,52 +35,52 @@ import javax.xml.bind.annotation.XmlValue;
 @XmlRootElement(name = "StrContainer")
 public class StringDataContainer implements LazyLoadContainer {
 
-	@XmlAttribute
-	private final String name;
+    @XmlAttribute
+    private final String name;
 
-	@XmlValue
-	private final String str;
+    @XmlValue
+    private final String str;
 
-	StringDataContainer() {
-		str = "";
-		name = "";
-	}
+    StringDataContainer() {
+        str = "";
+        name = "";
+    }
 
-	public StringDataContainer(String name, String str) {
-		this.name = name;
-		this.str = str;
-	}
+    public StringDataContainer(String name, String str) {
+        this.name = name;
+        this.str = str;
+    }
 
-	/**
-	 * Always returns false
-	 */
-	@Override
-	public boolean isReference() {
-		return false;
-	}
+    /**
+     * Always returns false
+     */
+    @Override
+    public boolean isReference() {
+        return false;
+    }
 
-	@Override
-	public String getContentType() {
-		return "plain/text";
-	}
+    @Override
+    public String getContentType() {
+        return "plain/text";
+    }
 
-	@Override
-	public String getAsString() {
-		return str;
-	}
+    @Override
+    public String getAsString() {
+        return str;
+    }
 
-	@Override
-	public String forceLoad() {
-		return getAsString();
-	}
+    @Override
+    public String forceLoad() {
+        return getAsString();
+    }
 
-	@Override
-	public String getName() {
-		return this.name;
-	}
+    @Override
+    public String getName() {
+        return this.name;
+    }
 
-	@Override
-	public void forceLoadAsStream(OutputStream outStream) {
-		new PrintWriter(outStream).write(this.str);
-	}
+    @Override
+    public void forceLoadAsStream(OutputStream outStream) {
+        new PrintWriter(outStream).write(this.str);
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -30,35 +30,35 @@ import de.interactive_instruments.exceptions.ExcUtils;
  */
 public class DefaultIdFactory implements IdFactory {
 
-	/**
-	 * Default C'tor
-	 */
-	DefaultIdFactory() {}
+    /**
+     * Default C'tor
+     */
+    DefaultIdFactory() {}
 
-	@Override
-	public Id createRandomUuid() {
-		return new DefaultId(UUID.randomUUID().toString());
-	}
+    @Override
+    public Id createRandomUuid() {
+        return new DefaultId(UUID.randomUUID().toString());
+    }
 
-	@Override
-	public Id createFromStrAndPreserve(String s) {
-		return new DefaultId(s);
-	}
+    @Override
+    public Id createFromStrAndPreserve(String s) {
+        return new DefaultId(s);
+    }
 
-	@Override
-	public Id createFromStrAsUuid(final String s) {
-		try {
-			if (s.length() == 36) {
-				return new DefaultId(UUID.fromString(s));
-			}
-		} catch (IllegalArgumentException e) {
-			ExcUtils.suppress(e);
-		}
-		return new DefaultId(UUID.nameUUIDFromBytes(s.getBytes()));
-	}
+    @Override
+    public Id createFromStrAsUuid(final String s) {
+        try {
+            if (s.length() == 36) {
+                return new DefaultId(UUID.fromString(s));
+            }
+        } catch (IllegalArgumentException e) {
+            ExcUtils.suppress(e);
+        }
+        return new DefaultId(UUID.nameUUIDFromBytes(s.getBytes()));
+    }
 
-	@Override
-	public Id createFromUuid(UUID uuid) {
-		return new DefaultId(uuid);
-	}
+    @Override
+    public Id createFromUuid(UUID uuid) {
+        return new DefaultId(uuid);
+    }
 }

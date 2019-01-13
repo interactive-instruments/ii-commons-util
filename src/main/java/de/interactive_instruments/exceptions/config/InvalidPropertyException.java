@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -21,14 +21,14 @@ package de.interactive_instruments.exceptions.config;
 
 public class InvalidPropertyException extends ConfigurationException {
 
-	private static final long serialVersionUID = -7943479626804026007L;
+    private static final long serialVersionUID = -7943479626804026007L;
 
-	public InvalidPropertyException(final Object configObj, final String property) {
-		super("Incomplete configuration: invalid property \"" +
-				property + "\"!");
-	}
+    public InvalidPropertyException(final Object configObj, final String property) {
+        super("Incomplete configuration: invalid property \"" +
+                property + "\"!");
+    }
 
-	public InvalidPropertyException(final String mesg) {
-		super(mesg);
-	}
+    public InvalidPropertyException(final String mesg) {
+        super(mesg);
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -34,13 +34,13 @@ import de.interactive_instruments.IFile;
  * @see de.interactive_instruments.IFile
  */
 public final class IFileXmlAdapter extends XmlAdapter<File, IFile> {
-	@Override
-	public IFile unmarshal(final File file) {
-		return new IFile(file.getPath());
-	}
+    @Override
+    public IFile unmarshal(final File file) {
+        return new IFile(file.getPath());
+    }
 
-	@Override
-	public File marshal(final IFile file) {
-		return new File(file.getPath());
-	}
+    @Override
+    public File marshal(final IFile file) {
+        return new File(file.getPath());
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -37,64 +37,64 @@ import de.interactive_instruments.io.MultiFileFilter;
  */
 public class ParalellSchemaValidationManager implements Factory<MultiFileFilter> {
 
-	private static final int MAX_ERRORS = 1000;
-	private final Schema schema;
-	private final ValidatorErrorCollector collHandler;
+    private static final int MAX_ERRORS = 1000;
+    private final Schema schema;
+    private final ValidatorErrorCollector collHandler;
 
-	public ParalellSchemaValidationManager(final File schemaFile) throws SAXException {
-		this.schema = newInstance("http://www.w3.org/2001/XMLSchema").newSchema(schemaFile);
-		collHandler = new ValidatorErrorCollector(MAX_ERRORS);
-	}
+    public ParalellSchemaValidationManager(final File schemaFile) throws SAXException {
+        this.schema = newInstance("http://www.w3.org/2001/XMLSchema").newSchema(schemaFile);
+        collHandler = new ValidatorErrorCollector(MAX_ERRORS);
+    }
 
-	public ParalellSchemaValidationManager(final File schemaFile, final int errorLimit) throws SAXException {
-		this.schema = newInstance("http://www.w3.org/2001/XMLSchema").newSchema(schemaFile);
-		collHandler = new ValidatorErrorCollector(errorLimit);
-	}
+    public ParalellSchemaValidationManager(final File schemaFile, final int errorLimit) throws SAXException {
+        this.schema = newInstance("http://www.w3.org/2001/XMLSchema").newSchema(schemaFile);
+        collHandler = new ValidatorErrorCollector(errorLimit);
+    }
 
-	public ParalellSchemaValidationManager() throws SAXException {
-		this.schema = null;
-		collHandler = new ValidatorErrorCollector(MAX_ERRORS);
-	}
+    public ParalellSchemaValidationManager() throws SAXException {
+        this.schema = null;
+        collHandler = new ValidatorErrorCollector(MAX_ERRORS);
+    }
 
-	public ParalellSchemaValidationManager(final int errorLimit) throws SAXException {
-		this.schema = null;
-		collHandler = new ValidatorErrorCollector(errorLimit);
-	}
+    public ParalellSchemaValidationManager(final int errorLimit) throws SAXException {
+        this.schema = null;
+        collHandler = new ValidatorErrorCollector(errorLimit);
+    }
 
-	@Override
-	public SchemaValidator create() {
-		try {
-			return new SchemaValidator(this.schema, collHandler);
-		} catch (ParserConfigurationException | SAXException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+    @Override
+    public SchemaValidator create() {
+        try {
+            return new SchemaValidator(this.schema, collHandler);
+        } catch (ParserConfigurationException | SAXException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
-	@Override
-	public void release() {
-		collHandler.release();
-	}
+    @Override
+    public void release() {
+        collHandler.release();
+    }
 
-	/**
-	 * Returns all concatenated error messages.
-	 *
-	 * @return concatenated error messages
-	 */
-	final public String getErrorMessages() {
-		return collHandler.getErrorMessages();
-	}
+    /**
+     * Returns all concatenated error messages.
+     *
+     * @return concatenated error messages
+     */
+    final public String getErrorMessages() {
+        return collHandler.getErrorMessages();
+    }
 
-	/**
-	 * Returns the number of errors.
-	 *
-	 * @return number of errors.
-	 */
-	final public int getErrorCount() {
-		return collHandler.getErrorCount();
-	}
+    /**
+     * Returns the number of errors.
+     *
+     * @return number of errors.
+     */
+    final public int getErrorCount() {
+        return collHandler.getErrorCount();
+    }
 
-	public Set<File> getSkippedFiles() {
-		return collHandler.getSkippedFiles();
-	}
+    public Set<File> getSkippedFiles() {
+        return collHandler.getSkippedFiles();
+    }
 }

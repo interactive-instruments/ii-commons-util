@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -24,15 +24,15 @@ package de.interactive_instruments.exceptions;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class InitializationException extends Exception {
-	public InitializationException(String msg, Throwable e) {
-		super(msg + " " + e.getMessage());
-	}
+    public InitializationException(String msg, Throwable e) {
+        super(msg + " " + e.getMessage());
+    }
 
-	public InitializationException(Throwable e) {
-		super("Initialization Failed. " + e.getMessage());
-	}
+    public InitializationException(Throwable e) {
+        super("Initialization Failed. " + e.getMessage());
+    }
 
-	public InitializationException(String msg) {
-		super(msg);
-	}
+    public InitializationException(String msg) {
+        super(msg);
+    }
 }

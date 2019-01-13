@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -29,36 +29,36 @@ import de.interactive_instruments.SUtils;
  */
 public class ObjectWithIdNotFoundException extends Exception {
 
-	private static final long serialVersionUID = 7040707309361467467L;
+    private static final long serialVersionUID = 7040707309361467467L;
 
-	public ObjectWithIdNotFoundException(final Object mngObj, final int hashCode) {
-		super((mngObj != null ? mngObj.getClass().getSimpleName() + ":" : "") + " An object with the id \"" + hashCode
-				+ "\" could not be found!");
-	}
+    public ObjectWithIdNotFoundException(final Object mngObj, final int hashCode) {
+        super((mngObj != null ? mngObj.getClass().getSimpleName() + ":" : "") + " An object with the id \"" + hashCode
+                + "\" could not be found!");
+    }
 
-	public ObjectWithIdNotFoundException(final int id) {
-		super("An object with the hashCode \"" + id + "\" could not be found!");
-	}
+    public ObjectWithIdNotFoundException(final int id) {
+        super("An object with the hashCode \"" + id + "\" could not be found!");
+    }
 
-	public ObjectWithIdNotFoundException(final Object mngObj, final String id) {
-		super((mngObj != null ? mngObj.getClass().getSimpleName() + ":" : "") + " An object with the id \"" + id
-				+ "\" could not be found!");
-	}
+    public ObjectWithIdNotFoundException(final Object mngObj, final String id) {
+        super((mngObj != null ? mngObj.getClass().getSimpleName() + ":" : "") + " An object with the id \"" + id
+                + "\" could not be found!");
+    }
 
-	public ObjectWithIdNotFoundException(final String id) {
-		super("An object with the id \"" + id + "\" could not be found!");
-	}
+    public ObjectWithIdNotFoundException(final String id) {
+        super("An object with the id \"" + id + "\" could not be found!");
+    }
 
-	public ObjectWithIdNotFoundException(final String id, final String objLabel) {
-		super("An object with the id \"" + id + "\" (" + objLabel + ") could not be found!");
-	}
+    public ObjectWithIdNotFoundException(final String id, final String objLabel) {
+        super("An object with the id \"" + id + "\" (" + objLabel + ") could not be found!");
+    }
 
-	public ObjectWithIdNotFoundException(final Iterable iterable) {
-		super("Objects with the ids \"" + SUtils.toBlankSepStr(iterable) + "\" could not be found!");
-	}
+    public ObjectWithIdNotFoundException(final Iterable iterable) {
+        super("Objects with the ids \"" + SUtils.toBlankSepStr(iterable) + "\" could not be found!");
+    }
 
-	// User with super(message, 1L);
-	protected ObjectWithIdNotFoundException(final String message, final long placeholder) {
-		super(message);
-	}
+    // User with super(message, 1L);
+    protected ObjectWithIdNotFoundException(final String message, final long placeholder) {
+        super(message);
+    }
 }

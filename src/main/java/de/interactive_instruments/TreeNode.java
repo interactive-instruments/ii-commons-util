@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -27,13 +27,13 @@ import java.util.List;
  */
 public interface TreeNode<T> {
 
-	TreeNode<? extends T> getParent();
+    TreeNode<? extends T> getParent();
 
-	List<TreeNode<? extends T>> getChildren();
+    List<TreeNode<? extends T>> getChildren();
 
-	Iterator<TreeNode<? extends T>> iterator();
+    Iterator<TreeNode<? extends T>> iterator();
 
-	int getLevel();
+    int getLevel();
 
-	int getPosition();
+    int getPosition();
 }

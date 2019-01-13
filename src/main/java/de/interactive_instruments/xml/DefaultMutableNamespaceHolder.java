@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -26,49 +26,50 @@ import java.util.*;
  */
 public final class DefaultMutableNamespaceHolder extends AbstractNamespaceHolder implements MutableNamespaceHolder {
 
-	private final String defaultNamespace;
+    private final String defaultNamespace;
 
-	public DefaultMutableNamespaceHolder() {
-		this.defaultNamespace = null;
-	}
+    public DefaultMutableNamespaceHolder() {
+        this.defaultNamespace = null;
+    }
 
-	/**
-	 * Copies the namespaces from an existing namespace holder
-	 * @param holder
-	 */
-	public DefaultMutableNamespaceHolder(final NamespaceHolder holder) {
-		super(new LinkedHashMap(holder.getNamespacesAsMap()));
-		this.defaultNamespace = null;
-	}
+    /**
+     * Copies the namespaces from an existing namespace holder
+     *
+     * @param holder
+     */
+    public DefaultMutableNamespaceHolder(final NamespaceHolder holder) {
+        super(new LinkedHashMap(holder.getNamespacesAsMap()));
+        this.defaultNamespace = null;
+    }
 
-	public DefaultMutableNamespaceHolder(final String defaultNamespace, final NamespaceHolder holder) {
-		super(new LinkedHashMap(holder.getNamespacesAsMap()));
-		this.defaultNamespace = defaultNamespace;
-	}
+    public DefaultMutableNamespaceHolder(final String defaultNamespace, final NamespaceHolder holder) {
+        super(new LinkedHashMap(holder.getNamespacesAsMap()));
+        this.defaultNamespace = defaultNamespace;
+    }
 
-	@Override
-	public void addNamespaceUriAndPrefix(String namespaceUri, String prefix) {
-		final String nsUri = this.prefixMappings.get(prefix);
-		if (nsUri == null) {
-			this.prefixMappings.put(prefix, namespaceUri);
-			final Collection<String> prefixes = this.namespacesUriMappings.get(namespaceUri);
-			if (prefixes != null) {
-				prefixes.add(prefix);
-			} else {
-				this.namespacesUriMappings.put(namespaceUri, new ArrayList<String>() {
-					{
-						add(prefix);
-					}
-				});
-			}
-		} else if (!nsUri.equals(namespaceUri)) {
-			throw new IllegalArgumentException("The prefix '" + prefix + "' is already mapped to namespace '" + nsUri + "'");
-		}
-	}
+    @Override
+    public void addNamespaceUriAndPrefix(String namespaceUri, String prefix) {
+        final String nsUri = this.prefixMappings.get(prefix);
+        if (nsUri == null) {
+            this.prefixMappings.put(prefix, namespaceUri);
+            final Collection<String> prefixes = this.namespacesUriMappings.get(namespaceUri);
+            if (prefixes != null) {
+                prefixes.add(prefix);
+            } else {
+                this.namespacesUriMappings.put(namespaceUri, new ArrayList<String>() {
+                    {
+                        add(prefix);
+                    }
+                });
+            }
+        } else if (!nsUri.equals(namespaceUri)) {
+            throw new IllegalArgumentException("The prefix '" + prefix + "' is already mapped to namespace '" + nsUri + "'");
+        }
+    }
 
-	@Override
-	public String getDefaultNamespaceUri() {
-		return this.defaultNamespace;
-	}
+    @Override
+    public String getDefaultNamespaceUri() {
+        return this.defaultNamespace;
+    }
 
 }

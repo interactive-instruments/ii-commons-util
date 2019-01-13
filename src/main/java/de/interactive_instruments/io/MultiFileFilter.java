@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -30,28 +30,28 @@ import java.nio.file.Path;
  */
 public interface MultiFileFilter extends FileFilter, FilenameFilter, PathFilter {
 
-	default boolean accept(final Path pathname) {
-		return accept(pathname.toFile());
-	}
+    default boolean accept(final Path pathname) {
+        return accept(pathname.toFile());
+    }
 
-	default boolean accept(final File dir, final String name) {
-		return accept(new File(dir, name));
-	}
+    default boolean accept(final File dir, final String name) {
+        return accept(new File(dir, name));
+    }
 
-	default MultiFileFilter and(final FileFilter... fileFilters) {
-		return new AndFilter(this, fileFilters);
-	}
+    default MultiFileFilter and(final FileFilter... fileFilters) {
+        return new AndFilter(this, fileFilters);
+    }
 
-	default MultiFileFilter and(final FileFilter fileFilter) {
-		return new AndFilter(this, fileFilter);
-	}
+    default MultiFileFilter and(final FileFilter fileFilter) {
+        return new AndFilter(this, fileFilter);
+    }
 
-	default MultiFileFilter or(final FileFilter... fileFilters) {
-		return new OrFilter(this, fileFilters);
-	}
+    default MultiFileFilter or(final FileFilter... fileFilters) {
+        return new OrFilter(this, fileFilters);
+    }
 
-	default MultiFileFilter or(final FileFilter fileFilter) {
-		return new OrFilter(this, fileFilter);
-	}
+    default MultiFileFilter or(final FileFilter fileFilter) {
+        return new OrFilter(this, fileFilter);
+    }
 
 }

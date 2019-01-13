@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -25,24 +25,24 @@ import de.interactive_instruments.properties.PropertyUtils;
 
 public class ExcUtils {
 
-	public final static boolean PRINT_SUPPRESSED_EXCEPTIONS = PropertyUtils.getenvOrProperty(
-			"II_EXCEPTIONS_PRINT_SUPPRESSED", "false").equals("true");
+    public final static boolean PRINT_SUPPRESSED_EXCEPTIONS = PropertyUtils.getenvOrProperty(
+            "II_EXCEPTIONS_PRINT_SUPPRESSED", "false").equals("true");
 
-	public static void suppress(final Exception e) {
-		if (PRINT_SUPPRESSED_EXCEPTIONS) {
-			System.err.println("------------- Stacktrace -------------");
-			e.printStackTrace(System.err);
-			LoggerFactory.getLogger("ROOT").error("SUPPRESSED", "SUPPRESSED EXCEPTION: ", e);
-			System.err.println("--------------------------------------");
-		}
-	}
+    public static void suppress(final Exception e) {
+        if (PRINT_SUPPRESSED_EXCEPTIONS) {
+            System.err.println("------------- Stacktrace -------------");
+            e.printStackTrace(System.err);
+            LoggerFactory.getLogger("ROOT").error("SUPPRESSED", "SUPPRESSED EXCEPTION: ", e);
+            System.err.println("--------------------------------------");
+        }
+    }
 
-	public static void suppress(final Throwable e) {
-		if (PRINT_SUPPRESSED_EXCEPTIONS) {
-			System.err.println("------------- Stacktrace -------------");
-			e.printStackTrace(System.err);
-			System.err.println("--------------------------------------");
-			LoggerFactory.getLogger("ROOT").error("SUPPRESSED", "SUPPRESSED EXCEPTION: ", e);
-		}
-	}
+    public static void suppress(final Throwable e) {
+        if (PRINT_SUPPRESSED_EXCEPTIONS) {
+            System.err.println("------------- Stacktrace -------------");
+            e.printStackTrace(System.err);
+            System.err.println("--------------------------------------");
+            LoggerFactory.getLogger("ROOT").error("SUPPRESSED", "SUPPRESSED EXCEPTION: ", e);
+        }
+    }
 }

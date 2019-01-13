@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -25,23 +25,23 @@ import java.util.Map;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class XmlMediaType implements MediaType {
-	@Override
-	public MediaType getBaseType() {
-		return null;
-	}
+    @Override
+    public MediaType getBaseType() {
+        return null;
+    }
 
-	@Override
-	public String getType() {
-		return null;
-	}
+    @Override
+    public String getType() {
+        return null;
+    }
 
-	@Override
-	public String getSubtype() {
-		return null;
-	}
+    @Override
+    public String getSubtype() {
+        return null;
+    }
 
-	@Override
-	public Map<String, String> getParameters() {
-		return null;
-	}
+    @Override
+    public Map<String, String> getParameters() {
+        return null;
+    }
 }

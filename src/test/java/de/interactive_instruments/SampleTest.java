@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -31,62 +31,62 @@ import org.junit.Test;
  */
 public class SampleTest {
 
-	@Test
-	public void testNormalDistributed1() {
-		final List<String> list = new ArrayList<>();
-		list.add("1");
-		list.add("2");
-		list.add("3");
-		list.add("4");
-		list.add("5");
-		list.add("6");
-		list.add("7");
-		list.add("8");
+    @Test
+    public void testNormalDistributed1() {
+        final List<String> list = new ArrayList<>();
+        list.add("1");
+        list.add("2");
+        list.add("3");
+        list.add("4");
+        list.add("5");
+        list.add("6");
+        list.add("7");
+        list.add("8");
 
-		for (int i = 0; i < 64; i++) {
-			final List<String> sampleList = Sample.normalDistributed(list, 2);
-			assertNotNull(sampleList);
-			assertEquals(2, sampleList.size());
-			// 1/8 * 1/8 = 1/64
-			assertNotEquals(sampleList.get(0), sampleList.get(1));
-			System.out.println(sampleList.get(0));
-			System.out.println(sampleList.get(1));
-		}
-	}
+        for (int i = 0; i < 64; i++) {
+            final List<String> sampleList = Sample.normalDistributed(list, 2);
+            assertNotNull(sampleList);
+            assertEquals(2, sampleList.size());
+            // 1/8 * 1/8 = 1/64
+            assertNotEquals(sampleList.get(0), sampleList.get(1));
+            System.out.println(sampleList.get(0));
+            System.out.println(sampleList.get(1));
+        }
+    }
 
-	@Test
-	public void testNormalDistributed2() {
-		final List<String> list = new ArrayList<>();
-		list.add("1");
-		list.add("2");
-		list.add("3");
-		list.add("4");
-		list.add("5");
-		list.add("6");
-		list.add("7");
-		list.add("8");
-		list.add("9");
-		list.add("10");
+    @Test
+    public void testNormalDistributed2() {
+        final List<String> list = new ArrayList<>();
+        list.add("1");
+        list.add("2");
+        list.add("3");
+        list.add("4");
+        list.add("5");
+        list.add("6");
+        list.add("7");
+        list.add("8");
+        list.add("9");
+        list.add("10");
 
-		for (int i = 0; i < 100; i++) {
-			final List<String> sampleList = Sample.normalDistributed(list, 3);
-			assertNotNull(sampleList);
-			assertEquals(3, sampleList.size());
-			assertNotEquals(sampleList.get(0), sampleList.get(1));
-			assertNotEquals(sampleList.get(0), sampleList.get(2));
-			assertNotEquals(sampleList.get(1), sampleList.get(2));
-		}
-	}
+        for (int i = 0; i < 100; i++) {
+            final List<String> sampleList = Sample.normalDistributed(list, 3);
+            assertNotNull(sampleList);
+            assertEquals(3, sampleList.size());
+            assertNotEquals(sampleList.get(0), sampleList.get(1));
+            assertNotEquals(sampleList.get(0), sampleList.get(2));
+            assertNotEquals(sampleList.get(1), sampleList.get(2));
+        }
+    }
 
-	@Test
-	public void testNormalDistributed3() {
-		final List<String> list = new ArrayList<>();
-		list.add("1");
-		list.add("2");
-		list.add("3");
-		list.add("4");
+    @Test
+    public void testNormalDistributed3() {
+        final List<String> list = new ArrayList<>();
+        list.add("1");
+        list.add("2");
+        list.add("3");
+        list.add("4");
 
-		assertArrayEquals(list.toArray(), Sample.normalDistributed(list, 4).toArray());
-		assertArrayEquals(list.toArray(), Sample.normalDistributed(list, 5).toArray());
-	}
+        assertArrayEquals(list.toArray(), Sample.normalDistributed(list, 4).toArray());
+        assertArrayEquals(list.toArray(), Sample.normalDistributed(list, 5).toArray());
+    }
 }

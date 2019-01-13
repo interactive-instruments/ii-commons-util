@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -30,73 +30,73 @@ import java.util.Map;
  */
 final class ChildNamespaceBuilder extends RootNamespaceBuilder {
 
-	private final RootNamespaceBuilder parent;
+    private final RootNamespaceBuilder parent;
 
-	ChildNamespaceBuilder(final RootNamespaceBuilder parent) {
-		this.parent = parent;
-	}
+    ChildNamespaceBuilder(final RootNamespaceBuilder parent) {
+        this.parent = parent;
+    }
 
-	@Override
-	public synchronized String getDefaultNamespaceUri() {
-		if (this.defaultNamespaceUri == null) {
-			return parent.getDefaultNamespaceUri();
-		}
-		return this.defaultNamespaceUri;
-	}
+    @Override
+    public synchronized String getDefaultNamespaceUri() {
+        if (this.defaultNamespaceUri == null) {
+            return parent.getDefaultNamespaceUri();
+        }
+        return this.defaultNamespaceUri;
+    }
 
-	@Override
-	public int prefixesSize() {
-		// TODO should be optimized
-		return getPrefixMappingsCopy().size();
-	}
+    @Override
+    public int prefixesSize() {
+        // TODO should be optimized
+        return getPrefixMappingsCopy().size();
+    }
 
-	@Override
-	public synchronized Map<String, Iterable<String>> getNamespacesAsMap() {
-		final Map<String, Iterable<String>> merge = new LinkedHashMap<>(this.namespacesUriMappings);
-		merge.putAll(parent.getNamespacesAsMap());
-		return merge;
-	}
+    @Override
+    public synchronized Map<String, Iterable<String>> getNamespacesAsMap() {
+        final Map<String, Iterable<String>> merge = new LinkedHashMap<>(this.namespacesUriMappings);
+        merge.putAll(parent.getNamespacesAsMap());
+        return merge;
+    }
 
-	@Override
-	public String getNamespaceURI(final String prefix) {
-		final String nsUri = super.getNamespaceURI(prefix);
-		if (nsUri == null) {
-			return parent.getNamespaceURI(prefix);
-		}
-		return nsUri;
-	}
+    @Override
+    public String getNamespaceURI(final String prefix) {
+        final String nsUri = super.getNamespaceURI(prefix);
+        if (nsUri == null) {
+            return parent.getNamespaceURI(prefix);
+        }
+        return nsUri;
+    }
 
-	@Override
-	public String getPrefix(final String namespaceUri) {
-		final String prefix = super.getPrefix(namespaceUri);
-		if (prefix == null) {
-			return parent.getPrefix(prefix);
-		}
-		return prefix;
-	}
+    @Override
+    public String getPrefix(final String namespaceUri) {
+        final String prefix = super.getPrefix(namespaceUri);
+        if (prefix == null) {
+            return parent.getPrefix(prefix);
+        }
+        return prefix;
+    }
 
-	@Override
-	public NamespaceHolder getParentNamespaceHolder() {
-		return this.parent;
-	}
+    @Override
+    public NamespaceHolder getParentNamespaceHolder() {
+        return this.parent;
+    }
 
-	@Override
-	protected LinkedHashMap<String, Collection<String>> getNsUrimappingsCopy() {
-		final LinkedHashMap<String, Collection<String>> copy = parent.getNsUrimappingsCopy();
-		copy.putAll(this.namespacesUriMappings);
-		return copy;
-	}
+    @Override
+    protected LinkedHashMap<String, Collection<String>> getNsUrimappingsCopy() {
+        final LinkedHashMap<String, Collection<String>> copy = parent.getNsUrimappingsCopy();
+        copy.putAll(this.namespacesUriMappings);
+        return copy;
+    }
 
-	@Override
-	protected LinkedHashMap<String, String> getPrefixMappingsCopy() {
-		final LinkedHashMap<String, String> copy = parent.getPrefixMappingsCopy();
-		copy.putAll(this.prefixMappings);
-		return copy;
-	}
+    @Override
+    protected LinkedHashMap<String, String> getPrefixMappingsCopy() {
+        final LinkedHashMap<String, String> copy = parent.getPrefixMappingsCopy();
+        copy.putAll(this.prefixMappings);
+        return copy;
+    }
 
-	@Override
-	public NamespaceHolder build() {
-		this.unknownNamespaces.addAll(parent.unknownNamespaces);
-		return super.build();
-	}
+    @Override
+    public NamespaceHolder build() {
+        this.unknownNamespaces.addAll(parent.unknownNamespaces);
+        return super.build();
+    }
 }

@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -26,34 +26,34 @@ import de.interactive_instruments.Version;
  */
 public abstract class AbstractArtifact implements Artifact {
 
-	protected final String id;
-	protected final String name;
-	protected final String groupname;
-	protected final Version version;
+    protected final String id;
+    protected final String name;
+    protected final String groupname;
+    protected final Version version;
 
-	protected AbstractArtifact(final String id, final String name, final String groupname, final Version version) {
-		this.id = id;
-		this.name = name;
-		this.groupname = groupname;
-		this.version = version;
-	}
+    protected AbstractArtifact(final String id, final String name, final String groupname, final Version version) {
+        this.id = id;
+        this.name = name;
+        this.groupname = groupname;
+        this.version = version;
+    }
 
-	@Override
-	public String getId() {
-		return id;
-	}
+    @Override
+    public String getId() {
+        return id;
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	public String getGroupname() {
-		return groupname;
-	}
+    public String getGroupname() {
+        return groupname;
+    }
 
-	@Override
-	public Version getVersion() {
-		return version;
-	}
+    @Override
+    public Version getVersion() {
+        return version;
+    }
 }

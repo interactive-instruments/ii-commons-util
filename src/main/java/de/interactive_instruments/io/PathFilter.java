@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -27,13 +27,12 @@ import java.nio.file.Path;
 @FunctionalInterface
 public interface PathFilter {
 
-	/**
-	 * Tests whether or not the specified abstract pathname should be
-	 * included in a pathname list.
-	 *
-	 * @param  pathname  The abstract pathname to be tested
-	 * @return  <code>true</code> if and only if <code>pathname</code>
-	 *          should be included
-	 */
-	boolean accept(Path pathname);
+    /**
+     * Tests whether or not the specified abstract pathname should be included in a pathname list.
+     *
+     * @param pathname
+     *            The abstract pathname to be tested
+     * @return <code>true</code> if and only if <code>pathname</code> should be included
+     */
+    boolean accept(Path pathname);
 }

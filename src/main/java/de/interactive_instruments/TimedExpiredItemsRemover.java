@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -32,36 +32,36 @@ import org.slf4j.LoggerFactory;
  */
 public class TimedExpiredItemsRemover extends TimerTask {
 
-	private final List<ExpItemHldRemTimes> holders = new ArrayList<>();
-	private static final Logger logger = LoggerFactory.getLogger(TimedExpiredItemsRemover.class);
+    private final List<ExpItemHldRemTimes> holders = new ArrayList<>();
+    private static final Logger logger = LoggerFactory.getLogger(TimedExpiredItemsRemover.class);
 
-	private static class ExpItemHldRemTimes {
-		private final ExpirationItemHolder holder;
-		private final long maxTime;
-		private final TimeUnit timeUnit;
+    private static class ExpItemHldRemTimes {
+        private final ExpirationItemHolder holder;
+        private final long maxTime;
+        private final TimeUnit timeUnit;
 
-		public ExpItemHldRemTimes(final ExpirationItemHolder holder, final long maxTime, final TimeUnit timeUnit) {
-			this.holder = holder;
-			this.maxTime = maxTime;
-			this.timeUnit = timeUnit;
-		}
-	}
+        public ExpItemHldRemTimes(final ExpirationItemHolder holder, final long maxTime, final TimeUnit timeUnit) {
+            this.holder = holder;
+            this.maxTime = maxTime;
+            this.timeUnit = timeUnit;
+        }
+    }
 
-	@Override
-	public void run() {
-		try {
-			for (final ExpItemHldRemTimes e : holders) {
-				e.holder.removeExpiredItems(e.maxTime, e.timeUnit);
-			}
-		} catch (final Exception e) {
-			logger.error("Expiration Item Holder threw exception: ", e);
-		}
-	}
+    @Override
+    public void run() {
+        try {
+            for (final ExpItemHldRemTimes e : holders) {
+                e.holder.removeExpiredItems(e.maxTime, e.timeUnit);
+            }
+        } catch (final Exception e) {
+            logger.error("Expiration Item Holder threw exception: ", e);
+        }
+    }
 
-	public void addExpirationItemHolder(ExpirationItemHolder holder, long maxTime, TimeUnit unit) {
-		if (holder == null) {
-			throw new IllegalArgumentException("ExpirationItemHolder is null");
-		}
-		holders.add(new ExpItemHldRemTimes(holder, maxTime, unit));
-	}
+    public void addExpirationItemHolder(ExpirationItemHolder holder, long maxTime, TimeUnit unit) {
+        if (holder == null) {
+            throw new IllegalArgumentException("ExpirationItemHolder is null");
+        }
+        holders.add(new ExpItemHldRemTimes(holder, maxTime, unit));
+    }
 }

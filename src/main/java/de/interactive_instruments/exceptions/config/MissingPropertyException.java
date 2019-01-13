@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -24,24 +24,23 @@ import java.util.Collection;
 import de.interactive_instruments.SUtils;
 
 /**
- * Thrown if a object is used, that has to be configured first
- * by setting the missing property.
+ * Thrown if a object is used, that has to be configured first by setting the missing property.
  *
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public class MissingPropertyException extends ConfigurationException {
 
-	private static final long serialVersionUID = 218983095766850743L;
+    private static final long serialVersionUID = 218983095766850743L;
 
-	public MissingPropertyException(String property) {
-		super("Incomplete configuration:the required property \"" +
-				property + "\" is not set!");
-	}
+    public MissingPropertyException(String property) {
+        super("Incomplete configuration:the required property \"" +
+                property + "\" is not set!");
+    }
 
-	public MissingPropertyException(Collection properties) {
-		super("Incomplete configuration: the required properties \"" +
-				SUtils.toBlankSepStr(properties) + "\" are not set!");
-	}
+    public MissingPropertyException(Collection properties) {
+        super("Incomplete configuration: the required properties \"" +
+                SUtils.toBlankSepStr(properties) + "\" are not set!");
+    }
 
 }

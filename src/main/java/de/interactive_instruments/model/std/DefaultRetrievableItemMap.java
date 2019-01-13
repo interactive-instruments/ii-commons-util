@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -31,82 +31,82 @@ import java.util.Set;
  */
 public final class DefaultRetrievableItemMap<T extends RetrievableItem> implements RetrievableItemMap<T> {
 
-	final Map<Id, T> internalMap = new LinkedHashMap<>();
+    final Map<Id, T> internalMap = new LinkedHashMap<>();
 
-	public DefaultRetrievableItemMap() {}
+    public DefaultRetrievableItemMap() {}
 
-	@Override
-	public int size() {
-		return internalMap.size();
-	}
+    @Override
+    public int size() {
+        return internalMap.size();
+    }
 
-	@Override
-	public boolean isEmpty() {
-		return internalMap.isEmpty();
-	}
+    @Override
+    public boolean isEmpty() {
+        return internalMap.isEmpty();
+    }
 
-	@Override
-	public boolean internalContainsKey(Object key) {
-		return internalMap.containsKey(key);
-	}
+    @Override
+    public boolean internalContainsKey(Object key) {
+        return internalMap.containsKey(key);
+    }
 
-	@Override
-	public boolean containsValue(Object value) {
-		return internalMap.containsValue(value);
-	}
+    @Override
+    public boolean containsValue(Object value) {
+        return internalMap.containsValue(value);
+    }
 
-	@Override
-	public T internalGet(Object key) {
-		return internalMap.get(key);
-	}
+    @Override
+    public T internalGet(Object key) {
+        return internalMap.get(key);
+    }
 
-	@Override
-	public T put(T m) {
-		return internalMap.put(m.getId(), m);
-	}
+    @Override
+    public T put(T m) {
+        return internalMap.put(m.getId(), m);
+    }
 
-	@Override
-	public T put(Id key, T value) {
-		return internalMap.put(key, value);
-	}
+    @Override
+    public T put(Id key, T value) {
+        return internalMap.put(key, value);
+    }
 
-	@Override
-	public T internalRemove(Object key) {
-		return internalMap.remove(key);
-	}
+    @Override
+    public T internalRemove(Object key) {
+        return internalMap.remove(key);
+    }
 
-	@Override
-	public void putAll(Map<? extends Id, ? extends T> m) {
-		internalMap.putAll(m);
-	}
+    @Override
+    public void putAll(Map<? extends Id, ? extends T> m) {
+        internalMap.putAll(m);
+    }
 
-	@Override
-	public void clear() {
-		internalMap.clear();
-	}
+    @Override
+    public void clear() {
+        internalMap.clear();
+    }
 
-	@Override
-	public Set<Id> keySet() {
-		return internalMap.keySet();
-	}
+    @Override
+    public Set<Id> keySet() {
+        return internalMap.keySet();
+    }
 
-	@Override
-	public Collection<T> values() {
-		return internalMap.values();
-	}
+    @Override
+    public Collection<T> values() {
+        return internalMap.values();
+    }
 
-	@Override
-	public Set<Entry<Id, T>> entrySet() {
-		return internalMap.entrySet();
-	}
+    @Override
+    public Set<Entry<Id, T>> entrySet() {
+        return internalMap.entrySet();
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		return internalMap.equals(o);
-	}
+    @Override
+    public boolean equals(Object o) {
+        return internalMap.equals(o);
+    }
 
-	@Override
-	public int hashCode() {
-		return internalMap.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return internalMap.hashCode();
+    }
 }

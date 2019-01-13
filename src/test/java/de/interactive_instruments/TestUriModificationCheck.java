@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -33,17 +33,17 @@ import org.junit.Test;
  */
 public class TestUriModificationCheck {
 
-	@Test
-	public void testModificationCheckNonChangingHash() throws URISyntaxException, IOException {
-		final URI url = new URI("http://www.interactive-instruments.de");
-		final UriModificationCheck check = new UriModificationCheck(url, null);
-		assertNull(check.getIfModified());
-	}
+    @Test
+    public void testModificationCheckNonChangingHash() throws URISyntaxException, IOException {
+        final URI url = new URI("http://www.interactive-instruments.de");
+        final UriModificationCheck check = new UriModificationCheck(url, null);
+        assertNull(check.getIfModified());
+    }
 
-	@Test
-	public void testModificationCheckChangedHash() throws URISyntaxException, IOException {
-		final URI url = new URI("https://time.is");
-		final UriModificationCheck check = new UriModificationCheck(url, null);
-		assertNotNull(check.getIfModified());
-	}
+    @Test
+    public void testModificationCheckChangedHash() throws URISyntaxException, IOException {
+        final URI url = new URI("https://time.is");
+        final UriModificationCheck check = new UriModificationCheck(url, null);
+        assertNotNull(check.getIfModified());
+    }
 }

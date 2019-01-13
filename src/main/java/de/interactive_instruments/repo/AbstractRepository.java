@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -32,32 +32,32 @@ import de.interactive_instruments.IFile;
  */
 public abstract class AbstractRepository implements Repository {
 
-	protected final URI remoteUri;
-	protected final Credentials credentials;
-	protected final IFile localDir;
-	protected final Set<String> groupFilter;
-	protected final Map<String, Artifact> localArtifacts = new HashMap<>();
+    protected final URI remoteUri;
+    protected final Credentials credentials;
+    protected final IFile localDir;
+    protected final Set<String> groupFilter;
+    protected final Map<String, Artifact> localArtifacts = new HashMap<>();
 
-	protected AbstractRepository(final IFile localDir, final URI remoteUri, final Credentials credentials,
-			final Set<String> groupFilter) {
-		this.localDir = localDir;
-		this.remoteUri = remoteUri;
-		this.credentials = credentials;
-		this.groupFilter = groupFilter;
-	}
+    protected AbstractRepository(final IFile localDir, final URI remoteUri, final Credentials credentials,
+            final Set<String> groupFilter) {
+        this.localDir = localDir;
+        this.remoteUri = remoteUri;
+        this.credentials = credentials;
+        this.groupFilter = groupFilter;
+    }
 
-	@Override
-	final public URI getRemote() {
-		return remoteUri;
-	}
+    @Override
+    final public URI getRemote() {
+        return remoteUri;
+    }
 
-	@Override
-	final public IFile getLocalDirectory() {
-		return localDir;
-	}
+    @Override
+    final public IFile getLocalDirectory() {
+        return localDir;
+    }
 
-	@Override
-	final public Map<String, Artifact> getLocalArtifacts() {
-		return localArtifacts;
-	}
+    @Override
+    final public Map<String, Artifact> getLocalArtifacts() {
+        return localArtifacts;
+    }
 }

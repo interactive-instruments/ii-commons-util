@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -27,126 +27,127 @@ import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /**
- * MapToListAdapter that supports un-/marshal simple maps with <String, object>
- * pairs or <String, Collection> pairs.
- * @param <V> Map value
+ * MapToListAdapter that supports un-/marshal simple maps with <String, object> pairs or <String, Collection> pairs.
+ *
+ * @param <V>
+ *            Map value
  *
  */
 
 @XmlSeeAlso({MapToListAdapter.CollectionEntry.class})
 public class MapToListAdapter<V> extends XmlAdapter<MapToListAdapter.RefObjectList<V>, Map<String, V>> {
 
-	interface EntryInterface<V> {
-		String getKey();
+    interface EntryInterface<V> {
+        String getKey();
 
-		V getValue();
-	}
+        V getValue();
+    }
 
-	@XmlRootElement(name = "Collection")
-	static class CollectionEntry<V extends Collection<?>> implements EntryInterface<V> {
+    @XmlRootElement(name = "Collection")
+    static class CollectionEntry<V extends Collection<?>> implements EntryInterface<V> {
 
-		@XmlAttribute(name = "name")
-		private String key;
+        @XmlAttribute(name = "name")
+        private String key;
 
-		@XmlElementWrapper(name = "Item")
-		private V value;
+        @XmlElementWrapper(name = "Item")
+        private V value;
 
-		CollectionEntry() {}
+        CollectionEntry() {}
 
-		public CollectionEntry(String key, V value) {
-			this.key = key;
-			this.value = value;
-		}
+        public CollectionEntry(String key, V value) {
+            this.key = key;
+            this.value = value;
+        }
 
-		public String getKey() {
-			return key;
-		}
+        public String getKey() {
+            return key;
+        }
 
-		public V getValue() {
-			return value;
-		}
-	}
+        public V getValue() {
+            return value;
+        }
+    }
 
-	@XmlRootElement(name = "Item")
-	static class SimpleEntry<V> implements EntryInterface<V> {
+    @XmlRootElement(name = "Item")
+    static class SimpleEntry<V> implements EntryInterface<V> {
 
-		@XmlAttribute(name = "name")
-		private String key;
+        @XmlAttribute(name = "name")
+        private String key;
 
-		@XmlElement(name = "value")
-		private V value;
+        @XmlElement(name = "value")
+        private V value;
 
-		SimpleEntry() {}
+        SimpleEntry() {}
 
-		public SimpleEntry(String key, V value) {
-			this.key = key;
-			this.value = value;
-		}
+        public SimpleEntry(String key, V value) {
+            this.key = key;
+            this.value = value;
+        }
 
-		public String getKey() {
-			return key;
-		}
+        public String getKey() {
+            return key;
+        }
 
-		public V getValue() {
-			return value;
-		}
-	}
+        public V getValue() {
+            return value;
+        }
+    }
 
-	@XmlSeeAlso({MapToListAdapter.CollectionEntry.class, MapToListAdapter.SimpleEntry.class})
-	static class RefObjectList<V> {
-		@SuppressWarnings("rawtypes")
+    @XmlSeeAlso({MapToListAdapter.CollectionEntry.class, MapToListAdapter.SimpleEntry.class})
+    static class RefObjectList<V> {
+        @SuppressWarnings("rawtypes")
 
-		@XmlElements({
-				@XmlElement(name = "Collection", type = CollectionEntry.class),
-				@XmlElement(name = "Item", type = SimpleEntry.class)})
-		private List<EntryInterface<V>> ids;
+        @XmlElements({
+                @XmlElement(name = "Collection", type = CollectionEntry.class),
+                @XmlElement(name = "Item", type = SimpleEntry.class)})
+        private List<EntryInterface<V>> ids;
 
-		RefObjectList() {
-			ids = new ArrayList<EntryInterface<V>>();
-		}
+        RefObjectList() {
+            ids = new ArrayList<EntryInterface<V>>();
+        }
 
-		public RefObjectList(int size) {
-			ids = new ArrayList<EntryInterface<V>>(size);
-		}
-	}
+        public RefObjectList(int size) {
+            ids = new ArrayList<EntryInterface<V>>(size);
+        }
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Map<String, V> unmarshal(RefObjectList<V> refObjectList) throws Exception {
-		final Map<String, V> map = new LinkedHashMap<>(refObjectList.ids.size());
-		for (EntryInterface<?> entry : refObjectList.ids) {
-			map.put(entry.getKey(), (V) entry.getValue());
-		}
-		return map;
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<String, V> unmarshal(RefObjectList<V> refObjectList) throws Exception {
+        final Map<String, V> map = new LinkedHashMap<>(refObjectList.ids.size());
+        for (EntryInterface<?> entry : refObjectList.ids) {
+            map.put(entry.getKey(), (V) entry.getValue());
+        }
+        return map;
+    }
 
-	@Override
-	public RefObjectList<V> marshal(Map<String, V> map) throws Exception {
-		if (map != null && map.values().iterator().hasNext()) {
-			final RefObjectList<V> refObjectList = new RefObjectList<V>(map.size());
-			// Get one element from the values to check if it is a collection.
-			final Object o = map.values().iterator().next();
-			final Class clasz = o.getClass();
-			if (clasz.isInterface() || Modifier.isAbstract(clasz.getModifiers())) {
-				throw new JAXBException("Can not marshal interface or abstract class " +
-						o.getClass() + " via MapToListAdapter");
-			}
+    @Override
+    public RefObjectList<V> marshal(Map<String, V> map) throws Exception {
+        if (map != null && map.values().iterator().hasNext()) {
+            final RefObjectList<V> refObjectList = new RefObjectList<V>(map.size());
+            // Get one element from the values to check if it is a collection.
+            final Object o = map.values().iterator().next();
+            final Class clasz = o.getClass();
+            if (clasz.isInterface() || Modifier.isAbstract(clasz.getModifiers())) {
+                throw new JAXBException("Can not marshal interface or abstract class " +
+                        o.getClass() + " via MapToListAdapter");
+            }
 
-			for (final Map.Entry<String, V> mapEntry : map.entrySet()) {
-				// if(typeName.equals("AbstractList")) {
-				if (o instanceof Collection) {
-					final CollectionEntry<Collection<?>> kvp = new CollectionEntry<Collection<?>>(
-							mapEntry.getKey(), (Collection<?>) mapEntry.getValue());
-					refObjectList.ids.add((EntryInterface<V>) kvp);
-				} else {
-					final SimpleEntry<V> kvp = new SimpleEntry<V>(
-							mapEntry.getKey(), mapEntry.getValue());
-					refObjectList.ids.add(kvp);
-				}
-			}
-			return refObjectList;
-		} else {
-			return new RefObjectList<V>(0);
-		}
-	}
+            for (final Map.Entry<String, V> mapEntry : map.entrySet()) {
+                // if(typeName.equals("AbstractList")) {
+                if (o instanceof Collection) {
+                    final CollectionEntry<Collection<?>> kvp = new CollectionEntry<Collection<?>>(
+                            mapEntry.getKey(), (Collection<?>) mapEntry.getValue());
+                    refObjectList.ids.add((EntryInterface<V>) kvp);
+                } else {
+                    final SimpleEntry<V> kvp = new SimpleEntry<V>(
+                            mapEntry.getKey(), mapEntry.getValue());
+                    refObjectList.ids.add(kvp);
+                }
+            }
+            return refObjectList;
+        } else {
+            return new RefObjectList<V>(0);
+        }
+    }
 }

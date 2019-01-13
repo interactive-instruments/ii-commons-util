@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -23,50 +23,53 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Every Container object implements the LazyLoadContainer Interface which allows
- * access of the underlying object.
+ * Every Container object implements the LazyLoadContainer Interface which allows access of the underlying object.
  **
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
  */
 public interface LazyLoadContainer {
 
-	/**
-	 * Name of the stored object
-	 * @return stored object name
-	 */
-	String getName();
+    /**
+     * Name of the stored object
+     *
+     * @return stored object name
+     */
+    String getName();
 
-	/**
-	 * Returns true if the container has to load the
-	 * referenced object first
-	 */
-	boolean isReference();
+    /**
+     * Returns true if the container has to load the referenced object first
+     */
+    boolean isReference();
 
-	/**
-	 * Returns the content type
-	 * @return
-	 */
-	String getContentType();
+    /**
+     * Returns the content type
+     *
+     * @return
+     */
+    String getContentType();
 
-	/**
-	 * Returns the object or a reference to it
-	 * @return
-	 * @throws IOException
-	 */
-	String getAsString() throws IOException;
+    /**
+     * Returns the object or a reference to it
+     *
+     * @return
+     * @throws IOException
+     */
+    String getAsString() throws IOException;
 
-	/**
-	 * Load and returns the loaded object
-	 * @return the loaded object
-	 * @throws IOException
-	 */
-	String forceLoad() throws IOException;
+    /**
+     * Load and returns the loaded object
+     *
+     * @return the loaded object
+     * @throws IOException
+     */
+    String forceLoad() throws IOException;
 
-	/**
-	 * Returns the loaded object as stream
-	 * @return OutputStream
-	 * @throws IOException
-	 */
-	void forceLoadAsStream(OutputStream outStream) throws IOException;
+    /**
+     * Returns the loaded object as stream
+     *
+     * @return OutputStream
+     * @throws IOException
+     */
+    void forceLoadAsStream(OutputStream outStream) throws IOException;
 }

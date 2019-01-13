@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -28,18 +28,18 @@ import java.util.Map;
  */
 public final class DefaultNamespaceHolder extends AbstractNamespaceHolder implements NamespaceHolder {
 
-	private final String defaultNamespaceUri;
+    private final String defaultNamespaceUri;
 
-	public DefaultNamespaceHolder(
-			final String defaultNamespaceUri,
-			final Map<String, Collection<String>> namespacesUriMappings,
-			final Map<String, String> prefixMappings) {
-		super(Collections.unmodifiableMap(namespacesUriMappings), Collections.unmodifiableMap(prefixMappings));
-		this.defaultNamespaceUri = defaultNamespaceUri;
-	}
+    public DefaultNamespaceHolder(
+            final String defaultNamespaceUri,
+            final Map<String, Collection<String>> namespacesUriMappings,
+            final Map<String, String> prefixMappings) {
+        super(Collections.unmodifiableMap(namespacesUriMappings), Collections.unmodifiableMap(prefixMappings));
+        this.defaultNamespaceUri = defaultNamespaceUri;
+    }
 
-	@Override
-	public String getDefaultNamespaceUri() {
-		return defaultNamespaceUri;
-	}
+    @Override
+    public String getDefaultNamespaceUri() {
+        return defaultNamespaceUri;
+    }
 }

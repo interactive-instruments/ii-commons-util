@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -28,40 +28,41 @@ import de.interactive_instruments.SUtils;
  *
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  *
- * @param <V> ValueType
+ * @param <V>
+ *            ValueType
  */
 public class DefaultKVP<V> implements KVP<V>, Map.Entry<String, V> {
 
-	private String key;
+    private String key;
 
-	protected V value;
+    protected V value;
 
-	DefaultKVP() {}
+    DefaultKVP() {}
 
-	public DefaultKVP(String key, V value) {
-		this.key = key;
-		this.value = value;
-	}
+    public DefaultKVP(String key, V value) {
+        this.key = key;
+        this.value = value;
+    }
 
-	public String getKey() {
-		return key;
-	}
+    public String getKey() {
+        return key;
+    }
 
-	public V getValue() {
-		return value;
-	}
+    public V getValue() {
+        return value;
+    }
 
-	public V setValue(V value) {
-		final V oldValue = this.value;
-		this.value = value;
-		return oldValue;
-	}
+    public V setValue(V value) {
+        final V oldValue = this.value;
+        this.value = value;
+        return oldValue;
+    }
 
-	public static DefaultKVP<String> createOrNull(String str, String regex) {
-		final String[] splitted = SUtils.split2OrNull(str, regex);
-		if (splitted != null) {
-			return new DefaultKVP<String>(splitted[0], splitted[1]);
-		}
-		return null;
-	}
+    public static DefaultKVP<String> createOrNull(String str, String regex) {
+        final String[] splitted = SUtils.split2OrNull(str, regex);
+        if (splitted != null) {
+            return new DefaultKVP<String>(splitted[0], splitted[1]);
+        }
+        return null;
+    }
 }

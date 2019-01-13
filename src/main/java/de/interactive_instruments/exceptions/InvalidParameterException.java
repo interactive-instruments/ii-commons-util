@@ -1,5 +1,5 @@
 /**
- * Copyright 2017-2018 European Union, interactive instruments GmbH
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the "Licence");
  * You may not use this work except in compliance with the Licence.
@@ -23,11 +23,11 @@ package de.interactive_instruments.exceptions;
  * @author Jon Herrmann ( herrmann aT interactive-instruments doT de )
  */
 public class InvalidParameterException extends Exception {
-	public InvalidParameterException(String parameter, Throwable e) {
-		super("Parameter " + parameter + " is invalid: " + e.getMessage(), e);
-	}
+    public InvalidParameterException(String parameter, Throwable e) {
+        super("Parameter " + parameter + " is invalid: " + e.getMessage(), e);
+    }
 
-	protected InvalidParameterException(String msg) {
-		super(msg);
-	}
+    protected InvalidParameterException(String msg) {
+        super(msg);
+    }
 }
