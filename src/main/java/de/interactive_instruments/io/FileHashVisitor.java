@@ -41,6 +41,7 @@ public class FileHashVisitor implements FileVisitor<Path> {
     private long byteLength = 0;
     private final PathFilter filter;
     private final MdUtils.FnvChecksum checksum;
+    private String checksumStr = null;
 
     public FileHashVisitor(final PathFilter filter, final MdUtils.FnvChecksum checksum) {
         this.filter = filter;
@@ -92,21 +93,24 @@ public class FileHashVisitor implements FileVisitor<Path> {
     }
 
     public String getHash() {
-        if (this.byteLength < Integer.MAX_VALUE) {
-            final byte[] bytes = new byte[(int) this.byteLength];
-            int i = 0;
-            for (final byte[] fileBytes : files) {
-                for (int j = 0, fileBytesLength = fileBytes.length; j < fileBytesLength; j++) {
-                    bytes[i++] = fileBytes[j];
+        if (checksumStr == null) {
+            if (this.byteLength < Integer.MAX_VALUE) {
+                final byte[] bytes = new byte[(int) this.byteLength];
+                int i = 0;
+                for (final byte[] fileBytes : files) {
+                    for (int j = 0, fileBytesLength = fileBytes.length; j < fileBytesLength; j++) {
+                        bytes[i++] = fileBytes[j];
+                    }
+                }
+                this.checksum.update(bytes);
+            } else {
+                for (final byte[] fileBytes : files) {
+                    this.checksum.update(fileBytes);
                 }
             }
-            this.checksum.update(bytes);
-        } else {
-            for (final byte[] fileBytes : files) {
-                this.checksum.update(fileBytes);
-            }
+            checksumStr = this.checksum.toString();
         }
-        return this.checksum.toString();
+        return checksumStr;
     }
 
     public long getFileCount() {
