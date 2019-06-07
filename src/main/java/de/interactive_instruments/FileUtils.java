@@ -1,30 +1,31 @@
-/*
- * Copyright 2010-2019 interactive instruments GmbH
+/**
+ * Copyright 2017-2019 European Union, interactive instruments GmbH
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by
+ * the European Commission - subsequent versions of the EUPL (the "Licence");
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * https://joinup.ec.europa.eu/software/page/eupl
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ *
+ * This work was supported by the EU Interoperability Solutions for
+ * European Public Administrations Programme (http://ec.europa.eu/isa)
+ * through Action 1.17: A Reusable INSPIRE Reference Platform (ARE3NA).
  */
-
 package de.interactive_instruments;
 
 import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.util.Locale;
 
-
 public class FileUtils {
 
-    private FileUtils() {
-    }
+    private FileUtils() {}
 
     public static final long ONE_KB = 1024;
 
@@ -110,7 +111,7 @@ public class FileUtils {
      */
     public static final BigInteger ONE_YB = ONE_KB_BI.multiply(ONE_ZB);
 
-    //-----------------------------------------------------------------------
+    // -----------------------------------------------------------------------
     /**
      * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
      * <p>
@@ -120,9 +121,12 @@ public class FileUtils {
      * Similarly for the 1MB and 1KB boundaries.
      * </p>
      *
-     * @param size the number of bytes
-     * @param places rounded decimal places
-     * @param locale decimal separator locale
+     * @param size
+     *            the number of bytes
+     * @param places
+     *            rounded decimal places
+     * @param locale
+     *            decimal separator locale
      * @return a human-readable display value (includes units - EB, PB, TB, GB, MB, KB or bytes)
      * @see <a href="https://issues.apache.org/jira/browse/IO-226">IO-226 - should the rounding be changed?</a>
      */
@@ -156,8 +160,7 @@ public class FileUtils {
                 .append("]")
                 .append(new String(new char[places]).replace('\0', '0'))
                 .append(" ")
-                .toString()
-            ," ");
+                .toString(), " ");
     }
 
     /**
@@ -169,9 +172,12 @@ public class FileUtils {
      * Similarly for the 1MB and 1KB boundaries.
      * </p>
      *
-     * @param size the number of bytes
-     * @param places rounded decimal places
-     * @param locale decimal separator locale
+     * @param size
+     *            the number of bytes
+     * @param places
+     *            rounded decimal places
+     * @param locale
+     *            decimal separator locale
      * @return a human-readable display value (includes units - EB, PB, TB, GB, MB, KB or bytes)
      * @see <a href="https://issues.apache.org/jira/browse/IO-226">IO-226 - should the rounding be changed?</a>
      */
@@ -182,10 +188,13 @@ public class FileUtils {
     /**
      * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
      * <p>
-     *     Same as {@link #byteCountToDisplayRoundedSize(BigInteger, int, Locale)}, but locale is {@link Locale#getDefault()}.
+     * Same as {@link #byteCountToDisplayRoundedSize(BigInteger, int, Locale)}, but locale is {@link Locale#getDefault()}.
      * </p>
-     * @param size the number of bytes
-     * @param places rounded decimal places
+     *
+     * @param size
+     *            the number of bytes
+     * @param places
+     *            rounded decimal places
      * @return a human-readable display value (includes units - EB, PB, TB, GB, MB, KB or bytes)
      * @see <a href="https://issues.apache.org/jira/browse/IO-226">IO-226 - should the rounding be changed?</a>
      */
@@ -196,10 +205,13 @@ public class FileUtils {
     /**
      * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
      * <p>
-     *     Same as {@link #byteCountToDisplayRoundedSize(BigInteger, int, Locale)}, but locale is {@link Locale#getDefault()}.
+     * Same as {@link #byteCountToDisplayRoundedSize(BigInteger, int, Locale)}, but locale is {@link Locale#getDefault()}.
      * </p>
-     * @param size the number of bytes
-     * @param places rounded decimal places
+     *
+     * @param size
+     *            the number of bytes
+     * @param places
+     *            rounded decimal places
      * @return a human-readable display value (includes units - EB, PB, TB, GB, MB, KB or bytes)
      * @see <a href="https://issues.apache.org/jira/browse/IO-226">IO-226 - should the rounding be changed?</a>
      */
@@ -210,9 +222,11 @@ public class FileUtils {
     /**
      * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
      * <p>
-     *     Same as {@link #byteCountToDisplayRoundedSize(BigInteger, int)}, but places is 0.
+     * Same as {@link #byteCountToDisplayRoundedSize(BigInteger, int)}, but places is 0.
      * </p>
-     * @param size the number of bytes
+     *
+     * @param size
+     *            the number of bytes
      * @return a human-readable display value (includes units - EB, PB, TB, GB, MB, KB or bytes)
      * @see <a href="https://issues.apache.org/jira/browse/IO-226">IO-226 - should the rounding be changed?</a>
      */
@@ -223,9 +237,11 @@ public class FileUtils {
     /**
      * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
      * <p>
-     *     Same as {@link #byteCountToDisplayRoundedSize(BigInteger, int)}, but places is 0.
+     * Same as {@link #byteCountToDisplayRoundedSize(BigInteger, int)}, but places is 0.
      * </p>
-     * @param size the number of bytes
+     *
+     * @param size
+     *            the number of bytes
      * @return a human-readable display value (includes units - EB, PB, TB, GB, MB, KB or bytes)
      * @see <a href="https://issues.apache.org/jira/browse/IO-226">IO-226 - should the rounding be changed?</a>
      */
@@ -236,14 +252,14 @@ public class FileUtils {
     /**
      * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
      * <p>
-     * If the size is over 1GB, the size is returned as the number of whole GB, i.e. the size is rounded down to the
-     * nearest GB boundary.
+     * If the size is over 1GB, the size is returned as the number of whole GB, i.e. the size is rounded down to the nearest GB boundary.
      * </p>
      * <p>
      * Similarly for the 1MB and 1KB boundaries.
      * </p>
      *
-     * @param size the number of bytes
+     * @param size
+     *            the number of bytes
      * @return a human-readable display value (includes units - EB, PB, TB, GB, MB, KB or bytes)
      * @see <a href="https://issues.apache.org/jira/browse/IO-226">IO-226 - should the rounding be changed?</a>
      * @since 2.4
@@ -273,14 +289,14 @@ public class FileUtils {
     /**
      * Returns a human-readable version of the file size, where the input represents a specific number of bytes.
      * <p>
-     * If the size is over 1GB, the size is returned as the number of whole GB, i.e. the size is rounded down to the
-     * nearest GB boundary.
+     * If the size is over 1GB, the size is returned as the number of whole GB, i.e. the size is rounded down to the nearest GB boundary.
      * </p>
      * <p>
      * Similarly for the 1MB and 1KB boundaries.
      * </p>
      *
-     * @param size the number of bytes
+     * @param size
+     *            the number of bytes
      * @return a human-readable display value (includes units - EB, PB, TB, GB, MB, KB or bytes)
      * @see <a href="https://issues.apache.org/jira/browse/IO-226">IO-226 - should the rounding be changed?</a>
      */
